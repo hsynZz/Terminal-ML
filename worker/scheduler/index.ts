@@ -1,24 +1,22 @@
 import { dueJob, type RunSource } from "../automation-policy";
 
-type Env = { TERMINAL_ORIGIN: string; SITES_API_TOKEN: string; AUTOMATION_SECRET: string };
+type Env = { TERMINAL_SERVICE: Fetcher; AUTOMATION_SECRET: string };
 type Event = { cron: string; scheduledTime: number };
 
-export async function dispatch(event: Event, env: Env, source: RunSource = "CLOUDFLARE_CRON", fetcher: typeof fetch = fetch) {
+export async function dispatch(event: Event, env: Env, source: RunSource = "CLOUDFLARE_CRON") {
   const type = dueJob(event.cron, event.scheduledTime);
   if (!type) return;
-  if (!env.SITES_API_TOKEN || !env.AUTOMATION_SECRET) throw new Error("Scheduler secrets missing");
-  const origin = new URL(env.TERMINAL_ORIGIN);
-  if (origin.origin !== "https://fx-macro-terminal.hysnzz.chatgpt.site") throw new Error("Unexpected terminal origin");
+  if (!env.TERMINAL_SERVICE || !env.AUTOMATION_SECRET) throw new Error("Scheduler binding or secret missing");
   let status = "FAILED";
   let message = "Terminal request failed";
   try {
-    const response = await fetcher(new URL("/api/automation/run", origin), {
+    const request = new Request("https://terminal-ml.internal/api/automation/run", {
       method: "POST", redirect: "error",
-      headers: { "Content-Type": "application/json", "OAI-Sites-Authorization": `Bearer ${env.SITES_API_TOKEN}`,
-        Authorization: `Bearer ${env.AUTOMATION_SECRET}` },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${env.AUTOMATION_SECRET}` },
       body: JSON.stringify({ type, source, cron: event.cron, scheduledTime: event.scheduledTime }),
       signal: AbortSignal.timeout(180000),
     });
+    const response = await env.TERMINAL_SERVICE.fetch(request);
     const body = await response.json() as { status?: string; message?: string; id?: string };
     if (response.ok && ["SUCCESS", "WAITING"].includes(body.status ?? "")) {
       status = body.status!; message = `${body.message ?? "Completed"}; run=${body.id ?? "unknown"}`;

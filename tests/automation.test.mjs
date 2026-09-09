@@ -97,12 +97,10 @@ test('manual exception never invokes its endpoint twice',async()=>{
   const response=await automation.executeJob(env,async()=>{calls++;throw new Error('failed');},'WEEKLY_RETRAIN','MANUAL',{request:request({})});
   assert.equal(calls,1);assert.equal(response.status,503);
 });
-test('relay authenticates to the fixed private site and preserves WAITING',async()=>{
+test('relay authenticates through the internal service binding and preserves WAITING',async()=>{
   let calls=0;
   await scheduler.dispatch({cron:policy.AUTOMATION_CRONS[1],scheduledTime:Date.parse('2026-09-05T20:00:00Z')},
-    {TERMINAL_ORIGIN:'https://fx-macro-terminal.hysnzz.chatgpt.site',SITES_API_TOKEN:'test-site-token',AUTOMATION_SECRET:'test-only'},'CONTROLLED_TEST',async(url,options)=>{
-      calls++;assert.equal(url.pathname,'/api/automation/run');assert.equal(options.headers['OAI-Sites-Authorization'],'Bearer test-site-token');
-      assert.equal(JSON.parse(options.body).source,'CONTROLLED_TEST');return Response.json({status:'WAITING',id:'test',message:'insufficient samples'});
-    });
+    {TERMINAL_SERVICE:{fetch:async request=>{calls++;assert.equal(new URL(request.url).pathname,'/api/automation/run');assert.equal(request.headers.get('Authorization'),'Bearer test-only');
+      assert.equal(JSON.parse(await request.text()).source,'CONTROLLED_TEST');return Response.json({status:'WAITING',id:'test',message:'insufficient samples'});}},AUTOMATION_SECRET:'test-only'},'CONTROLLED_TEST');
   assert.equal(calls,1);
 });

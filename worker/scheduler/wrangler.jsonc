@@ -8,6 +8,6 @@
   "triggers": {
     "crons": ["15,30,45 15,16,17 * * *", "0,15,30,45 20,21 * * 6"]
   },
-  "vars": { "TERMINAL_ORIGIN": "https://fx-macro-terminal.hysnzz.chatgpt.site" },
+  "services": [{ "binding": "TERMINAL_SERVICE", "service": "terminal-ml" }],
   "observability": { "enabled": true, "head_sampling_rate": 1 }
 }
