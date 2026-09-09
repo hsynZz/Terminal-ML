@@ -8,6 +8,7 @@ after(()=>vite.close());
 const policy = await vite.ssrLoadModule('/worker/automation-policy.ts');
 const automation = await vite.ssrLoadModule('/worker/automation.ts');
 const scheduler = await vite.ssrLoadModule('/worker/scheduler/index.ts');
+const siteAuth = await vite.ssrLoadModule('/worker/site-auth.ts');
 function dbFixture() {
   const sql = new DatabaseSync(':memory:');
   sql.exec('CREATE TABLE terminal_settings (key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TEXT NOT NULL); CREATE TABLE terminal_snapshots (as_of TEXT NOT NULL)');
@@ -91,6 +92,12 @@ test('machine requests require the secret and valid event; manual endpoint respo
   assert.equal(calls,0);
   const original=request({}); const response=await automation.executeJob(env,invoke,'WEEKLY_RETRAIN','MANUAL',{request:original});
   assert.deepEqual(await response.json(),{status:'waiting',samples:0,minimum:60});assert.equal(calls,1);
+});
+test('anonymous protected APIs are blocked while authenticated site users pass the guard',()=>{
+  const anonymous=siteAuth.requireAuthenticatedSiteUser(new Request('https://terminal/api/forecast'));
+  assert.equal(anonymous?.status,401);
+  const authenticated=siteAuth.requireAuthenticatedSiteUser(new Request('https://terminal/api/forecast',{headers:{'oai-authenticated-user-email':'owner@example.com'}}));
+  assert.equal(authenticated,null);
 });
 test('manual exception never invokes its endpoint twice',async()=>{
   const {env}=dbFixture();let calls=0;

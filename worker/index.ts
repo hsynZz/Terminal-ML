@@ -3,6 +3,7 @@ import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } fr
 import handler from "vinext/server/app-router-entry";
 import { automationRequest, executeJob, healthResponse } from "./automation";
 import { dueJob } from "./automation-policy";
+import { requireAuthenticatedSiteUser } from "./site-auth";
 
 interface Env {
   ASSETS: Fetcher;
@@ -40,8 +41,12 @@ const worker = {
     const url = new URL(request.url);
     const invoke = (inner: Request) => handler.fetch(inner, env, ctx);
 
-    if (url.pathname === "/api/health" && request.method === "GET") return healthResponse(env, invoke);
     if (url.pathname === "/api/automation/run" && request.method === "POST") return automationRequest(request, env, invoke);
+    if (url.pathname.startsWith("/api/")) {
+      const unauthorized = requireAuthenticatedSiteUser(request);
+      if (unauthorized) return unauthorized;
+    }
+    if (url.pathname === "/api/health" && request.method === "GET") return healthResponse(env, invoke);
     if (request.method === "POST" && ["/api/refresh", "/api/retrain"].includes(url.pathname)) {
       return executeJob(env, invoke, url.pathname === "/api/refresh" ? "DAILY_REFRESH" : "WEEKLY_RETRAIN", "MANUAL", { request });
     }
