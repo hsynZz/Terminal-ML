@@ -4,6 +4,7 @@ import handler from "vinext/server/app-router-entry";
 import { automationRequest, executeJob, healthResponse } from "./automation";
 import { dueJob } from "./automation-policy";
 import { requireAuthenticatedSiteUser } from "./site-auth";
+import { queueResearch, researchStatus, runResearch } from "./hypothesis-research";
 
 interface Env {
   ASSETS: Fetcher;
@@ -11,6 +12,8 @@ interface Env {
   FRED_API_KEY?: string;
   ALPHA_VANTAGE_API_KEY?: string;
   AUTOMATION_SECRET?: string;
+  HYPOTHESIS_ENGINE_ENABLED?: string;
+  HYPOTHESIS_PRODUCTION_WEIGHT?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -39,7 +42,11 @@ interface ScheduledController {
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
-    const invoke = (inner: Request) => handler.fetch(inner, env, ctx);
+    const invoke = async (inner: Request) => {
+      const response = await handler.fetch(inner, env, ctx);
+      if (inner.method === "POST" && new URL(inner.url).pathname === "/api/refresh" && response.ok) queueResearch(env, ctx);
+      return response;
+    };
 
     if (url.pathname === "/api/automation/run" && request.method === "POST") return automationRequest(request, env, invoke);
     if (url.pathname.startsWith("/api/")) {
@@ -47,6 +54,15 @@ const worker = {
       if (unauthorized) return unauthorized;
     }
     if (url.pathname === "/api/health" && request.method === "GET") return healthResponse(env, invoke);
+    if (url.pathname === "/api/hypotheses" && request.method === "GET") {
+      try { return Response.json(await researchStatus(env), { headers: { "Cache-Control": "no-store" } }); }
+      catch { return Response.json({ error: "Research status unavailable", currentContribution: 0 }, { status: 503 }); }
+    }
+    if (url.pathname === "/api/hypotheses/run" && request.method === "POST") {
+      if (request.headers.get("origin") !== url.origin) return Response.json({error:"Origin required"},{status:403});
+      const result = await runResearch(env, "AUTHENTICATED_RESEARCH_TEST");
+      return Response.json(result, { status: result.status === "FAILED" ? 503 : 200, headers: { "Cache-Control": "no-store" } });
+    }
     if (request.method === "POST" && ["/api/refresh", "/api/retrain"].includes(url.pathname)) {
       return executeJob(env, invoke, url.pathname === "/api/refresh" ? "DAILY_REFRESH" : "WEEKLY_RETRAIN", "MANUAL", { request });
     }
@@ -68,7 +84,7 @@ const worker = {
     const type = dueJob(controller.cron, controller.scheduledTime);
     if (!type) return;
     ctx.waitUntil(executeJob(env, (request) => handler.fetch(request, env, ctx), type, "CLOUDFLARE_CRON", controller)
-      .then((response) => { if (!response.ok) throw new Error(`FX automation failed: HTTP ${response.status}`); }));
+      .then((response) => { if (!response.ok) throw new Error(`FX automation failed: HTTP ${response.status}`); if (type === "DAILY_REFRESH") queueResearch(env, ctx); }));
   },
 };
 

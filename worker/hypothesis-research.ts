@@ -1,0 +1,115 @@
+import { advance, factory, flags, makeFrame, PROTOCOL, SEARCH_BUDGET, statuses, type Frame, type Hypothesis } from "../lib/hypothesis/engine";
+import { buildPairForecast } from "../lib/model-engine";
+import { currencies, sanitizeModelSettings, type TerminalPayload } from "../lib/terminal-data";
+import type { AuditClose } from "../lib/calibration";
+
+interface Statement { bind(...v:unknown[]):Statement; first<T>():Promise<T|null>; all<T>():Promise<{results:T[]}>; run():Promise<{meta?:{changes?:number}}> }
+export interface ResearchDB { prepare(sql:string):Statement; batch(statements:Statement[]):Promise<unknown> }
+export type ResearchEnv={DB:ResearchDB;HYPOTHESIS_ENGINE_ENABLED?:string;HYPOTHESIS_PRODUCTION_WEIGHT?:string};
+const PREFIX="hypothesis:v1:";
+const FRAME_LIMIT=1024;
+const json=<T>(value:string):T=>JSON.parse(value) as T;
+function upsert(db:ResearchDB,key:string,value:unknown,at:string) {
+  if(!key.startsWith(PREFIX)) throw new Error("RESEARCH_NAMESPACE_VIOLATION");
+  return db.prepare("INSERT INTO terminal_settings (key,value,updated_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at").bind(key,JSON.stringify(value),at);
+}
+function insert(db:ResearchDB,key:string,value:unknown,at:string) {
+  if(!key.startsWith(PREFIX)) throw new Error("RESEARCH_NAMESPACE_VIOLATION");
+  return db.prepare("INSERT INTO terminal_settings (key,value,updated_at) VALUES (?,?,?) ON CONFLICT(key) DO NOTHING").bind(key,JSON.stringify(value),at);
+}
+async function read<T>(db:ResearchDB,key:string) { const r=await db.prepare("SELECT value FROM terminal_settings WHERE key=?").bind(PREFIX+key).first<{value:string}>();return r?json<T>(r.value):null; }
+async function frames(db:ResearchDB) {
+  const r=await db.prepare("SELECT value FROM terminal_settings WHERE key>=? AND key<? ORDER BY key ASC LIMIT ?").bind(PREFIX+"frame:",PREFIX+"frame;",FRAME_LIMIT+1).all<{value:string}>();
+  return {rows:r.results.slice(0,FRAME_LIMIT).map(r=>json<Frame>(r.value)),truncated:r.results.length>FRAME_LIMIT};
+}
+export async function researchStatus(env:ResearchEnv) {
+  const [state,last,audit]=await Promise.all([read<{hypotheses:Hypothesis[];dataQuality:unknown;updatedAt:string}>(env.DB,"state"),read<unknown>(env.DB,"last-run"),env.DB.prepare("SELECT value FROM terminal_settings WHERE key>=? AND key<? ORDER BY key DESC LIMIT 50").bind(PREFIX+"audit:",PREFIX+"audit;").all<{value:string}>()]);
+  const hypotheses=state?.hypotheses??[];
+  return {protocol:PROTOCOL,flags:flags(env),currentContribution:0,maxContribution:.05,productionIntegration:"SEALED",searchBudget:SEARCH_BUDGET,
+    counts:Object.fromEntries(statuses.map(s=>[s,hypotheses.filter(h=>h.status===s).length])),hypotheses,lastRun:last,dataQuality:state?.dataQuality??null,
+    updatedAt:state?.updatedAt??null,audit:audit.results.map(r=>json(r.value)),limits:{historicalBlocks:120,shadowBlocks:30,walkForwardFolds:3,frameReadLimit:FRAME_LIMIT},
+    notice:"Research diagnostics only. No core score, evidence, forecast, model or training data is modified."};
+}
+/** Independent lease, append-only frames, atomic state+audit. Core refresh responses are untouched. */
+export async function runResearch(env:ResearchEnv,source="POST_REFRESH",now=new Date().toISOString()) {
+  if(!flags(env).enabled) return {status:"DISABLED",productionContribution:0};
+  const id=crypto.randomUUID(),db=env.DB;
+  const lease=await db.prepare("INSERT INTO terminal_settings (key,value,updated_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at WHERE CAST(json_extract(terminal_settings.value,'$.expiresAt') AS INTEGER) < ?").bind(PREFIX+"lease",JSON.stringify({id,expiresAt:Date.parse(now)+120000}),now,Date.parse(now)).run();
+  if(!lease.meta?.changes) return {status:"BUSY",productionContribution:0};
+  try {
+    const previous=await read<{hypotheses:Hypothesis[];updatedAt:string}>(db,"state");
+    if(previous?.updatedAt.slice(0,10)===now.slice(0,10)) return {status:"ALREADY_EVALUATED",productionContribution:0};
+    const hypotheses=previous?.hypotheses??factory(now);
+    if(hypotheses.length!==SEARCH_BUDGET||hypotheses.some(h=>h.version!==PROTOCOL)) throw new Error("REGISTRY_VERSION_MISMATCH");
+    const stored=await frames(db);
+    if(stored.truncated) throw new Error("FRAME_READ_BUDGET_EXCEEDED_REQUIRES_PAGED_RESEARCH");
+    const [latest,model,prices]=await Promise.all([
+      db.prepare("SELECT as_of,payload FROM terminal_snapshots ORDER BY as_of DESC LIMIT 1").first<{as_of:string;payload:string}>(),
+      db.prepare("SELECT value FROM terminal_settings WHERE key='model'").first<{value:string}>(),
+      db.prepare("SELECT currency,period,value FROM currency_observations WHERE metric=? AND source=? ORDER BY period DESC LIMIT 20001").bind("fxCloseUsd","Alpha Vantage").all<AuditClose>(),
+    ]);
+    if(prices.results.length>20000) throw new Error("PRICE_READ_BUDGET_EXCEEDED_REQUIRES_PAGED_RESEARCH");
+    const all=[...stored.rows], writes:Statement[]=[], events:unknown[]=[];
+    if(!previous) {
+      events.push(...hypotheses.map(h=>({event:"Hypothesis Created",id:h.id,reason:h.rationale,oldWeight:0,newWeight:0})));
+      // Retrospective ONLY. Baselines come from actual archived forecasts, never today's fitted model.
+      const [snapshots,archives]=await Promise.all([
+        db.prepare("SELECT as_of,payload FROM terminal_snapshots ORDER BY as_of ASC LIMIT 129").all<{as_of:string;payload:string}>(),
+        db.prepare("SELECT pair,horizon,probability,observed_at FROM model_debug_logs ORDER BY observed_at ASC LIMIT 5001").all<{pair:string;horizon:number;probability:number;observed_at:string}>(),
+      ]);
+      if(snapshots.results.length>128||archives.results.length>5000) throw new Error("HISTORICAL_IMPORT_BUDGET_EXCEEDED");
+      for(const s of snapshots.results) {
+        if(!Number.isFinite(Date.parse(s.as_of))||s.as_of>=now) continue;
+        const raw=json<TerminalPayload>(s.payload); if(!["live","partial-live"].includes(raw.sourceMode)) continue;
+        const baseline:Record<string,number>={};
+        for(const a of archives.results.filter(a=>a.observed_at===s.as_of&&a.pair.endsWith("/USD"))) baseline[`${a.pair.split("/")[0]}/${a.horizon}`]=a.probability;
+        const f=makeFrame(raw,s.as_of,`snapshot:${s.as_of}`,hypotheses,all,baseline);
+        f.origin="ARCHIVED_SNAPSHOT";f.recordedAt=now;
+        all.push(f); writes.push(insert(db,PREFIX+"frame:"+s.as_of,f,now));
+      }
+    }
+    if(latest) {
+      const payload=json<TerminalPayload>(latest.payload);
+      if(model) payload.model=sanitizeModelSettings(json(model.value));
+      // Reject stale/baseline/malformed data rather than hydrating synthetic factor defaults.
+      if(["live","partial-live"].includes(payload.sourceMode)&&Date.parse(now)-Date.parse(latest.as_of)<=48*3600000) {
+        const baselines:Record<string,number>={};
+        for(const c of currencies.filter(c=>c!=="USD")) for(const f of buildPairForecast(payload,c,"USD")) baselines[`${c}/${f.horizon}`]=f.probability;
+        const f=makeFrame(payload,now,`snapshot:${latest.as_of};model:${payload.model.trainedAt??"bootstrap"}`,hypotheses,all,baselines);
+        all.push(f);writes.push(insert(db,PREFIX+"frame:"+now,f,now));
+      }
+    }
+    const dataVersion=`${PROTOCOL};frames=${all.length};through=${all.at(-1)?.issuedAt??"none"}`;
+    const next=hypotheses.map(h=>advance(h,all,prices.results,now,dataVersion));
+    for(let i=0;i<next.length;i++) {
+      const a=hypotheses[i],b=next[i];
+      if(a.status!==b.status||a.weight!==b.weight||a.look!==b.look) events.push({event:b.status,id:b.id,reason:b.reason,previousStatus:a.status,oldWeight:a.weight,newWeight:b.weight,metrics:b.shadow??b.historical?.final??null});
+    }
+    const quality={snapshotCount:all.length,prospectiveCaptures:all.filter(f=>f.origin==="PROSPECTIVE_CAPTURE").length,
+      historicalCaptures:all.filter(f=>f.origin==="ARCHIVED_SNAPSHOT").length,first:all[0]?.issuedAt??null,last:all.at(-1)?.issuedAt??null,
+      priceRows:prices.results.length,priceSource:"Alpha Vantage daily closes; existing calendar-day outcome definition",pointInTimeVerified:false,
+      source:"Persisted terminal snapshots and archived pair forecasts; prospective captures use the saved core model",
+      limitations:["Per-factor publication times, vintages and imputation/fallback provenance are absent: production blocked.","No historical consensus surprise series: surprise ideas are not generated.","FX currencies share USD exposure; inference uses time blocks, not currency count.","Embargo does not prove independent observations; regime and serial-dependence research remains necessary.","Price history is read as stored; resolved outcomes are not represented as immutable market vintages."],
+      freshSnapshot:!!latest&&Date.parse(now)-Date.parse(latest.as_of)<=48*3600000,readLimitReached:false};
+    const run={id,source,at:now,status:"SUCCESS",result:next.every(h=>h.status==="INSUFFICIENT_DATA")?"WAITING_FOR_DATA":"EVALUATED",candidates:next.length,frames:all.length,productionContribution:0,dataVersion};
+    // Frame inserts are idempotent. State and its complete decision trail commit together.
+    for(let i=0;i<writes.length;i+=25) await db.batch(writes.slice(i,i+25));
+    await db.batch([
+      upsert(db,PREFIX+"state",{hypotheses:next,updatedAt:now,dataQuality:quality},now),
+      insert(db,PREFIX+`audit:${now}:${id}`,{at:now,runId:id,version:PROTOCOL,dataVersion,events},now),
+      insert(db,PREFIX+`run:${now}:${id}`,run,now),upsert(db,PREFIX+"last-run",run,now),
+    ]);
+    return run;
+  } catch (error) {
+    const known=["REGISTRY_VERSION_MISMATCH","FRAME_READ_BUDGET_EXCEEDED_REQUIRES_PAGED_RESEARCH","PRICE_READ_BUDGET_EXCEEDED_REQUIRES_PAGED_RESEARCH","HISTORICAL_IMPORT_BUDGET_EXCEEDED","NO_FRESH_LIVE_SNAPSHOT"];
+    const code=error instanceof Error&&known.includes(error.message)?error.message:"STORAGE_OR_INPUT_ERROR";
+    const run={id,source,at:now,status:"FAILED",productionContribution:0,message:`${code}; research failed closed; core untouched.`};
+    await db.batch([insert(db,PREFIX+`run:${now}:${id}`,run,now),upsert(db,PREFIX+"last-run",run,now)]).catch(()=>{});
+    return run;
+  } finally {
+    await db.prepare("UPDATE terminal_settings SET value=? WHERE key=? AND json_extract(value,'$.id')=?").bind(JSON.stringify({id,expiresAt:0}),PREFIX+"lease",id).run();
+  }
+}
+export function queueResearch(env:ResearchEnv,ctx:{waitUntil(p:Promise<unknown>):void}) {
+  ctx.waitUntil(runResearch(env).catch(()=>({status:"FAILED",productionContribution:0})));
+}

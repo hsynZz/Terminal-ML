@@ -2,6 +2,28 @@
 @import "tw-animate-css";
 @import "../vendor/shadcn-tailwind-4.13.0.css";
 
+.hypothesis-lab { max-width: 1240px; margin: auto; }
+.hypothesis-lab a { color: inherit; text-decoration: underline; }
+.hypothesis-lab .lab-intro, .hypothesis-lab .lab-panel { padding: 24px; border: 1px solid #30343b; margin: 18px 0; border-radius: 12px; }
+.hypothesis-lab h1 { font-size: 28px; margin: 12px 0; }
+.hypothesis-lab h2 { font-size: 18px; margin-bottom: 12px; }
+.hypothesis-lab h3 { margin-top: 16px; }
+.hypothesis-lab p { margin: 10px 0; line-height: 1.6; overflow-wrap: anywhere; }
+.hypothesis-lab ul { list-style: disc; padding-left: 20px; line-height: 1.8; }
+.hypothesis-lab .lab-stats { display: grid; grid-template-columns: repeat(auto-fit,minmax(130px,1fr)); gap: 12px; }
+.hypothesis-lab .lab-stats div { padding: 16px; border: 1px solid #30343b; border-radius: 10px; }
+.hypothesis-lab .lab-stats span { display: block; font-size: 10px; letter-spacing: .08em; }
+.hypothesis-lab .lab-stats strong { font-size: 24px; }
+.hypothesis-lab .lab-scroll { overflow-x: auto; }
+.hypothesis-lab table { width: 100%; border-collapse: collapse; text-align: left; }
+.hypothesis-lab td, .hypothesis-lab th { padding: 10px; border-bottom: 1px solid #30343b; }
+.hypothesis-lab .lab-hypothesis { margin-top: 14px; border-top: 1px solid #30343b; padding-top: 14px; }
+.hypothesis-lab summary { cursor: pointer; line-height: 1.8; }
+.hypothesis-lab code { display: block; white-space: normal; overflow-wrap: anywhere; }
+.hypothesis-lab pre { font-size: 11px; }
+.hypothesis-lab select { background: transparent; color: inherit; padding: 8px; border: 1px solid #30343b; }
+.hypothesis-lab button { padding: 10px 16px; border: 1px solid #30343b; cursor: pointer; }
+
 :root {
   --background: #08090b;
   --foreground: #eceff1;
