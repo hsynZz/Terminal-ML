@@ -32,7 +32,14 @@ jobs:
       - name: Run scheduler tests
         run: node --test tests/automation.test.mjs
 
+      - name: Normalize Cloudflare token format
+        shell: bash
+        env:
+          RAW_CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          token="$(printf '%s' "$RAW_CLOUDFLARE_API_TOKEN" | tr -d '\r\n')"
+          token="${token#Bearer }"
+          printf 'CLOUDFLARE_API_TOKEN=%s\n' "$token" >> "$GITHUB_ENV"
+
       - name: Deploy scheduler Worker
         run: npx wrangler@4.92.0 deploy --config worker/scheduler/wrangler.jsonc
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
