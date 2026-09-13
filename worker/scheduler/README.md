@@ -5,7 +5,7 @@ Do not deploy it to a dispatch namespace. The private Sites application and its 
 
 - Daily: 17:15 Europe/Berlin, retries 17:30 and 17:45.
 - Weekly: Saturday 22:00 Europe/Berlin, retries every 15 minutes through 22:45.
-- UTC schedules cover both offsets; `dueJob` rejects the other offset, including DST transition days.
+- UTC schedules cover both offsets; `dueJob` rejects the other offset, including DST transition days. The weekly trigger uses the explicit `SAT` token because Cloudflare cron numbers 1=Sunday through 7=Saturday.
 - The site serializes automated calls with a 15-minute lease and deduplicates completed schedule periods.
 - Insufficient training samples return WAITING and finish the weekly attempt. No training threshold is changed.
 - `/api/refresh`, `/api/retrain`, `/api/forecast` and all trading modules remain unchanged.

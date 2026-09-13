@@ -1,5 +1,5 @@
 // Operational scheduling only. No model inputs or trading thresholds live here.
-export const AUTOMATION_CRONS = ["15,30,45 15,16,17 * * *", "0,15,30,45 20,21 * * 6"];
+export const AUTOMATION_CRONS = ["15,30,45 15,16,17 * * *", "0,15,30,45 20,21 * * SAT"];
 export type JobType = "DAILY_REFRESH" | "WEEKLY_RETRAIN";
 export type RunSource = "MANUAL" | "CONTROLLED_TEST" | "CLOUDFLARE_CRON";
 export type Outcome = "SUCCESS" | "WAITING" | "FAILED";
