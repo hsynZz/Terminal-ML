@@ -86,6 +86,15 @@ test('job storage failure fails closed and cannot mutate the saved model',async(
   const {sql,env}=fixture();const before=sql.prepare("SELECT value FROM terminal_settings WHERE key='model'").get();sql.exec('DROP TABLE currency_observations');
   const run=await store.runResearch(env,'SYNTHETIC_TEST',now);assert.equal(run.status,'FAILED');assert.equal(run.productionContribution,0);assert.deepEqual(sql.prepare("SELECT value FROM terminal_settings WHERE key='model'").get(),before);
 });
+test('legacy snapshots without regime or archived forecasts are excluded without killing research',async()=>{
+  const {sql,env}=fixture();const legacy=d.getBaselinePayload();legacy.sourceMode='partial-live';legacy.asOf='2026-09-04T15:20:00.000Z';delete legacy.regime;
+  sql.prepare('INSERT INTO terminal_snapshots VALUES (?,?)').run(legacy.asOf,JSON.stringify(legacy));
+  const another=d.getBaselinePayload();another.sourceMode='partial-live';another.asOf='2026-09-05T15:20:00.000Z';
+  sql.prepare('INSERT INTO terminal_snapshots VALUES (?,?)').run(another.asOf,JSON.stringify(another));
+  const result=await store.runResearch(env,'SYNTHETIC_TEST',now);assert.equal(result.status,'SUCCESS');
+  const status=await store.researchStatus(env);assert.deepEqual(status.dataQuality.importExcluded,{incompatibleSnapshot:1,missingArchivedForecasts:1});
+  assert.equal(status.counts.INSUFFICIENT_DATA,32);assert.equal(status.dataQuality.prospectiveCaptures,1);
+});
 test('research never imports into model/scoring and automation retains existing handlers',()=>{
   for(const path of ['lib/model-engine.ts','lib/terminal-data.ts','lib/retraining.ts','app/api/forecast/route.ts'])assert.doesNotMatch(readFileSync(path,'utf8'),/hypothesis/);
   assert.match(readFileSync('worker/index.ts','utf8'),/queueResearch/);
