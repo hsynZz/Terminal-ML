@@ -5,20 +5,18 @@ Do not deploy it to a dispatch namespace. The private Sites application and its 
 
 - Daily: 17:15 Europe/Berlin, retries 17:30 and 17:45.
 - Weekly: Saturday 22:00 Europe/Berlin, retries every 15 minutes through 22:45.
-- UTC schedules cover both offsets; `dueJob` rejects the other offset, including DST transition days. The weekly trigger uses the explicit `SAT` token because Cloudflare cron numbers 1=Sunday through 7=Saturday.
+- UTC schedules cover both offsets; `dueJob` rejects the other offset, including DST transition days.
 - The site serializes automated calls with a 15-minute lease and deduplicates completed schedule periods.
 - Insufficient training samples return WAITING and finish the weekly attempt. No training threshold is changed.
 - `/api/refresh`, `/api/retrain`, `/api/forecast` and all trading modules remain unchanged.
 
 Required Cloudflare Worker secrets (never commit their values):
 
-1. `SITES_API_TOKEN`: the existing Sites machine API bearer accepted in `OAI-Sites-Authorization`.
-2. `AUTOMATION_SECRET`: the same secret stored in the existing Site runtime.
+1. `AUTOMATION_SECRET`: the same secret stored in the existing Site runtime. The relay uses HTTPS and the application's Bearer guard; no `SITES_API_TOKEN` or service binding is used.
 
 From the project root, with the correct Cloudflare account authenticated:
 
 ```
-npx wrangler secret put SITES_API_TOKEN --config worker/scheduler/wrangler.jsonc
 npx wrangler secret put AUTOMATION_SECRET --config worker/scheduler/wrangler.jsonc
 npx wrangler deploy --config worker/scheduler/wrangler.jsonc
 ```
@@ -36,3 +34,8 @@ in this scheduler's Cloudflare logs; absence of a fresh scheduled event is visib
 
 The scheduler performs network forwarding only; it does not run ML in its CPU budget.
 Runtime availability and API quotas still depend on the hosting and data providers.
+
+Cloudflare requires `redirect: "manual"`; the relay rejects redirects instead of forwarding credentials.
+The deployed weekly cron uses `SAT` (Cloudflare's numeric 6 is Friday). The relay retains the old numeric
+identifier only in its authenticated Site request, for compatibility with existing Site versions.
+The Berlin Saturday/time guard still applies. Failure logs include the stage and HTTP status but no secrets.

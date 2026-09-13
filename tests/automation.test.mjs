@@ -25,7 +25,8 @@ function request(body, secret='test-only') {
 }
 test('daily UTC coverage yields exactly one primary Berlin time in summer, winter and DST transitions', ()=>{
   const crons=JSON.parse(readFileSync('worker/scheduler/wrangler.jsonc','utf8')).triggers.crons;
-  assert.deepEqual(crons,policy.AUTOMATION_CRONS);
+  assert.deepEqual(crons,scheduler.CLOUDFLARE_CRONS);
+  assert.equal(crons[1].split(' ').at(-1),'SAT');
   for(const day of ['2026-01-05','2026-07-05','2026-03-29','2026-10-25']) {
     const accepted=[];
     for(const hour of [15,16,17]) for(const minute of [15,30,45]) {
@@ -35,8 +36,8 @@ test('daily UTC coverage yields exactly one primary Berlin time in summer, winte
     assert.deepEqual(accepted,[1035,1050,1065]);
   }
   for(const [day,hour] of [['2026-01-03',21],['2026-07-04',20]]) {
-    assert.equal(policy.dueJob(crons[1],Date.parse(`${day}T${hour}:00:00Z`)),'WEEKLY_RETRAIN');
-    assert.equal(policy.dueJob(crons[1],Date.parse(`${day}T${hour===20?21:20}:00:00Z`)),null);
+    assert.equal(policy.dueJob(policy.AUTOMATION_CRONS[1],Date.parse(`${day}T${hour}:00:00Z`)),'WEEKLY_RETRAIN');
+    assert.equal(policy.dueJob(policy.AUTOMATION_CRONS[1],Date.parse(`${day}T${hour===20?21:20}:00:00Z`)),null);
   }
 });
 test('controlled daily test calls only refresh and proves the new stored snapshot',async()=>{
@@ -107,8 +108,22 @@ test('manual exception never invokes its endpoint twice',async()=>{
 test('relay authenticates to the public HTTPS Site endpoint and preserves WAITING',async()=>{
   const originalFetch=globalThis.fetch;let calls=0;
   globalThis.fetch=async request=>{calls++;assert.equal(new URL(request.url).href,'https://fx-macro-terminal.hysnzz.chatgpt.site/api/automation/run');assert.equal(request.headers.get('Authorization'),'Bearer test-only');
-    assert.equal(JSON.parse(await request.text()).source,'CONTROLLED_TEST');return Response.json({status:'WAITING',id:'test',message:'insufficient samples'});};
-  try { await scheduler.dispatch({cron:policy.AUTOMATION_CRONS[1],scheduledTime:Date.parse('2026-09-05T20:00:00Z')},{AUTOMATION_SECRET:'test-only'},'CONTROLLED_TEST'); }
+    assert.equal(request.redirect,'manual');
+    const body=JSON.parse(await request.text());assert.equal(body.source,'CONTROLLED_TEST');assert.equal(body.cron,policy.LEGACY_WEEKLY_CRON);return Response.json({status:'WAITING',id:'test',message:'insufficient samples'});};
+  try { await scheduler.dispatch({cron:scheduler.CLOUDFLARE_CRONS[1],scheduledTime:Date.parse('2026-09-05T20:00:00Z')},{AUTOMATION_SECRET:'test-only'},'CONTROLLED_TEST'); }
   finally { globalThis.fetch=originalFetch; }
   assert.equal(calls,1);
+});
+test('relay rejects redirects without forwarding its bearer and reports non-JSON HTTP status',async()=>{
+  const originalFetch=globalThis.fetch;const originalLog=console.log;let calls=0;const logs=[];
+  console.log=value=>logs.push(JSON.parse(value));
+  const event={cron:policy.AUTOMATION_CRONS[0],scheduledTime:Date.parse('2026-09-13T15:15:00Z')};
+  try {
+    globalThis.fetch=async request=>{calls++;assert.equal(request.redirect,'manual');return new Response(null,{status:307,headers:{Location:'https://untrusted.example/'}});};
+    await assert.rejects(scheduler.dispatch(event,{AUTOMATION_SECRET:'test-only'}),/HTTP 307/);
+    assert.equal(calls,1);
+    globalThis.fetch=async()=>new Response('<html>blocked</html>',{status:403});
+    await assert.rejects(scheduler.dispatch(event,{AUTOMATION_SECRET:'test-only'}),/JSON_RESPONSE; HTTP 403/);
+    assert.equal(JSON.stringify(logs).includes('test-only'),false);
+  } finally {globalThis.fetch=originalFetch;console.log=originalLog;}
 });

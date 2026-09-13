@@ -1,5 +1,7 @@
 // Operational scheduling only. No model inputs or trading thresholds live here.
 export const AUTOMATION_CRONS = ["15,30,45 15,16,17 * * *", "0,15,30,45 20,21 * * SAT"];
+// Backwards-compatible Site protocol; never install this numeric alias in Cloudflare.
+export const LEGACY_WEEKLY_CRON = "0,15,30,45 20,21 * * 6";
 export type JobType = "DAILY_REFRESH" | "WEEKLY_RETRAIN";
 export type RunSource = "MANUAL" | "CONTROLLED_TEST" | "CLOUDFLARE_CRON";
 export type Outcome = "SUCCESS" | "WAITING" | "FAILED";
@@ -17,7 +19,7 @@ export function berlinParts(time: number) {
 export function dueJob(cron: string, time: number): JobType | null {
   const p = berlinParts(time);
   if (cron === AUTOMATION_CRONS[0] && [1035, 1050, 1065].includes(p.minute)) return "DAILY_REFRESH";
-  if (cron === AUTOMATION_CRONS[1] && p.weekday === "Sat" && [1320, 1335, 1350, 1365].includes(p.minute)) return "WEEKLY_RETRAIN";
+  if ((cron === AUTOMATION_CRONS[1] || cron === LEGACY_WEEKLY_CRON) && p.weekday === "Sat" && [1320, 1335, 1350, 1365].includes(p.minute)) return "WEEKLY_RETRAIN";
   return null;
 }
 
