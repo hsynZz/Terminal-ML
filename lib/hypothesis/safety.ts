@@ -8,7 +8,9 @@ export type Evidence = {
 export function nextWeight(e:Evidence,now:string) {
   const age=Date.parse(now)-Date.parse(e.evaluatedAt);
   if(!Number.isFinite(age)||age<0||age>48*3600000||!e.historicalPassed||!e.shadowPassed||!e.pointInTimeVerified||
-    ![e.weight,e.meanImprovement,e.logLossImprovement,e.stability,e.signal].every(Number.isFinite)||e.weight<0||e.blocks<30)
+    ![e.weight,e.meanImprovement,e.logLossImprovement,e.stability,e.signal,e.blocks,e.previousBlocks].every(Number.isFinite)||
+    e.weight<0||e.blocks<30||!Number.isInteger(e.blocks)||!Number.isInteger(e.previousBlocks)||e.previousBlocks<0||
+    e.previousBlocks>e.blocks||e.stability<0||e.stability>1||Math.abs(e.signal)>1)
     return {weight:0,status:"INACTIVE",reason:"Evidence missing, invalid or stale"};
   if(e.meanImprovement<=0||e.logLossImprovement<=0||e.calibrationDegraded)
     return {weight:0,status:"DEGRADED",reason:"Edge or calibration deterioration"};

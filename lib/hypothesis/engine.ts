@@ -1,13 +1,13 @@
 /** Isolated, finite research protocol. Nothing in this module writes core state. */
 import { calibrationMetrics, resolveOutcomes, type AuditClose } from "../calibration";
 import { currencies, forecastHorizons, type FactorKey, type ForecastHorizon, type TerminalPayload } from "../terminal-data";
+import { PROVENANCE_VERSION, signalProvenance, type ProvenancePayload, type Provenance } from "./provenance";
 
 export const PROTOCOL = "hypothesis-v1";
 export const SEARCH_BUDGET = 32; // Eight predeclared ideas, four horizons. No optimizer.
 export const MAX_CONTRIBUTION = 0.05;
-// Intentionally sealed until input lineage AND a score integration audit exist.
-// An environment flag alone cannot turn exploratory results into trading outputs.
-export const LIVE_INTEGRATION_APPROVED = false;
+// Only the audited USD-pair probability target has an adapter. Runtime budget defaults to zero.
+export const LIVE_INTEGRATION_APPROVED = true;
 export const statuses = ["CANDIDATE", "TESTING", "INSUFFICIENT_DATA", "REJECTED", "SHADOW", "VALIDATED", "PRODUCTION", "DEGRADED", "INACTIVE"] as const;
 export type Status = typeof statuses[number];
 export type Kind = "yield-divergence" | "policy-change" | "growth-acceleration" | "cot-nonreaction" | "risk-momentum" | "commodity-interaction" | "persistent-policy" | "lagged-yields";
@@ -34,10 +34,11 @@ export type Hypothesis = Template & {
   historical?: { passed: boolean; folds: Evaluation[]; final: Evaluation; development: string[]; training: string[]; validation: string[]; outOfSample: string[]; dataVersion: string };
   shadow?: Evaluation; shadowStartedAt?: string; lastShadowBlocks?: number; look: number;
   pointInTimeVerified: boolean; lastWeightChange?: string;
+  qualificationVersion?: string; diagnosticBlocks?: number; lastAllocationBlocks?: number; lastAllocationLook?: number; lastEvidenceAt?:string;
 };
-export type Signal = { id: string; pair: string; horizon: number; signal: number; probability: number; baseline: number; phase: "RESEARCH" | "SHADOW"; regime: string };
-export type Frame = { issuedAt: string; recordedAt?: string; origin?: "ARCHIVED_SNAPSHOT" | "PROSPECTIVE_CAPTURE"; snapshotAsOf: string; dataVersion: string; sourceMode: string; factors: Record<string, Partial<Record<FactorKey, number>>>; regime: string; signals: Signal[]; pointInTimeVerified: boolean };
-export type Sample = { asOf: string; labelEnd: string; pair: string; probability: number; baseline: number; label: 0 | 1; regime: string };
+export type Signal = { id: string; pair: string; horizon: number; signal: number; probability: number; baseline: number; phase: "RESEARCH" | "SHADOW"; regime: string; pointInTimeVerified?:boolean };
+export type Frame = { issuedAt: string; recordedAt?: string; origin?: "ARCHIVED_SNAPSHOT" | "PROSPECTIVE_CAPTURE"; snapshotAsOf: string; dataVersion: string; sourceMode: string; factors: Record<string, Partial<Record<FactorKey, number>>>; regime: string; signals: Signal[]; pointInTimeVerified: boolean; provenance?:Provenance };
+export type Sample = { asOf: string; labelEnd: string; pair: string; probability: number; baseline: number; label: 0 | 1; regime: string; pointInTimeVerified?:boolean };
 export type Block = { asOf: string; end: string; rows: Sample[] };
 export const clamp = (v: number, lo = -1, hi = 1) => Math.max(lo, Math.min(hi, v));
 export function factory(now: string): Hypothesis[] {
@@ -80,22 +81,26 @@ export function makeFrame(payload: TerminalPayload, now: string, dataVersion: st
   const frame: Frame = { issuedAt: now, recordedAt:now, origin:"PROSPECTIVE_CAPTURE", snapshotAsOf: payload.asOf, dataVersion, sourceMode: payload.sourceMode,
     factors: Object.fromEntries(payload.currencies.map(c => [c.code, { ...c.factors }])), regime: payload.regime.label, signals: [],
     // Existing snapshots lack per-input publication/vintage and fallback lineage. Never invent it.
-    pointInTimeVerified: false };
+    pointInTimeVerified: false, provenance:(payload as ProvenancePayload).inputProvenance };
   for (const h of hypotheses.filter(h => !["REJECTED", "INACTIVE"].includes(h.status))) for (const c of currencies.filter(c => c !== "USD")) {
     const s = signalFor(h, frame, history, c), base = baselines[`${c}/${h.horizon}`];
     if (s === null || !Number.isFinite(base) || base <= 0 || base >= 1) continue;
     // Fixed predeclared 10% probability blend for research only, NOT production score weighting.
     const probability = clamp(.9 * base + .1 * (.5 + .4*s), .001, .999);
     frame.signals.push({ id: h.id, pair: `${c}/USD`, horizon: h.horizon, signal: s, probability, baseline: base,
-      phase: h.shadowStartedAt && h.shadowStartedAt < now ? "SHADOW" : "RESEARCH", regime: frame.regime });
+      phase: h.shadowStartedAt && h.shadowStartedAt < now ? "SHADOW" : "RESEARCH", regime: frame.regime,
+      pointInTimeVerified:signalProvenance(h,frame,history,c) });
   }
+  frame.pointInTimeVerified=frame.signals.length>0&&frame.signals.every(s=>s.pointInTimeVerified===true);
   return frame;
 }
-export function outcomes(h: Hypothesis, frames: Frame[], closes: AuditClose[], now: string, phase: "RESEARCH" | "SHADOW"): Sample[] {
+export type ResolvedObservation={pair:string;horizon:number;asOf:string;labelEnd:string;label:0|1};
+export function outcomes(h: Hypothesis, frames: Frame[], closes: AuditClose[], now: string, phase: "RESEARCH" | "SHADOW", ledger?:ResolvedObservation[]): Sample[] {
   const entries = frames.flatMap(f => f.signals.filter(s => s.id === h.id && s.phase === phase && (phase !== "SHADOW" || (f.origin === "PROSPECTIVE_CAPTURE" && f.recordedAt === f.issuedAt && !!h.shadowStartedAt && f.issuedAt > h.shadowStartedAt))).map(s => ({ f, s })));
   const lookup = new Map(entries.map(e => [`${e.s.pair}:${e.f.issuedAt}`, e]));
   const resolved = resolveOutcomes(entries.map(({f,s}) => ({ pair:s.pair, horizon:s.horizon, probability:s.probability, observedAt:f.issuedAt, sourceMode:f.sourceMode })), closes, now);
-  return resolved.outcomes.map(o => { const e = lookup.get(`${o.pair}:${o.asOf}`)!; return { ...o, baseline:e.s.baseline, regime:e.s.regime }; });
+  const rows=ledger?ledger.filter(o=>o.horizon===h.horizon&&lookup.has(`${o.pair}:${o.asOf}`)):resolved.outcomes;
+  return rows.map(o => { const e = lookup.get(`${o.pair}:${o.asOf}`)!; return { ...o, probability:e.s.probability, baseline:e.s.baseline, regime:e.s.regime, pointInTimeVerified:!!ledger&&e.s.pointInTimeVerified===true }; });
 }
 /** One time block contains all currencies. No seven-fold inflation of sample size.
  * A full extra horizon embargo is used to reduce serial dependence, not prove independence. */
@@ -152,28 +157,33 @@ export function historicalTest(rows: Sample[], horizon: number, dataVersion: str
     blocks:b.length,historical:{passed,folds,final,development:[development[0].asOf,development.at(-1)!.end],training:[training[0].asOf,training.at(-1)!.end],
       validation:[first[40].asOf,first[99].end],outOfSample:[first[100].asOf,first[119].end],dataVersion}};
 }
-export function advance(h:Hypothesis, frames:Frame[], closes:AuditClose[], now:string, dataVersion:string):Hypothesis {
+export function advance(h:Hypothesis, frames:Frame[], closes:AuditClose[], now:string, dataVersion:string, ledger?:ResolvedObservation[]):Hypothesis {
   const next={...h,lastEvaluation:now,weight:0};
   if(["REJECTED","INACTIVE"].includes(h.status)) return next;
-  if(!h.historical) {
-    const test=historicalTest(outcomes(h,frames,closes,now,"RESEARCH"),h.horizon,dataVersion);
-    return {...next,status:test.status,reason:test.reason,...("historical" in test?{historical:test.historical}:{}),...(test.status==="SHADOW"?{shadowStartedAt:now,look:1}:{})};
+  if(!h.historical || h.qualificationVersion!==PROVENANCE_VERSION) {
+    const diagnostic=outcomes(h,frames,closes,now,"RESEARCH",ledger);
+    const qualified=diagnostic.filter(r=>r.pointInTimeVerified);
+    const test=historicalTest(qualified,h.horizon,dataVersion);
+    return {...next,status:test.status,reason:test.reason+"; verified inputs and immutable outcomes required",
+      diagnosticBlocks:independentBlocks(diagnostic,h.horizon).length,pointInTimeVerified:qualified.length>0,
+      qualificationVersion:PROVENANCE_VERSION,historical:"historical" in test?test.historical:undefined,
+      ...(test.status==="SHADOW"?{shadowStartedAt:now,look:1,lastEvidenceAt:now}:{} )};
   }
   if(!h.historical.passed) return {...next,status:"REJECTED",reason:"Historical gate failed"};
-  const blocks=independentBlocks(outcomes(h,frames,closes,now,"SHADOW"),h.horizon);
+  const blocks=independentBlocks(outcomes(h,frames,closes,now,"SHADOW",ledger).filter(r=>r.pointInTimeVerified),h.horizon);
   if(blocks.length<(h.lastShadowBlocks??0)+10) return next;
   const look=h.look+1, shadow=evaluate(blocks,look);
-  const base={...next,look,shadow,lastShadowBlocks:blocks.length};
+  const base={...next,look,shadow,lastShadowBlocks:blocks.length,lastEvidenceAt:now};
   if(blocks.length>=30&&!beneficial(shadow)) return {...base,status:"DEGRADED",reason:"Prospective baseline edge absent; weight zero",lastWeightChange:now};
   if(blocks.length<30) return {...base,status:"SHADOW",reason:`${blocks.length}/30 new embargoed shadow blocks`};
   const regimeOK=h.regime!=="all"?((shadow.regimes[h.regime]??0)>=30):Object.values(shadow.regimes).filter(n=>n>=10).length>=2;
   if(shadow.p>shadow.alpha||!regimeOK) return {...base,status:"SHADOW",reason:"More multiplicity-adjusted evidence / regime coverage required"};
   if(!h.pointInTimeVerified) return {...base,status:"SHADOW",reason:"Production blocked: input publication/vintage/fallback lineage not certified"};
-  return {...base,status:"VALIDATED",reason:"Historical and prospective evidence passed; production adapter remains sealed"};
+  return {...base,status:"VALIDATED",reason:"Verified historical and prospective evidence passed; bounded USD-pair adapter requires an enabled budget"};
 }
 /** Explicit read-only identity contract. See safety.ts for the separately tested proposed
  * allocation policy. This is NOT advertised as a connected production adapter. */
 export function contribution(core:number, hypotheses:Hypothesis[], enabled:boolean, requestedWeight:number) {
   void hypotheses; void enabled; void requestedWeight;
-  return {coreScore:core,hypothesisAdjustment:0,finalScore:core,totalWeight:0,maxWeight:MAX_CONTRIBUTION,reason:"LIVE_INTEGRATION_NOT_APPROVED"};
+  return {coreScore:core,hypothesisAdjustment:0,finalScore:core,totalWeight:0,maxWeight:MAX_CONTRIBUTION,reason:"FUNDAMENTAL_SCORE_TARGET_NOT_VALIDATED"};
 }

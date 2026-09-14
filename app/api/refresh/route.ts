@@ -8,6 +8,7 @@ import { detectMarketRegime } from "@/lib/regime";
 import { aggregateTextSignals, centralBankFeeds, extractFeedItems } from "@/lib/sentiment";
 import { buildEvidence, getBaselinePayload, hydrateTerminalPayload, rebuildDerivedScores, sanitizeModelSettings, type CurrencyCode, type ModelSettings, type TerminalPayload } from "@/lib/terminal-data";
 import { berlinRefreshParts, canReuseRefresh } from "@/lib/refresh-policy";
+import { captureProvenance, type ProvenancePayload, type Receipt } from "@/lib/hypothesis/provenance";
 
 const countryMap: Record<CurrencyCode, string> = {
   USD: "USA", EUR: "EMU", GBP: "GBR", JPY: "JPN", CHF: "CHE", CAD: "CAN", AUD: "AUS", NZD: "NZL",
@@ -33,7 +34,7 @@ async function latestWorldBank(country: string, indicator: string) {
   if (!response.ok) return null;
   const body = await response.json() as [unknown, { value: number | null; date: string }[]];
   const row = body?.[1]?.find((item) => typeof item.value === "number");
-  return row ? { value: row.value as number, period: row.date } : null;
+  return row ? { value: row.value as number, period: row.date, receivedAt: new Date().toISOString() } : null;
 }
 
 async function latestFred(apiKey: string, seriesId: string) {
@@ -50,7 +51,7 @@ async function latestFred(apiKey: string, seriesId: string) {
   if (!response.ok) return null;
   const body = await response.json() as { observations?: { value: string; date: string }[] };
   const row = body.observations?.find((item) => item.value !== "." && Number.isFinite(Number(item.value)));
-  return row ? { value: Number(row.value), period: row.date } : null;
+  return row ? { value: Number(row.value), period: row.date, receivedAt: new Date().toISOString() } : null;
 }
 
 async function alphaMomentum(apiKey: string, currency: Exclude<CurrencyCode, "USD">) {
@@ -79,7 +80,7 @@ async function alphaMomentum(apiKey: string, currency: Exclude<CurrencyCode, "US
   const shortReturn = Math.log(latest.close / day20.close);
   const longReturn = Math.log(latest.close / day60.close);
   const score = Math.max(0.05, Math.min(0.95, 0.5 + shortReturn * 4.5 + longReturn * 2.2));
-  return { close: latest.close, period: latest.period, score, closes: rows };
+  return { close: latest.close, period: latest.period, score, closes: rows, receivedAt: new Date().toISOString() };
 }
 
 async function centralBankSignals() {
@@ -142,6 +143,7 @@ export async function POST(request: Request) {
   let alphaValues = 0;
   let nlpValues = 0;
   let vix: number | null = payload.regime.vix;
+  const receipts: Receipt[] = [];
   const observations: { currency: string; metric: string; value: number; period: string; source: string; observedAt: string }[] = [];
 
   try {
@@ -161,6 +163,7 @@ export async function POST(request: Request) {
       if (!result) continue;
       (currency as unknown as Record<string, unknown>)[metric] = result.value;
       liveValues += 1;
+      receipts.push({currency:currency.code,metric,value:result.value,period:result.period,source:"World Bank Open Data",receivedAt:result.receivedAt});
       observations.push({ currency: currency.code, metric, value: result.value, period: result.period, source: "World Bank Open Data", observedAt: new Date().toISOString() });
     }
   }));
@@ -177,6 +180,7 @@ export async function POST(request: Request) {
         if (!result) continue;
         (usd as unknown as Record<string, unknown>)[metric] = result.value;
         fredValues += 1;
+        receipts.push({currency:"USD",metric,value:result.value,period:result.period,source:"FRED",receivedAt:result.receivedAt});
         observations.push({
           currency: "USD",
           metric,
@@ -190,6 +194,7 @@ export async function POST(request: Request) {
     const vixObservation = await latestFred(fredApiKey, "VIXCLS");
     if (vixObservation) {
       vix = vixObservation.value;
+      receipts.push({currency:"GLOBAL",metric:"vix",value:vixObservation.value,period:vixObservation.period,source:"FRED",receivedAt:vixObservation.receivedAt});
       fredValues += 1;
       observations.push({
         currency: "GLOBAL",
@@ -213,6 +218,7 @@ export async function POST(request: Request) {
     for (const { currency, result } of results) {
       if (!result) continue;
       currency.factors.momentum = result.score;
+      receipts.push({currency:currency.code,metric:"momentum",value:result.score,period:result.period,source:"Alpha Vantage",receivedAt:result.receivedAt,observations:result.closes.map(r=>({period:r.period,value:r.close}))});
       alphaValues += 1;
       observations.push(
         { currency: currency.code, metric: "momentum", value: result.score, period: result.period, source: "Alpha Vantage", observedAt: receivedAt },
@@ -308,6 +314,11 @@ export async function POST(request: Request) {
       return source;
     }),
   };
+
+  // Metadata failure must not change core refresh success or reuse a stale certificate.
+  delete (refreshed as ProvenancePayload).inputProvenance;
+  try { (refreshed as ProvenancePayload).inputProvenance = await captureProvenance(refreshed,previous as ProvenancePayload | undefined,receipts); }
+  catch { /* Missing provenance fails closed in research. */ }
 
   try {
     const db = getDb();

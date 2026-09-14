@@ -2,6 +2,10 @@ import { advance, factory, flags, makeFrame, PROTOCOL, SEARCH_BUDGET, statuses, 
 import { buildPairForecast } from "../lib/model-engine";
 import { currencies, sanitizeModelSettings, type TerminalPayload } from "../lib/terminal-data";
 import type { AuditClose } from "../lib/calibration";
+import { signalProvenance, verifyProvenance, PROVENANCE_VERSION, type ProvenancePayload } from "../lib/hypothesis/provenance";
+import { allocation, buildOverlay } from "../lib/hypothesis/adapter";
+import { archiveOutcomes } from "./hypothesis-outcomes";
+import { productionOverlay } from "./hypothesis-integration";
 
 interface Statement { bind(...v:unknown[]):Statement; first<T>():Promise<T|null>; all<T>():Promise<{results:T[]}>; run():Promise<{meta?:{changes?:number}}> }
 export interface ResearchDB { prepare(sql:string):Statement; batch(statements:Statement[]):Promise<unknown> }
@@ -31,10 +35,12 @@ async function frames(db:ResearchDB) {
 export async function researchStatus(env:ResearchEnv) {
   const [state,last,audit]=await Promise.all([read<{hypotheses:Hypothesis[];dataQuality:unknown;updatedAt:string}>(env.DB,"state"),read<unknown>(env.DB,"last-run"),env.DB.prepare("SELECT value FROM terminal_settings WHERE key>=? AND key<? ORDER BY key DESC LIMIT 50").bind(PREFIX+"audit:",PREFIX+"audit;").all<{value:string}>()]);
   const hypotheses=state?.hypotheses??[];
-  return {protocol:PROTOCOL,flags:flags(env),currentContribution:0,maxContribution:.05,productionIntegration:"SEALED",searchBudget:SEARCH_BUDGET,
+  const overlay=await productionOverlay(env);
+  const contribution=overlay?Math.max(0,...overlay.items.map(i=>i.weight)):0;
+  return {protocol:PROTOCOL,flags:flags(env),currentContribution:contribution,maxContribution:.05,productionIntegration:flags(env).requestedWeight===0?"READY_DISABLED":overlay?"ACTIVE_USD_PAIRS":"WAITING_FOR_VERIFIED_DATA",searchBudget:SEARCH_BUDGET,
     counts:Object.fromEntries(statuses.map(s=>[s,hypotheses.filter(h=>h.status===s).length])),hypotheses,lastRun:last,dataQuality:state?.dataQuality??null,
     updatedAt:state?.updatedAt??null,audit:audit.results.map(r=>json(r.value)),limits:{historicalBlocks:120,shadowBlocks:30,walkForwardFolds:3,frameReadLimit:FRAME_LIMIT},
-    notice:"Research diagnostics only. No core score, evidence, forecast, model or training data is modified."};
+    notice:"USD-pair probability adapter only. Fundamental scores, currency clouds, core model and training data stay unchanged."};
 }
 /** Independent lease, append-only frames, atomic state+audit. Core refresh responses are untouched. */
 export async function runResearch(env:ResearchEnv,source="POST_REFRESH",now=new Date().toISOString()) {
@@ -58,6 +64,12 @@ export async function runResearch(env:ResearchEnv,source="POST_REFRESH",now=new 
     ]);
     if(prices.results.length>20000) throw new Error("PRICE_READ_BUDGET_EXCEEDED_REQUIRES_PAGED_RESEARCH");
     const all=[...stored.rows], writes:Statement[]=[], events:unknown[]=[];
+    // Recheck stored certificates before any historical or lagged frame can qualify.
+    for(const f of all)if(!await verifyProvenance(f.provenance))delete f.provenance;
+    for(const f of all)for(const signal of f.signals) {
+      const h=hypotheses.find(h=>h.id===signal.id);
+      signal.pointInTimeVerified=!!h&&signalProvenance(h,f,all,signal.pair.split('/')[0]);
+    }
     const importExcluded={incompatibleSnapshot:0,missingArchivedForecasts:0};
     if(!previous) {
       stage="IMPORT_SNAPSHOTS";
@@ -75,6 +87,7 @@ export async function runResearch(env:ResearchEnv,source="POST_REFRESH",now=new 
         const baseline:Record<string,number>={};
         for(const a of archives.results.filter(a=>a.observed_at===s.as_of&&a.pair.endsWith("/USD"))) baseline[`${a.pair.split("/")[0]}/${a.horizon}`]=a.probability;
         if(!Object.keys(baseline).length) { importExcluded.missingArchivedForecasts++; continue; }
+        if(!await verifyProvenance((raw as ProvenancePayload).inputProvenance))delete (raw as ProvenancePayload).inputProvenance;
         const f=makeFrame(raw,s.as_of,`snapshot:${s.as_of}`,hypotheses,all,baseline);
         f.origin="ARCHIVED_SNAPSHOT";f.recordedAt=now;
         all.push(f); writes.push(insert(db,PREFIX+"frame:"+s.as_of,f,now));
@@ -85,6 +98,7 @@ export async function runResearch(env:ResearchEnv,source="POST_REFRESH",now=new 
       const payload=json<TerminalPayload>(latest.payload);
       if(!captureReadiness(payload)) throw new Error("CURRENT_SNAPSHOT_FORMAT_UNSUPPORTED");
       if(model) payload.model=sanitizeModelSettings(json(model.value));
+      if(!await verifyProvenance((payload as ProvenancePayload).inputProvenance))delete (payload as ProvenancePayload).inputProvenance;
       // Reject stale/baseline/malformed data rather than hydrating synthetic factor defaults.
       if(["live","partial-live"].includes(payload.sourceMode)&&Date.parse(now)-Date.parse(latest.as_of)<=48*3600000) {
         const baselines:Record<string,number>={};
@@ -94,31 +108,36 @@ export async function runResearch(env:ResearchEnv,source="POST_REFRESH",now=new 
       }
     }
     const dataVersion=`${PROTOCOL};frames=${all.length};through=${all.at(-1)?.issuedAt??"none"}`;
+    stage="ARCHIVE_OUTCOMES";
+    const ledger=await archiveOutcomes(db,all,prices.results,now);
     stage="EVALUATE";
-    const next=hypotheses.map(h=>advance(h,all,prices.results,now,dataVersion));
+    const next=hypotheses.map(h=>allocation(advance(h,all,prices.results,now,dataVersion,ledger),h,flags(env),now));
+    const overlay=buildOverlay(next,all.at(-1),flags(env),now);
+    const contribution=overlay?Math.max(0,...overlay.items.map(i=>i.weight)):0;
     for(let i=0;i<next.length;i++) {
       const a=hypotheses[i],b=next[i];
       if(a.status!==b.status||a.weight!==b.weight||a.look!==b.look) events.push({event:b.status,id:b.id,reason:b.reason,previousStatus:a.status,oldWeight:a.weight,newWeight:b.weight,metrics:b.shadow??b.historical?.final??null});
     }
     const quality={importExcluded,snapshotCount:all.length,prospectiveCaptures:all.filter(f=>f.origin==="PROSPECTIVE_CAPTURE").length,
       historicalCaptures:all.filter(f=>f.origin==="ARCHIVED_SNAPSHOT").length,first:all[0]?.issuedAt??null,last:all.at(-1)?.issuedAt??null,
-      priceRows:prices.results.length,priceSource:"Alpha Vantage daily closes; existing calendar-day outcome definition",pointInTimeVerified:false,
+      priceRows:prices.results.length,priceSource:"Alpha Vantage daily closes; existing calendar-day outcome definition",pointInTimeVerified:all.length>0&&all.every(f=>f.signals.length>0&&f.signals.every(s=>s.pointInTimeVerified)),
+      provenanceVersion:PROVENANCE_VERSION,verifiedSignals:all.reduce((n,f)=>n+f.signals.filter(s=>s.pointInTimeVerified).length,0),archivedOutcomes:ledger.length,
       source:"Persisted terminal snapshots and archived pair forecasts; prospective captures use the saved core model",
-      limitations:["Per-factor publication times, vintages and imputation/fallback provenance are absent: production blocked.","No historical consensus surprise series: surprise ideas are not generated.","FX currencies share USD exposure; inference uses time blocks, not currency count.","Embargo does not prove independent observations; regime and serial-dependence research remains necessary.","Price history is read as stored; resolved outcomes are not represented as immutable market vintages."],
+      limitations:["New receipts record actual retrieval time and exact inputs. Legacy/fallback factors remain unverified; economic periods are not release dates.","No historical consensus surprise series: surprise ideas are not generated.","FX currencies share USD exposure; inference uses time blocks, not currency count.","Embargo does not prove independent observations; regime and serial-dependence research remains necessary.","Completed research labels and their exact prices are archived once; provider revisions cannot overwrite them. New source coverage may still be required for legacy factors."],
       freshSnapshot:!!latest&&Date.parse(now)-Date.parse(latest.as_of)<=48*3600000,readLimitReached:false};
-    const run={id,source,at:now,status:"SUCCESS",result:next.every(h=>h.status==="INSUFFICIENT_DATA")?"WAITING_FOR_DATA":"EVALUATED",candidates:next.length,frames:all.length,productionContribution:0,dataVersion};
+    const run={id,source,at:now,status:"SUCCESS",result:next.every(h=>h.status==="INSUFFICIENT_DATA")?"WAITING_FOR_DATA":"EVALUATED",candidates:next.length,frames:all.length,productionContribution:contribution,dataVersion};
     // Frame inserts are idempotent. State and its complete decision trail commit together.
     stage="SAVE_FRAMES";
     for(let i=0;i<writes.length;i+=25) await db.batch(writes.slice(i,i+25));
     stage="SAVE_STATE";
     await db.batch([
-      upsert(db,PREFIX+"state",{hypotheses:next,updatedAt:now,dataQuality:quality},now),
+      upsert(db,PREFIX+"state",{hypotheses:next,updatedAt:now,dataQuality:quality,productionOverlay:overlay},now),
       insert(db,PREFIX+`audit:${now}:${id}`,{at:now,runId:id,version:PROTOCOL,dataVersion,events},now),
       insert(db,PREFIX+`run:${now}:${id}`,run,now),upsert(db,PREFIX+"last-run",run,now),
     ]);
     return run;
   } catch (error) {
-    const known=["CURRENT_SNAPSHOT_FORMAT_UNSUPPORTED","REGISTRY_VERSION_MISMATCH","FRAME_READ_BUDGET_EXCEEDED_REQUIRES_PAGED_RESEARCH","PRICE_READ_BUDGET_EXCEEDED_REQUIRES_PAGED_RESEARCH","HISTORICAL_IMPORT_BUDGET_EXCEEDED","NO_FRESH_LIVE_SNAPSHOT"];
+    const known=["CURRENT_SNAPSHOT_FORMAT_UNSUPPORTED","REGISTRY_VERSION_MISMATCH","FRAME_READ_BUDGET_EXCEEDED_REQUIRES_PAGED_RESEARCH","PRICE_READ_BUDGET_EXCEEDED_REQUIRES_PAGED_RESEARCH","HISTORICAL_IMPORT_BUDGET_EXCEEDED","NO_FRESH_LIVE_SNAPSHOT","OUTCOME_READ_BUDGET_EXCEEDED","OUTCOME_INTEGRITY_FAILURE"];
     const code=error instanceof Error&&known.includes(error.message)?error.message:"STORAGE_OR_INPUT_ERROR";
     const run={id,source,at:now,status:"FAILED",stage,productionContribution:0,message:`${code} at ${stage}; research failed closed; core untouched.`};
     await db.batch([insert(db,PREFIX+`run:${now}:${id}`,run,now),upsert(db,PREFIX+"last-run",run,now)]).catch(()=>{});

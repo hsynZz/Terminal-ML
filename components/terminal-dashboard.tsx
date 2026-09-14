@@ -36,6 +36,8 @@ import {
   type DistributionPoint,
 } from "@/lib/model-engine";
 
+import { applyPairOverlay, type Overlay } from "@/lib/hypothesis/adapter";
+
 const currencyColors: Record<CurrencyCode, string> = {
   USD: "#5f8cff",
   EUR: "#f3bd4d",
@@ -99,14 +101,37 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
   const [quote, setQuote] = useState<CurrencyCode>("USD");
   const [draftModel, setDraftModel] = useState(payload.model);
   const [savingModel, setSavingModel] = useState(false);
+  const [overlayClock, setOverlayClock] = useState(0);
+  const hasOverlay = !!(payload as TerminalPayload & {hypothesisOverlay?:Overlay}).hypothesisOverlay;
+  // An active overlay expires locally and rechecks the server kill switch every 30 seconds.
+  useEffect(() => {
+    if (!hasOverlay) return;
+    let active = true;
+    const timer = setInterval(async () => {
+      setOverlayClock(Date.now());
+      try {
+        const response = await fetch("/api/terminal", {cache:"no-store"});
+        if (!response.ok) throw new Error("Overlay check unavailable");
+        const latest = await response.json() as TerminalPayload;
+        if (active) setPayload(latest);
+      } catch {
+        if (active) setPayload(current => {
+          const next = {...current} as TerminalPayload & {hypothesisOverlay?:Overlay};
+          delete next.hypothesisOverlay;
+          return next;
+        });
+      }
+    }, 30000);
+    return () => { active = false; clearInterval(timer); };
+  }, [hasOverlay]);
 
   const distribution = useMemo(
     () => buildModelDistribution(payload, selected),
     [payload, selected],
   );
   const pairForecast = useMemo(
-    () => buildPairForecast(payload, base, quote),
-    [payload, base, quote],
+    () => applyPairOverlay(buildPairForecast(payload, base, quote), `${base}/${quote}`, payload.asOf, (payload as TerminalPayload & {hypothesisOverlay?:Overlay}).hypothesisOverlay),
+    [payload, base, quote, overlayClock],
   );
 
   const strongest = distribution.estimates[0];
@@ -323,6 +348,7 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
             {pairForecast.map((forecast) => (
               <div key={forecast.horizon}>
                 <span>{forecast.horizon}T</span>
+                {forecast.hypothesis&&<small>Hypothese: {(forecast.hypothesis.adjustment*100).toFixed(2)} Prozentpunkte · Core {percent(forecast.hypothesis.coreProbability)}</small>}
                 <strong className={forecast.signal === "neutral" ? "" : forecast.signal === "up" ? "positive" : "negative"}>{percent(forecast.probability)}</strong>
                 <small title={`Konfidenz aus Signalstreuung und ${forecast.sampleCount} Trainingsbeispielen`}>
                   {forecast.signal === "neutral" ? "NEUTRAL" : forecast.signal === "up" ? "LONG" : "SHORT"} · CONF {percent(forecast.confidence)}
