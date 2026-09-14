@@ -2,19 +2,15 @@
 
 ## Safety boundary / completion status
 
-Current production contribution is **exactly 0%**. Core modules are not edited or
-connected to research. `HYPOTHESIS_ENGINE_ENABLED=false` disables research jobs.
-`HYPOTHESIS_PRODUCTION_WEIGHT` defaults to 0 and accepts only finite [0,.05].
-`LIVE_INTEGRATION_APPROVED=false` is an additional hard interlock: setting the
-environment weight cannot activate scores. No secret changes are necessary.
-
-This release implements a research laboratory, **not the entire requested
-autonomous production-promotion system**. The existing snapshots have no reliable
-per-input publication/vintage/imputation lineage. That prevents honest production
-certification. A future integration review must specify how a horizon-specific
-probability signal maps to the core's multiple distinct score/latent surfaces.
-Blindly adding probability points to fundamental strength would be incorrect.
-The separate `safety.ts` policy is tested but is not a live integration.
+See [the current integration contract](HYPOTHESIS_INTEGRATION.md) for receipt
+capture, immutable outcomes, qualification and the disabled-by-default adapter.
+Production budget remains zero. The core model, factor formulas, fundamental
+scores, currency-cloud points, calibration and retraining are unchanged.
+The only implemented output mapping is a small probability overlay for a
+qualified base/USD pair at its exact validated horizon. It does not extrapolate
+USD evidence into crosses, latent cloud points or fundamental factor strength.
+Old missing provenance is never certified retroactively. The protocol below
+retains its original search budget, thresholds, chronology and alpha spending.
 
 ## Search and definitions
 
@@ -45,10 +41,11 @@ Historical frames have `origin=ARCHIVED_SNAPSHOT`, historic `issuedAt` and today
 `origin=PROSPECTIVE_CAPTURE`, issuedAt=recordedAt, and store the then-saved model's
 baseline probabilities. Frames are insert-only in an independent namespace.
 No baseline hydration is used to manufacture missing research observations.
-However existing factors can already contain fallbacks: `pointInTimeVerified=false`
-is explicit for ALL currently available inputs. Research metrics are diagnostic.
-Live closes are read from existing observations and are not certified immutable
-price vintages. Missing prices remain pending, never synthesized.
+However existing factors can already contain fallbacks: `pointInTimeVerified=false` remains explicit for legacy/fallback inputs. New
+receipts can qualify exact supported factors; see the integration contract.
+Live closes are read from existing observations. Completed research outcomes
+and their actual entry/exit prices are now archived insert-only. Missing prices
+remain pending, never synthesized.
 
 ## Statistical protocol
 
@@ -86,10 +83,11 @@ issued, prospectively recorded SHADOW rows count. At least30 new embargoed block
 evaluate only after ten new blocks. Baseline degradation yields DEGRADED, zero weight.
 Unconditional ideas require two regimes with at least ten blocks; conditional ideas
 require thirty blocks in their declared regime. No post-hoc regime mining.
-PIT certification is required even for VALIDATED. Current sources cannot supply it.
+PIT certification is required even for VALIDATED. Qualification now uses only
+verified input receipts and immutable outcomes; legacy diagnostics do not qualify.
 These requirements can take many years, especially at90D, not merely a few weeks.
 
-The **unconnected** safety proposal starts at .5%, increases by .1% per ten new
+The separate general-currency safety proposal (still not a live target mapping) starts at .5%, increases by .1% per ten new
 independent blocks, caps each idea at1% and the complete layer at5%. It rejects
 missing/stale evidence (>48h), invalid signals, unvalidated regimes; missing edge
 or worse calibration ->0, weak stability ->half. Same-family or abs(correlation)
@@ -119,10 +117,11 @@ free compute limits. Lease is separate and expires after120 seconds.
 
 ## Known incomplete requirements
 
-- Automatic production influence / production promotions: NOT IMPLEMENTED live;
-  safety policy only. Need certified provenance and a separately verified mapping.
+- The USD-pair probability adapter is implemented but its budget remains zero.
+  Crosses, fundamental scores and cloud-point mappings are not validated targets.
 - Newly learned template generation, post-hoc validated regime discovery, long-history
-  paging, immutable outcome archival and indefinite-volume execution: not implemented.
+  paging and indefinite-volume execution: not implemented. Outcome archival is
+  now implemented; see the integration contract.
 - Actual live shadow success and prediction improvement: WAITING FOR DATA.
 - Real background scheduling and production research runs: must be verified from
   persisted run records, not inferred from code, deployment or synthetic tests.

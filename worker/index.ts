@@ -5,6 +5,7 @@ import { automationRequest, executeJob, healthResponse } from "./automation";
 import { dueJob } from "./automation-policy";
 import { requireAuthenticatedSiteUser } from "./site-auth";
 import { queueResearch, researchStatus, runResearch } from "./hypothesis-research";
+import { integrateResponse } from "./hypothesis-integration";
 
 interface Env {
   ASSETS: Fetcher;
@@ -64,7 +65,7 @@ const worker = {
       return Response.json(result, { status: result.status === "FAILED" ? 503 : 200, headers: { "Cache-Control": "no-store" } });
     }
     if (request.method === "POST" && ["/api/refresh", "/api/retrain"].includes(url.pathname)) {
-      return executeJob(env, invoke, url.pathname === "/api/refresh" ? "DAILY_REFRESH" : "WEEKLY_RETRAIN", "MANUAL", { request });
+      return integrateResponse(request, await executeJob(env, invoke, url.pathname === "/api/refresh" ? "DAILY_REFRESH" : "WEEKLY_RETRAIN", "MANUAL", { request }), env);
     }
 
     if (url.pathname === "/_vinext/image") {
@@ -78,7 +79,7 @@ const worker = {
       }, allowedWidths);
     }
 
-    return handler.fetch(request, env, ctx);
+    return integrateResponse(request, await handler.fetch(request, env, ctx), env);
   },
   async scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
     const type = dueJob(controller.cron, controller.scheduledTime);

@@ -43,7 +43,4 @@ jobs:
 
       - name: Build production artifact
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
-        env:
-          SITES_ENV_READY: '1'
-          SITES_PROJECT_ROOT: ${{ github.workspace }}
         run: npm run build
