@@ -1,0 +1,49 @@
+name: Terminal build and regression checks
+
+on:
+  push:
+    branches: [main, 'codex/hypothesis-safety-ci']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Validation only. No Cloudflare/Sites secrets, deployment or database access.
+permissions:
+  contents: read
+
+concurrency:
+  group: terminal-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      CI: 'true'
+      WRANGLER_SEND_METRICS: 'false'
+      WRANGLER_WRITE_LOGS: 'false'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+
+      - name: Install locked dependencies
+        id: install
+        run: npm ci --no-audit --no-fund
+
+      - name: Run all regression tests
+        run: node --test tests/*.test.mjs
+
+      - name: Build production artifact
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        env:
+          SITES_ENV_READY: '1'
+          SITES_PROJECT_ROOT: ${{ github.workspace }}
+        run: npm run build
