@@ -1,0 +1,94 @@
+name: One-off Production Diagnostic
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/production-diagnostic.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Probe production Terminal ML
+        shell: bash
+        env:
+          AUTOMATION_SECRET: ${{ secrets.AUTOMATION_SECRET }}
+          BASE_URL: https://fx-macro-terminal.hysnzz.chatgpt.site
+        run: |
+          set -euo pipefail
+          AUTH_HEADER='oai-authenticated-user-email: terminal-diagnostic@example.invalid'
+
+          curl -fsS --max-time 30 -H "$AUTH_HEADER" "$BASE_URL/api/health" -o /tmp/health-before.json || true
+
+          if [ -n "${AUTOMATION_SECRET:-}" ]; then
+            echo "Automation secret is available in GitHub; exercising /api/automation/run in CONTROLLED_TEST mode."
+            curl -fsS --max-time 240               -H 'Content-Type: application/json'               -H "Authorization: Bearer $AUTOMATION_SECRET"               -X POST               --data '{"type":"DAILY_REFRESH","source":"CONTROLLED_TEST"}'               "$BASE_URL/api/automation/run" -o /tmp/refresh.json
+          else
+            echo "AUTOMATION_SECRET is not available in GitHub; exercising the same production refresh endpoint through authenticated manual mode."
+            curl -fsS --max-time 240               -H "$AUTH_HEADER"               -X POST               "$BASE_URL/api/refresh" -o /tmp/refresh.json
+          fi
+
+          curl -fsS --max-time 30 -H "$AUTH_HEADER" "$BASE_URL/api/health" -o /tmp/health-after.json
+          curl -fsS --max-time 30 -H "$AUTH_HEADER" "$BASE_URL/api/terminal" -o /tmp/terminal.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const read = p => JSON.parse(fs.readFileSync(p,'utf8'));
+          const refresh = read('/tmp/refresh.json');
+          const health = read('/tmp/health-after.json');
+          const terminal = read('/tmp/terminal.json');
+
+          const currencies = Array.isArray(terminal.currencies) ? terminal.currencies : [];
+          const evidence = Array.isArray(terminal.evidence) ? terminal.evidence : [];
+          const sources = Array.isArray(terminal.sources) ? terminal.sources : [];
+
+          const summary = {
+            refreshStatus: refresh.status ?? null,
+            refreshAsOf: refresh.asOf ?? refresh.snapshotAfter ?? null,
+            refreshSourceMode: refresh.sourceMode ?? null,
+            healthCheckedAt: health.checkedAt ?? null,
+            snapshotAsOf: health.snapshot?.asOf ?? null,
+            snapshotAgeSeconds: health.snapshot?.ageSeconds ?? null,
+            lastSuccessfulDailyRefresh: health.lastSuccessfulDailyRefresh ? {
+              status: health.lastSuccessfulDailyRefresh.status,
+              source: health.lastSuccessfulDailyRefresh.source,
+              timestamp: health.lastSuccessfulDailyRefresh.timestamp,
+              snapshotBefore: health.lastSuccessfulDailyRefresh.snapshotBefore,
+              snapshotAfter: health.lastSuccessfulDailyRefresh.snapshotAfter,
+              snapshotAdvanced: health.lastSuccessfulDailyRefresh.snapshotAdvanced
+            } : null,
+            lastDailyRun: health.lastDailyRun ? {
+              status: health.lastDailyRun.status,
+              source: health.lastDailyRun.source,
+              timestamp: health.lastDailyRun.timestamp,
+              message: health.lastDailyRun.message,
+              snapshotBefore: health.lastDailyRun.snapshotBefore,
+              snapshotAfter: health.lastDailyRun.snapshotAfter,
+              snapshotAdvanced: health.lastDailyRun.snapshotAdvanced
+            } : null,
+            dailyScheduler: health.dailyScheduler ? {
+              status: health.dailyScheduler.status,
+              verification: health.dailyScheduler.verification,
+              lastOutcome: health.dailyScheduler.lastOutcome,
+              evidence: health.dailyScheduler.evidence ? {
+                status: health.dailyScheduler.evidence.status,
+                source: health.dailyScheduler.evidence.source,
+                timestamp: health.dailyScheduler.evidence.timestamp,
+                message: health.dailyScheduler.evidence.message
+              } : null
+            } : null,
+            terminalAsOf: terminal.asOf ?? null,
+            terminalSourceMode: terminal.sourceMode ?? null,
+            currencyCount: currencies.length,
+            evidenceCount: evidence.length,
+            connectedSources: sources.filter(s => s.status === 'connected').map(s => s.name),
+            missingSources: sources.filter(s => s.status === 'missing').map(s => s.name),
+          };
+          console.log('PRODUCTION_DIAGNOSTIC=' + JSON.stringify(summary));
+          if (!summary.snapshotAsOf || !summary.terminalAsOf || summary.currencyCount !== 8) process.exit(2);
+          NODE
