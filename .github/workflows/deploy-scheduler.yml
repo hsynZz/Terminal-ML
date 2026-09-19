@@ -32,24 +32,48 @@ jobs:
       - name: Run scheduler tests
         run: node --test tests/automation.test.mjs
 
-      - name: Normalize Cloudflare token format
+      - name: Normalize and verify Cloudflare credentials
         shell: bash
         env:
           RAW_CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          RAW_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           token="$(printf '%s' "$RAW_CLOUDFLARE_API_TOKEN" | sed -e 's/^Bearer[[:space:]]*//' -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//" | tr -d '[:space:]')"
+          account_id="$(printf '%s' "$RAW_CLOUDFLARE_ACCOUNT_ID" | tr -d '[:space:]')"
           token="${token#Bearer }"
-          if [ -z "$token" ]; then echo 'Cloudflare token secret is empty.'; exit 1; fi
+
+          if [ -z "$token" ]; then
+            echo 'Cloudflare token secret is empty.'
+            exit 1
+          fi
+
           printf '%s' "$token" | awk '{ if (length($0) < 20) { print "Cloudflare token is unexpectedly short."; exit 1 } }'
-          verify="$(curl -sS --max-time 20 -H "Authorization: Bearer $token" https://api.cloudflare.com/client/v4/user/tokens/verify)"
+
+          if [[ "$token" == cfat_* ]]; then
+            if [ -z "$account_id" ]; then
+              echo 'Account-owned Cloudflare token detected, but CLOUDFLARE_ACCOUNT_ID secret is missing.'
+              exit 1
+            fi
+            verify_url="https://api.cloudflare.com/client/v4/accounts/$account_id/tokens/verify"
+            token_kind='account'
+          else
+            verify_url='https://api.cloudflare.com/client/v4/user/tokens/verify'
+            token_kind='user'
+          fi
+
+          verify="$(curl -sS --max-time 20 -H "Authorization: Bearer $token" "$verify_url")"
           if ! printf '%s' "$verify" | grep -q '"success":true'; then
             code="$(printf '%s' "$verify" | sed -n 's/.*"code":\([0-9][0-9]*\).*/\1/p' | head -1)"
             message="$(printf '%s' "$verify" | sed -n 's/.*"message":"\([^"]*\)".*/\1/p' | head -1)"
-            echo "Cloudflare token verification failed (code=${code:-unknown}, message=${message:-unknown})."
+            echo "Cloudflare $token_kind token verification failed (code=${code:-unknown}, message=${message:-unknown})."
             exit 1
           fi
-          echo 'Cloudflare token format and API verification passed.'
+
+          echo "Cloudflare $token_kind token verification passed."
           printf 'CLOUDFLARE_API_TOKEN=%s\n' "$token" >> "$GITHUB_ENV"
+          if [ -n "$account_id" ]; then
+            printf 'CLOUDFLARE_ACCOUNT_ID=%s\n' "$account_id" >> "$GITHUB_ENV"
+          fi
 
       - name: Deploy scheduler Worker
         run: npx wrangler@4.92.0 deploy --config worker/scheduler/wrangler.jsonc
