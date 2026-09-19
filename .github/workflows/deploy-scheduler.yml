@@ -49,6 +49,14 @@ jobs:
 
           printf '%s' "$token" | awk '{ if (length($0) < 20) { print "Cloudflare token is unexpectedly short."; exit 1 } }'
 
+          case "$token" in
+            cfat_*) detected_kind='account-token' ;;
+            cfut_*) detected_kind='user-token' ;;
+            cfk_*) detected_kind='global-api-key' ;;
+            *) detected_kind='legacy-or-unknown' ;;
+          esac
+          echo "Cloudflare credential classification: $detected_kind; length=${#token}; account_id_present=$([ -n "$account_id" ] && echo yes || echo no)."
+
           if [[ "$token" == cfat_* ]]; then
             if [ -z "$account_id" ]; then
               echo 'Account-owned Cloudflare token detected, but CLOUDFLARE_ACCOUNT_ID secret is missing.'
