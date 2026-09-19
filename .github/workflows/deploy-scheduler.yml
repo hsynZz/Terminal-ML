@@ -42,7 +42,12 @@ jobs:
           if [ -z "$token" ]; then echo 'Cloudflare token secret is empty.'; exit 1; fi
           printf '%s' "$token" | awk '{ if (length($0) < 20) { print "Cloudflare token is unexpectedly short."; exit 1 } }'
           verify="$(curl -sS --max-time 20 -H "Authorization: Bearer $token" https://api.cloudflare.com/client/v4/user/tokens/verify)"
-          printf '%s' "$verify" | grep -q '"success":true' || { echo 'Cloudflare token verification failed; replace the GitHub secret with the raw API token value, not a label or permission description.'; exit 1; }
+          if ! printf '%s' "$verify" | grep -q '"success":true'; then
+            code="$(printf '%s' "$verify" | sed -n 's/.*"code":\([0-9][0-9]*\).*/\1/p' | head -1)"
+            message="$(printf '%s' "$verify" | sed -n 's/.*"message":"\([^"]*\)".*/\1/p' | head -1)"
+            echo "Cloudflare token verification failed (code=${code:-unknown}, message=${message:-unknown})."
+            exit 1
+          fi
           echo 'Cloudflare token format and API verification passed.'
           printf 'CLOUDFLARE_API_TOKEN=%s\n' "$token" >> "$GITHUB_ENV"
 
