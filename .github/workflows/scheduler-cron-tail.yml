@@ -1,0 +1,57 @@
+name: One-off Scheduler Cron Tail
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/scheduler-cron-tail.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  tail:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Normalize Cloudflare credentials
+        shell: bash
+        env:
+          RAW_CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          RAW_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          token="$(printf '%s' "$RAW_CLOUDFLARE_API_TOKEN" | sed -e 's/^Bearer[[:space:]]*//' -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//" | tr -d '[:space:]')"
+          account_id="$(printf '%s' "$RAW_CLOUDFLARE_ACCOUNT_ID" | tr -d '[:space:]')"
+          test -n "$token"
+          test -n "$account_id"
+          printf 'CLOUDFLARE_API_TOKEN=%s\n' "$token" >> "$GITHUB_ENV"
+          printf 'CLOUDFLARE_ACCOUNT_ID=%s\n' "$account_id" >> "$GITHUB_ENV"
+
+      - name: Tail production scheduler through next cron
+        shell: bash
+        run: |
+          set +e
+          timeout 1500s npx wrangler@4.92.0 tail fx-terminal-scheduler --format json > /tmp/tail.log 2>&1
+          rc=$?
+          set -e
+          echo "wrangler_tail_exit=$rc"
+          echo "--- matched scheduler events ---"
+          grep -E 'FX_AUTOMATION|CLOUDFLARE_CRON|DAILY_REFRESH|Automation failed|Terminal HTTP|next scheduled retry|Refresh returned snapshot|already completed|WAITING|SUCCESS|FAILED' /tmp/tail.log || true
+          echo "--- end matched scheduler events ---"
+          if ! grep -q 'CLOUDFLARE_CRON' /tmp/tail.log; then
+            echo "No production cron invocation observed during the tail window."
+            exit 2
+          fi
