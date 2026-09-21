@@ -3,7 +3,7 @@ import { calibrationMetrics } from './calibration';
 import { independentBlocks, signP, type Sample } from './hypothesis/engine';
 import { trainLearnedWeights, type TrainingExample } from './retraining';
 import { coreEvidence, type EvidenceAttribution } from './adaptive-evidence';
-import { DATA_VERSION, dayMs, type Observation, type ProductionPayload } from './production-data';
+import { DATA_VERSION, dayMs, type Observation, type ProductionPayload, type SourceCheck } from './production-data';
 
 export const RESEARCH_VERSION='prospective-evidence-v2';
 export const outcomeHorizons=[1,3,5,10,30,60,90] as const;
@@ -15,6 +15,15 @@ export type Gate={passed:boolean;reason:string;blocks:number;samples:number;adju
 const clamp=(v:number,lo=-1,hi=1)=>Math.max(lo,Math.min(hi,v));
 const mean=(a:number[])=>a.length?a.reduce((s,v)=>s+v,0)/a.length:0;
 const addDays=(at:string,n:number)=>new Date(Date.parse(at.slice(0,10))+n*dayMs).toISOString().slice(0,10);
+
+/** A failed unrelated metric must not disqualify independently received, validated features. */
+export function researchSourceChecks(frame:Pick<ResearchFrame,'features'|'sources'>,checks:SourceCheck[]){
+  const dependencies:Record<string,string[]>={policy:['rate'],yields:['yield2y','yield10y'],inflation:['rate','inflation'],growth:['growth','unemployment'],risk:['currentAccount','debt'],momentum:['momentum'],sentiment:['nlpSentiment']};
+  const keys=[...new Set(Object.values(frame.features).flatMap(Object.keys))],metrics=new Set(['vix']);
+  const used=new Set(keys.flatMap(k=>(frame.sources[k]??[]).flatMap(s=>s.split(' + '))));used.add('FRED');
+  for(const k of keys){if(k.startsWith('factor.'))for(const m of dependencies[k.slice(7)]??[])metrics.add(m);else if(k.startsWith('fx.'))metrics.add('fxReferenceUsd');else if(k.startsWith('proxy.'))metrics.add(k);}
+  return checks.filter(c=>(used.has(c.source)||used.has('Official central bank RSS')&&c.metrics.includes('nlpSentiment'))&&c.metrics.some(m=>metrics.has(m)));
+}
 
 export function buildResearchFrame(p:ProductionPayload,observations:Observation[],at=p.asOf):ResearchFrame{
   const features:ResearchFrame['features']={},sources:ResearchFrame['sources']={},prices:Record<string,number>={},volatility:Record<string,number>={};
@@ -52,8 +61,7 @@ export function buildResearchFrame(p:ProductionPayload,observations:Observation[
     const other=currencies.filter(x=>x!==c).map(x=>features[x][key]).filter(Number.isFinite);
     if(other.length>=3)relative[c][key]=clamp(value-mean(other));
   }}
-  const used=new Set(Object.values(sources).flatMap(s=>s.flatMap(x=>x.split(' + '))));
-  const checks=(p.sourceChecks??[]).filter(x=>used.has(x.source)||used.has('Official central bank RSS')&&x.metrics.includes('nlpSentiment'));
+  const checks=researchSourceChecks({features:relative,sources},p.sourceChecks??[]);
   const reliability=checks.length?checks.filter(x=>x.status==='SUCCESS').length/checks.length:0;
   return {id:`frame:${at}`,at,version:DATA_VERSION,regime:p.regime.label,sourceReliability:reliability,regimeVerified:valid.some(o=>o.currency==='GLOBAL'&&o.metric==='vix'),features:relative,sources,core:Object.fromEntries(p.currencies.map(c=>[c.code,coreEvidence(c)])),final:Object.fromEntries(p.currencies.map(c=>[c.code,c.evidenceAttribution?.finalEvidenceScore??coreEvidence(c)])),ml:{},hypotheses:{},modelIds:[],prices,volatility,attributions:Object.fromEntries(p.currencies.filter(c=>c.evidenceAttribution).map(c=>[c.code,c.evidenceAttribution!])),quality:currencies.every(c=>prices[c]>0)?'VALID':'WAITING_FOR_PRICES'};
 }

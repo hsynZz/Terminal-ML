@@ -110,3 +110,14 @@ test('read boundary does not revive stale or changed-input attribution through r
   p.currencies[0].evidenceAttribution.expiresAt='2020-01-01T00:00:00Z';p.currencies[1].factors.momentum=.999;
   await runtime.guardProductionPayload({DB:db},p);assert.equal(p.currencies[0].evidenceAttribution,undefined);assert.equal(p.currencies[1].evidenceAttribution,undefined);sql.close();
 });
+test('source qualification follows actual feature dependencies, not unrelated failed provider metrics',()=>{
+  const p=payload();p.coreFactors=Object.fromEntries(data.currencies.map(c=>[c,{growth:{status:'OBSERVED',source:'World Bank Open Data'}}]));
+  const success=(source,metric)=>({at,source,url:'https://example.org',currency:'ALL',metrics:[metric],status:'SUCCESS',cause:null,fallback:'none',latencyMs:1});
+  p.sourceChecks.push(success('World Bank Open Data','growth'),success('World Bank Open Data','unemployment'),success('FRED','vix'),{...success('World Bank Open Data','debt'),status:'FAILED'});
+  const f=research.buildResearchFrame(p,observations());assert.equal(f.sourceReliability,1);assert.equal(research.researchSourceChecks(f,p.sourceChecks).some(c=>c.metrics.includes('debt')),false);
+  p.sourceChecks.find(c=>c.metrics.includes('growth')).status='FAILED';assert.ok(research.buildResearchFrame(p,observations()).sourceReliability<1);
+});
+test('historical Evidence is evaluated at its issue time, not reinterpreted after attribution expires',()=>{
+  const previous=payload(at),c=previous.currencies[0];c.evidenceAttribution=evidence.combineEvidence(c,[{id:'fixture',kind:'ML',score:.9,weight:.02,confidence:1,regimeFit:1,sourceReliability:1,validated:true}],{at});
+  const next=payload('2026-01-11T17:00:00.000Z');ingest.historicalScores(next,[previous]);assert.equal(next.currencies[0].history.find(h=>h.ageDays===10).score,c.evidenceAttribution.finalEvidenceScore);
+});
