@@ -41,6 +41,9 @@ jobs:
       - name: Run all regression tests
         run: node --test tests/*.test.mjs
 
+      - name: Typecheck and lint
+        run: npx tsc --noEmit && npm run lint
+
       - name: Build production artifact
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm run build

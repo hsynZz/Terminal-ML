@@ -37,6 +37,7 @@ import {
 } from "@/lib/model-engine";
 
 import { applyPairOverlay, type Overlay } from "@/lib/hypothesis/adapter";
+import { ProductionStatus } from './production-status';
 
 const currencyColors: Record<CurrencyCode, string> = {
   USD: "#5f8cff",
@@ -102,7 +103,7 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
   const [draftModel, setDraftModel] = useState(payload.model);
   const [savingModel, setSavingModel] = useState(false);
   const [overlayClock, setOverlayClock] = useState(0);
-  const hasOverlay = !!(payload as TerminalPayload & {hypothesisOverlay?:Overlay}).hypothesisOverlay;
+  const hasOverlay = !!(payload as TerminalPayload & {hypothesisOverlay?:Overlay}).hypothesisOverlay || payload.currencies.some(c=>c.evidenceAttribution?.status==='ACTIVE');
   // An active overlay expires locally and rechecks the server kill switch every 30 seconds.
   useEffect(() => {
     if (!hasOverlay) return;
@@ -118,6 +119,7 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
         if (active) setPayload(current => {
           const next = {...current} as TerminalPayload & {hypothesisOverlay?:Overlay};
           delete next.hypothesisOverlay;
+          next.currencies=next.currencies.map(c=>{const copy={...c};delete copy.evidenceAttribution;return copy;});
           return next;
         });
       }
@@ -130,7 +132,7 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
     [payload, selected],
   );
   const pairForecast = useMemo(
-    () => applyPairOverlay(buildPairForecast(payload, base, quote), `${base}/${quote}`, payload.asOf, (payload as TerminalPayload & {hypothesisOverlay?:Overlay}).hypothesisOverlay),
+    () => applyPairOverlay(buildPairForecast(payload, base, quote), `${base}/${quote}`, payload.asOf, (payload as TerminalPayload & {hypothesisOverlay?:Overlay}).hypothesisOverlay,new Date(overlayClock||Date.parse(payload.asOf)).toISOString()),
     [payload, base, quote, overlayClock],
   );
 
@@ -155,28 +157,6 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
         if (active) {
           setPayload(latest);
           setDraftModel(latest.model);
-        }
-        const now = new Date();
-        const nowParts = new Intl.DateTimeFormat("en-CA", {
-          timeZone: "Europe/Berlin",
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        }).formatToParts(now);
-        const part = (type: string) => Number(nowParts.find((item) => item.type === type)?.value ?? 0);
-        const nowDay = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Berlin" }).format(now);
-        const latestDay = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Berlin" }).format(new Date(latest.asOf));
-        const afterCutoff = part("hour") * 60 + part("minute") >= 17 * 60 + 15;
-        if (active && afterCutoff && (latest.sourceMode === "baseline" || latestDay !== nowDay)) {
-          const refreshed = await fetch("/api/refresh", { method: "POST" });
-          if (refreshed.ok && active) {
-            const next = await refreshed.json() as TerminalPayload;
-            setPayload(next);
-            setDraftModel(next.model);
-          }
         }
       } catch {
         // Keep the last complete snapshot visible.
@@ -272,7 +252,7 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
                   <section className="audit-state">
                     <div><span>ENGINE</span><strong>Probabilistic ensemble</strong></div>
                     <div><span>VERSION</span><strong>{distribution.version}</strong></div>
-                    <div><span>DATA COVERAGE</span><strong>{percent(distribution.coverage)}</strong></div>
+                    <div><span>ABDECKUNG</span><strong>{modeLabel(payload.sourceMode)} · Quellenstatus unten</strong></div>
                     <div><span>TRAINING</span><strong className="warning-text">{payload.model.trainingSamples ? `${payload.model.trainingSamples} Samples` : "Bootstrap"}</strong></div>
                     <div><span>REGIME</span><strong>{payload.regime.label.toUpperCase()} · {percent(payload.regime.riskOffProbability)} RISK-OFF</strong></div>
                     <div><span>VALIDATION</span><strong>{payload.model.validation ? `${payload.model.validation.folds} WALK-FORWARD FOLDS` : "WAITING FOR HISTORY"}</strong></div>
@@ -285,7 +265,7 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
                     <h2>Hybrid-Gewichtung</h2>
                     <p className="weight-help">Modell und Trader-Bias werden vor jeder Prognose zu einem gemeinsamen Gewichtssatz normalisiert.</p>
                     <div className="blend-control">
-                      <div><span>Modellanteil</span><strong>{Math.round(draftModel.modelBlend * 100)}%</strong></div>
+                      <div><span>Feste Basis-Gewichtung</span><strong>{Math.round(draftModel.modelBlend * 100)}%</strong></div>
                       <input
                         type="range"
                         min="0"
@@ -351,7 +331,7 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
                 {forecast.hypothesis&&<small>Hypothese: {(forecast.hypothesis.adjustment*100).toFixed(2)} Prozentpunkte · Core {percent(forecast.hypothesis.coreProbability)}</small>}
                 <strong className={forecast.signal === "neutral" ? "" : forecast.signal === "up" ? "positive" : "negative"}>{percent(forecast.probability)}</strong>
                 <small title={`Konfidenz aus Signalstreuung und ${forecast.sampleCount} Trainingsbeispielen`}>
-                  {forecast.signal === "neutral" ? "NEUTRAL" : forecast.signal === "up" ? "LONG" : "SHORT"} · CONF {percent(forecast.confidence)}
+                  {forecast.signal === "neutral" ? "NEUTRAL" : forecast.signal === "up" ? "LONG" : "SHORT"} · MODELLSTABILITÄT {percent(forecast.confidence)}
                 </small>
               </div>
             ))}
@@ -440,6 +420,7 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
           </section>
         </div>
       </section>
+      <ProductionStatus />
     </main>
   );
 }

@@ -3,7 +3,7 @@ import test, { after } from 'node:test';
 import { DatabaseSync } from 'node:sqlite';
 import { createServer } from 'vite';
 import { readFileSync } from 'node:fs';
-const vite = await createServer({ appType:'custom', configFile:false, server:{middlewareMode:true} });
+const vite = await createServer({ appType:'custom', configFile:false, resolve:{alias:{'@':process.cwd()}}, server:{middlewareMode:true,hmr:false} });
 after(()=>vite.close());
 const policy = await vite.ssrLoadModule('/worker/automation-policy.ts');
 const automation = await vite.ssrLoadModule('/worker/automation.ts');

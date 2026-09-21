@@ -1,14 +1,17 @@
 import { berlinParts, classifyOutcome, dueJob, jobPath, type JobType, type RunSource } from "./automation-policy";
+import { productionHealth } from './production';
+import type { ProductionEnv } from './production';
 
 // Operational records use isolated keys in the existing key/value table.
 // The model key and all domain tables are read-only here.
-type Database = {
-  prepare(sql: string): {
-    bind(...values: unknown[]): any;
+type OperationalStatement = {
+    bind(...values: unknown[]): OperationalStatement;
     first<T = Record<string, unknown>>(): Promise<T | null>;
     all<T = Record<string, unknown>>(): Promise<{ results: T[] }>;
     run(): Promise<{ meta: { changes: number } }>;
   };
+type Database = {
+  prepare(sql: string): OperationalStatement;
 };
 type Environment = { DB: Database; AUTOMATION_SECRET?: string };
 type Invoke = (request: Request) => Promise<Response>;
@@ -54,8 +57,8 @@ export async function executeJob(env: Environment, invoke: Invoke, type: JobType
   let invoked = false;
   let leased = false;
   try {
-    // A single shared lease serializes automated refresh and training without changing either endpoint.
-    if (source !== "MANUAL") {
+    // Manual and scheduled jobs share the lease so their state cannot overwrite one another.
+    {
       const lease = await env.DB.prepare("INSERT INTO terminal_settings (key, value, updated_at) VALUES ('automation:lease', ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at WHERE json_extract(terminal_settings.value, '$.expiresAt') < ?")
         .bind(JSON.stringify({ owner: run.id, expiresAt: now + LEASE_MS }), run.timestamp, now).run();
       leased = lease.meta.changes > 0;
@@ -128,7 +131,7 @@ export async function executeJob(env: Environment, invoke: Invoke, type: JobType
     // Never retry an already-invoked manual endpoint or rewrite its result because logging failed.
     if (source === "MANUAL") {
       if (response) return response;
-      if (!invoked) return invoke(options.request!);
+      if (!invoked) return output(run,503);
     }
     return output(run, 503);
   } finally {
@@ -145,8 +148,9 @@ export async function automationRequest(request: Request, env: Environment, invo
   if (!env.AUTOMATION_SECRET || request.headers.get("Authorization") !== `Bearer ${env.AUTOMATION_SECRET}`) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
-  let body: { type?: JobType; source?: RunSource; cron?: string; scheduledTime?: number };
+  let body: { type?: JobType|'HEALTH'; source?: RunSource; cron?: string; scheduledTime?: number };
   try { body = await request.json(); } catch { return Response.json({ error: "Invalid JSON" }, { status: 400 }); }
+  if(body.type==='HEALTH'&&body.source==='CONTROLLED_TEST')return healthResponse(env,invoke);
   if (!["DAILY_REFRESH", "WEEKLY_RETRAIN"].includes(body.type ?? "") ||
     !["CLOUDFLARE_CRON", "CONTROLLED_TEST"].includes(body.source ?? "")) {
     return Response.json({ error: "Invalid job or source" }, { status: 400 });
@@ -156,7 +160,7 @@ export async function automationRequest(request: Request, env: Environment, invo
     dueJob(body.cron ?? "", body.scheduledTime!) !== body.type)) {
     return Response.json({ error: "Invalid or stale schedule" }, { status: 400 });
   }
-  return executeJob(env, invoke, body.type!, body.source!, body);
+  return executeJob(env, invoke, body.type as JobType, body.source!, body);
 }
 
 export async function healthResponse(env: Environment, invoke: Invoke) {
@@ -167,7 +171,7 @@ export async function healthResponse(env: Environment, invoke: Invoke) {
       if (status) { filters.push("json_extract(value, '$.status') = ?"); bindings.push(status); }
       if (source) { filters.push("json_extract(value, '$.source') = ?"); bindings.push(source); }
       const row = await env.DB.prepare(`SELECT value FROM terminal_settings WHERE ${filters.join(" AND ")} ORDER BY updated_at DESC LIMIT 1`)
-        .bind(...bindings).first();
+        .bind(...bindings).first<{value:string}>();
       return row ? JSON.parse(row.value) as Run : null;
     };
     const [current, records, forecastResponse, dailySuccess, weeklySuccess, dailyCron, weeklyCron] = await Promise.all([
@@ -193,7 +197,8 @@ export async function healthResponse(env: Environment, invoke: Invoke) {
     const model = forecast.model ?? {};
     const fingerprint = current.modelRaw ? Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(current.modelRaw))))
       .map((b) => b.toString(16).padStart(2, "0")).join("") : null;
-    return Response.json({ checkedAt: new Date().toISOString(),
+    const production=await productionHealth(env as unknown as ProductionEnv).catch(()=>({status:'UNAVAILABLE',lastError:'Production status tables unavailable'}));
+    return Response.json({ checkedAt: new Date().toISOString(),production,
       dailyScheduler: scheduler("DAILY_REFRESH", "Daily 17:15; retries 17:30 and 17:45", 27 * 3600000),
       weeklyScheduler: scheduler("WEEKLY_RETRAIN", "Saturday 22:00; retries 22:15, 22:30 and 22:45", 8 * 86400000),
       lastSuccessfulDailyRefresh: dailySuccess,

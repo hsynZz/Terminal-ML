@@ -1,3 +1,4 @@
+import { evidenceShift, type EvidenceAttribution } from './adaptive-evidence';
 export const currencies = ["USD", "EUR", "GBP", "JPY", "CHF", "CAD", "AUD", "NZD"] as const;
 
 export type CurrencyCode = (typeof currencies)[number];
@@ -16,6 +17,7 @@ export type FactorKey =
 export type FactorScores = Record<FactorKey, number>;
 
 export type CurrencySnapshot = {
+  evidenceAttribution?: EvidenceAttribution;
   code: CurrencyCode;
   name: string;
   rate: number;
@@ -237,12 +239,12 @@ const historyDeltas: Record<CurrencyCode, number[]> = {
   AUD: [0, -0.01, 0.01, 0.03, 0.05], NZD: [0, 0.00, 0.03, 0.05, 0.06],
 };
 
-export function strengthScore(currency: Pick<CurrencySnapshot, "factors">) {
+export function strengthScore(currency: Pick<CurrencySnapshot, "factors"> & { evidenceAttribution?: EvidenceAttribution }) {
   const score = (Object.keys(factorMeta) as FactorKey[]).reduce(
     (total, key) => total + currency.factors[key] * factorMeta[key].weight,
     0,
   );
-  return Math.max(0, Math.min(1, score));
+  return Math.max(0, Math.min(1, score + evidenceShift(currency)));
 }
 
 export function pairScore(base: CurrencySnapshot, quote: CurrencySnapshot) {
@@ -313,6 +315,7 @@ function withHistory(item: Omit<CurrencySnapshot, "history">): CurrencySnapshot 
   const ages = [0, 10, 30, 60, 90];
   return {
     ...item,
+    factors: { ...item.factors },
     history: ages.map((ageDays, index) => ({
       ageDays,
       score: Math.max(0.05, Math.min(0.95, current + historyDeltas[item.code][index])),

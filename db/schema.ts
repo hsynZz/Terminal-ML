@@ -51,3 +51,23 @@ export const modelDebugLogs = sqliteTable("model_debug_logs", {
   contributions: text("contributions", { mode: "json" }).notNull(),
   observedAt: text("observed_at").notNull(),
 }, (table) => [index("idx_model_debug_pair_observed").on(table.pair, table.observedAt)]);
+
+// Additive, insert-only archives. Mutable current observations remain a compatibility view.
+export const observationVintages = sqliteTable("observation_vintages", {
+  id: text("id").primaryKey(),
+  currency: text("currency").notNull(),
+  metric: text("metric").notNull(),
+  period: text("period").notNull(),
+  source: text("source").notNull(),
+  receivedAt: text("received_at").notNull(),
+  value: real("value").notNull(),
+  payload: text("payload").notNull(),
+}, t => [index("idx_vintage_lookup").on(t.currency,t.metric,t.period,t.receivedAt)]);
+
+export const productionRecords = sqliteTable("production_records", {
+  id: text("id").primaryKey(),
+  kind: text("kind").notNull(),
+  at: text("at").notNull(),
+  version: text("version").notNull(),
+  payload: text("payload").notNull(),
+}, t => [index("idx_production_kind_at").on(t.kind,t.at)]);

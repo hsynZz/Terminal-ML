@@ -8,6 +8,7 @@ import {
   type ForecastHorizon,
 } from "@/lib/terminal-data";
 import { applyRegimeWeights } from "@/lib/regime";
+import { evidenceShift } from './adaptive-evidence';
 
 export type DistributionPoint = {
   id: string;
@@ -131,7 +132,7 @@ export function effectiveModelWeights(payload: TerminalPayload, horizon?: number
 }
 
 function weightedStrength(currency: CurrencySnapshot, weights: Record<FactorKey, number>) {
-  return factors.reduce((score, factor) => score + currency.factors[factor] * weights[factor], 0);
+  return clamp(factors.reduce((score, factor) => score + currency.factors[factor] * weights[factor], 0) + evidenceShift(currency), 0, 1);
 }
 
 function latentSample(
@@ -152,7 +153,7 @@ function latentSample(
     weighted += clamp(projectedFeature(currency, factor, horizon) + featureNoise, 0, 1) * weight;
     totalWeight += weight;
   }
-  return weighted / totalWeight;
+  return clamp(weighted / totalWeight + evidenceShift(currency),0,1);
 }
 
 function dataCoverage(mode: TerminalPayload["sourceMode"]) {
