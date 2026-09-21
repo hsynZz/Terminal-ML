@@ -105,3 +105,8 @@ test('health reports zero effective influence immediately when killed or expired
   const {db,sql}=sqlite();const p=payload(new Date().toISOString());await (await runtime.prepareProductionSnapshot({DB:db},p,observations(p.asOf))).commit();
   const health=await runtime.productionHealth({DB:db,ADAPTIVE_ENABLED:'false'});assert.equal(health.mlInfluence,0);assert.equal(health.hypothesisInfluence,0);assert.equal(health.status,'CORE_FALLBACK');assert.equal(health.snapshotCount,1);sql.close();
 });
+test('read boundary does not revive stale or changed-input attribution through recombination',async()=>{
+  const {db,sql}=sqlite();const p=payload(new Date().toISOString());await (await runtime.prepareProductionSnapshot({DB:db},p,observations(p.asOf))).commit();
+  p.currencies[0].evidenceAttribution.expiresAt='2020-01-01T00:00:00Z';p.currencies[1].factors.momentum=.999;
+  await runtime.guardProductionPayload({DB:db},p);assert.equal(p.currencies[0].evidenceAttribution,undefined);assert.equal(p.currencies[1].evidenceAttribution,undefined);sql.close();
+});

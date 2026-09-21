@@ -1,4 +1,4 @@
-import { ADAPTIVE_VERSION, combineEvidence, type EvidenceComponent, type EvidenceAttribution } from '../lib/adaptive-evidence';
+import { ADAPTIVE_VERSION, combineEvidence, factorFingerprint, type EvidenceComponent, type EvidenceAttribution } from '../lib/adaptive-evidence';
 import { digest } from '../lib/hypothesis/provenance';
 import { currencies, forecastHorizons, type TerminalPayload } from '../lib/terminal-data';
 import { dayMs, type Observation, type ProductionPayload } from '../lib/production-data';
@@ -157,6 +157,7 @@ export async function productionHealth(env:ProductionEnv){
 export async function guardProductionPayload(env:ProductionEnv,p:TerminalPayload){
   try{const s=await state(env.DB),config=configuration(env);if(!config.enabled||s.lastError||Date.now()-Date.parse(s.at)>36*3600000)throw new Error('ADAPTIVE_DISABLED');
     for(const c of p.currencies){const a=c.evidenceAttribution;if(!a)continue;
+      if(a.version!==ADAPTIVE_VERSION||a.factorFingerprint!==factorFingerprint(c)||!Number.isFinite(Date.parse(a.expiresAt))||Date.parse(a.expiresAt)<Date.now()||!Number.isFinite(a.cap)){delete c.evidenceAttribution;continue;}
       const valid=a.components.filter(x=>x.kind==='ML'?config.ml&&s.championIds.includes(x.id):config.hypothesis&&s.registry.some(r=>r.id===x.id&&r.status==='ACTIVE'));
       c.evidenceAttribution=combineEvidence(c,valid,{at:a.at,cap:Math.min(config.cap,a.cap),enabled:true,modelVersion:a.modelVersion,regime:a.regime});
     }
