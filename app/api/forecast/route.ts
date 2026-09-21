@@ -1,4 +1,6 @@
 import { desc, eq } from "drizzle-orm";
+import { env } from 'cloudflare:workers';
+import { guardProductionPayload, type ProductionEnv } from '@/worker/production';
 import { getDb } from "@/db";
 import { terminalSettings, terminalSnapshots } from "@/db/schema";
 import { buildPairForecast } from "@/lib/model-engine";
@@ -34,15 +36,16 @@ export async function GET(request: Request) {
     payload = hydrateTerminalPayload((latest?.payload as TerminalPayload | undefined) ?? payload);
     if (savedModel?.value) payload.model = sanitizeModelSettings(JSON.parse(savedModel.value) as Partial<ModelSettings>);
   } catch {
-    // Baseline remains available when storage is temporarily unavailable.
+    return Response.json({status:'unavailable',reason:'Forecast storage unavailable'},{status:503});
   }
 
+  await guardProductionPayload(env as unknown as ProductionEnv,payload);
   return Response.json({
     pair: `${base}/${quote}`,
     asOf: payload.asOf,
     forecasts: buildPairForecast(payload, base, quote),
     model: {
-      version: "ML-H 1.2",
+      version: "DETERMINISTIC_CORE + GATED_ADAPTIVE_V2",
       modelBlend: payload.model.modelBlend,
       trainingSamples: payload.model.trainingSamples,
       trainedAt: payload.model.trainedAt,
@@ -51,5 +54,5 @@ export async function GET(request: Request) {
       horizonValidation: payload.model.horizonValidation,
       regime: payload.regime,
     },
-  });
+  },{headers:{'Cache-Control':'private, no-store'}});
 }

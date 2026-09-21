@@ -15,6 +15,13 @@
       "when": 1788559558690,
       "tag": "0001_happy_mandroid",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789946748105,
+      "tag": "0002_sudden_blazing_skull",
+      "breakpoints": true
     }
   ]
 }

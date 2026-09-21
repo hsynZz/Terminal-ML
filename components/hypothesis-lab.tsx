@@ -1,8 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { strengthScore, type TerminalPayload } from "@/lib/terminal-data";
+import Link from 'next/link';
+import { type TerminalPayload } from "@/lib/terminal-data";
 import { statuses, type Hypothesis, type Evaluation } from "@/lib/hypothesis/engine";
 import type { researchStatus } from "@/worker/hypothesis-research";
+import { coreEvidence } from '@/lib/adaptive-evidence';
+import { ProductionStatus } from './production-status';
 type Lab = Awaited<ReturnType<typeof researchStatus>>;
 const percent = (v:number|null|undefined) => typeof v === "number" && Number.isFinite(v) ? `${(v*100).toFixed(2)} %` : "—";
 function Metrics({value}:{value?:Evaluation}) { return value ? <span>{value.blocks} Zeitblöcke · {value.samples} Paar-Outcomes · Accuracy {percent(value.accuracy)} · Brier {value.metrics?.brierScore.toFixed(4)??"—"} · Log Loss {value.metrics?.logLoss.toFixed(4)??"—"} · Δ Brier {value.improvement?.toFixed(4)??"—"} · adj. p {value.adjustedP.toPrecision(3)} · Stabilität {percent(value.stability)}</span> : <span>WAITING FOR DATA — keine abgeschlossene Auswertung</span>; }
@@ -13,13 +16,14 @@ export function HypothesisLab() {
     if(!a.ok||!b.ok) throw new Error("Research-Status nicht verfügbar. Bitte Anmeldung und Verbindung prüfen.");
     setLab(await a.json());setPayload(await b.json());setError("");
   }
-  useEffect(()=>{load().catch(e=>setError(e.message));},[]);
+  useEffect(()=>{let active=true;Promise.all([fetch('/api/hypotheses',{cache:'no-store'}),fetch('/api/terminal',{cache:'no-store'})]).then(async([a,b])=>{if(!a.ok||!b.ok)throw new Error('Research-Status nicht verfügbar');const [first,second]=await Promise.all([a.json(),b.json()]);if(active){setLab(first);setPayload(second);}}).catch(e=>{if(active)setError(e.message);});return()=>{active=false;};},[]);
   async function run() {setBusy(true);try{const r=await fetch("/api/hypotheses/run",{method:"POST"});if(!r.ok)throw new Error("Research-Lauf fehlgeschlagen; Produktion bleibt unbeeinflusst.");await load();}catch(e){setError(e instanceof Error?e.message:"Research nicht verfügbar");}finally{setBusy(false);}}
   const quality=lab?.dataQuality as {snapshotCount:number;prospectiveCaptures:number;historicalCaptures:number;priceRows:number;verifiedSignals?:number;archivedOutcomes?:number;limitations:string[];first:string|null;last:string|null}|null;
   const runInfo=lab?.lastRun as {at:string;status:string;result?:string;id:string;message?:string}|null;
   return <main className="quant-shell hypothesis-lab">
-    <header className="quant-header"><div className="quant-brand"><span>FX</span><div><strong>HYPOTHESIS LAB</strong><small>ISOLATED RESEARCH · {lab?.protocol??"LOADING"}</small></div></div><a href="/">← Terminal</a></header>
-    <section className="lab-intro"><span className="mono-label">RESEARCH ≠ EVIDENCE ≠ PRODUCTION</span><h1>Ideen prüfen. Core schützen.</h1><p>Aktueller Hypothesis-Produktionseinfluss: <strong>{percent(lab?.currentContribution??0)}</strong>. Die begrenzte Anbindung gilt für qualifizierte USD-Paarprognosen. Fundamentale Scores und Punktewolken behalten ihre bisherige Berechnung.</p>
+    <header className="quant-header"><div className="quant-brand"><span>FX</span><div><strong>HYPOTHESIS LAB</strong><small>ISOLATED RESEARCH · {lab?.protocol??"LOADING"}</small></div></div><Link href="/">← Terminal</Link></header>
+    <ProductionStatus />
+    <section className="lab-intro"><span className="mono-label">ERHALTENES RESEARCH-ARCHIV V1</span><h1>Frühere Forschung</h1><p>Die frühere USD-Forschung bleibt getrennt archiviert. Ihr bisheriger Beitrag beträgt <strong>{percent(lab?.currentContribution??0)}</strong>. Die neue Evidence-Pipeline und ihre automatische Freigabe stehen oben.</p>
       <button className="audit-button" onClick={run} disabled={busy}>{busy?"Research läuft …":"Research prüfen / einmal ausführen"}</button><p>Maximal ein erfolgreicher Research-Lauf pro UTC-Tag. Automatischer Anschluss nach erfolgreichem Daily Refresh; kein neuer Cron. Die gespeicherten Ausführungen stehen im Audit Trail.</p>
       {error&&<p role="alert">{error}</p>}{!lab&&!error&&<p role="status">Lade gespeicherten Forschungsstand …</p>}
     </section>
@@ -31,7 +35,7 @@ export function HypothesisLab() {
         {quality&&<><p>{quality.historicalCaptures} historische Captures · {quality.prospectiveCaptures} tatsächlich neue Captures · {quality.priceRows} vorhandene Kurse · {quality.verifiedSignals??0} Signale mit geprüftem Herkunftsnachweis · {quality.archivedOutcomes??0} unveränderlich archivierte Ergebnisse. Abdeckung: {quality.first??"—"} bis {quality.last??"—"}.</p><ul>{quality.limitations.map(x=><li key={x}>{x}</li>)}</ul></>}
         <p>Historischer Gate: 120 nicht überlappende Zeitblöcke mit zusätzlichem Horizon-Embargo, drei Vorwärtsfenster und ein eingefrorener finaler Holdout. Danach mindestens 30 neue Shadow-Zeitblöcke. Das kann bei 60/90 Tagen viele Jahre erfordern; Kalenderzeit allein reicht nicht.</p>
       </section>
-      <section className="lab-panel"><h2>Core / Beitrag / Final</h2><p>Unveränderter fundamentaler Currency Score auf der bestehenden 0–1-Skala, keine Umdeutung als ML-Wahrscheinlichkeit.</p><div className="lab-scroll"><table><thead><tr><th>Währung</th><th>Core</th><th>Hypothesis</th><th>Final</th></tr></thead><tbody>{payload?.currencies.map(c=><tr key={c.code}><th>{c.code}</th><td>{strengthScore(c).toFixed(6)}</td><td>0</td><td>{strengthScore(c).toFixed(6)}</td></tr>)}</tbody></table></div></section>
+      <section className="lab-panel"><h2>Core / Beitrag / Final</h2><p>Deterministischer Core und separat ausgewiesene, validierte Beiträge auf der 0–1-Skala. Keine gemessene Trefferquote.</p><div className="lab-scroll"><table><thead><tr><th>Währung</th><th>Core</th><th>ML</th><th>Hypothesis</th><th>Final</th></tr></thead><tbody>{payload?.currencies.map(c=><tr key={c.code}><th>{c.code}</th><td>{coreEvidence(c).toFixed(6)}</td><td>{(c.evidenceAttribution?.mlContribution??0).toFixed(6)}</td><td>{(c.evidenceAttribution?.hypothesisContribution??0).toFixed(6)}</td><td>{(c.evidenceAttribution?.finalEvidenceScore??coreEvidence(c)).toFixed(6)}</td></tr>)}</tbody></table></div></section>
       <section className="lab-panel"><h2>Hypothesen</h2><label>Status <select value={filter} onChange={e=>setFilter(e.target.value)}><option value="ALL">Alle</option>{statuses.map(s=><option key={s}>{s}</option>)}</select></label>
       {lab.hypotheses.length===0&&<p>Noch keine Kandidaten gespeichert. Der erste erfolgreiche Research-Lauf legt den versionierten Katalog an.</p>}
       {lab.hypotheses.filter(h=>filter==="ALL"||h.status===filter).map((h:Hypothesis)=><details key={h.id} className="lab-hypothesis"><summary><strong>{h.name}</strong> · {h.horizon}D · {h.status} · Gewicht {percent(h.weight)}</summary><p>{h.id} · erstellt {h.createdAt}</p><p>{h.rationale}</p><code>{h.definition}</code><p>Diagnostische Zeitblöcke: {h.diagnosticBlocks??0}. Für die Freigabe zählen ausschließlich belegte Eingangsdaten und archivierte Ergebnisse.</p><p>Inputs: {h.inputs.join(", ")} · Regime: {h.regime} · relative Vergleiche gegen USD</p><p>{h.expectedDirection}</p><p><strong>Entscheidung:</strong> {h.reason}</p><p>Letzte Prüfung: {h.lastEvaluation??"—"} · Point-in-Time: {h.pointInTimeVerified?"VERIFIED":"NOT VERIFIED"}</p>

@@ -6,6 +6,7 @@ import { dueJob } from "./automation-policy";
 import { requireAuthenticatedSiteUser } from "./site-auth";
 import { queueResearch, researchStatus, runResearch } from "./hypothesis-research";
 import { integrateResponse } from "./hypothesis-integration";
+import { productionHealth } from './production';
 
 interface Env {
   ASSETS: Fetcher;
@@ -55,6 +56,10 @@ const worker = {
       if (unauthorized) return unauthorized;
     }
     if (url.pathname === "/api/health" && request.method === "GET") return healthResponse(env, invoke);
+    if (url.pathname === '/api/production' && request.method === 'GET') {
+      try { return Response.json(await productionHealth(env),{headers:{'Cache-Control':'private, no-store'}}); }
+      catch { return Response.json({status:'unavailable',error:'Production status unavailable'},{status:503}); }
+    }
     if (url.pathname === "/api/hypotheses" && request.method === "GET") {
       try { return Response.json(await researchStatus(env), { headers: { "Cache-Control": "no-store" } }); }
       catch { return Response.json({ error: "Research status unavailable", currentContribution: 0 }, { status: 503 }); }

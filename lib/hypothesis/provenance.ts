@@ -4,6 +4,7 @@ export const PROVENANCE_VERSION = 'as-received-v1';
 export type Receipt = {
   currency:string; metric:string; value:number; period:string; source:string; receivedAt:string;
   observations?:{period:string;value:number}[];
+  sourceUrl?:string;
 };
 export type InputRecord = {
   value:number|null; availableAt:string|null; source:string; period:string|null;
