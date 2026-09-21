@@ -2,6 +2,14 @@
 @import "tw-animate-css";
 @import "../vendor/shadcn-tailwind-4.13.0.css";
 
+.production-status { min-width: 0; max-width: 100%; padding: 24px; margin: 18px 0; border: 1px solid #30343b; border-radius: 12px; overflow-wrap: anywhere; }
+.production-status .lab-scroll { max-width: 100%; overflow-x: auto; }
+.production-status table { width: 100%; border-collapse: collapse; }
+.production-status th, .production-status td { padding: 8px; text-align: left; border-bottom: 1px solid #30343b; }
+.production-status details { margin: 12px 0; }
+.production-status summary { cursor: pointer; }
+.production-status h2 { font-size: 1.15rem; font-weight: 650; margin-bottom: 12px; }
+.production-status p { margin: 8px 0; line-height: 1.5; }
 .hypothesis-lab { max-width: 1240px; margin: auto; }
 .hypothesis-lab a { color: inherit; text-decoration: underline; }
 .hypothesis-lab .lab-intro, .hypothesis-lab .lab-panel { padding: 24px; border: 1px solid #30343b; margin: 18px 0; border-radius: 12px; }

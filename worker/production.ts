@@ -2,7 +2,7 @@ import { ADAPTIVE_VERSION, combineEvidence, factorFingerprint, type EvidenceComp
 import { digest } from '../lib/hypothesis/provenance';
 import { currencies, forecastHorizons, type TerminalPayload } from '../lib/terminal-data';
 import { dayMs, type Observation, type ProductionPayload } from '../lib/production-data';
-import { advanceRecipe, buildResearchFrame, chooseChampions, comparisons, currencyPairs, discoverRecipes, modelInDistribution, modelScore, nonRedundant, outcomeHorizons, recipeSignal, RESEARCH_VERSION, resolveFrameTargets, trainChallenger, validationGate, type CandidateModel, type Recipe, type ResearchFrame, type ResolvedTarget } from '../lib/production-research';
+import { advanceRecipe, buildResearchFrame, chooseChampions, comparisons, currencyPairs, discoverRecipes, modelInDistribution, modelScore, nonRedundant, outcomeHorizons, recipeSignal, researchSourceChecks, RESEARCH_VERSION, resolveFrameTargets, trainChallenger, validationGate, type CandidateModel, type Recipe, type ResearchFrame, type ResolvedTarget } from '../lib/production-research';
 import type { ResearchDB } from './hypothesis-research';
 import { buildPairForecast } from '../lib/model-engine';
 import { sourceReliability } from '../lib/source-health';
@@ -69,9 +69,8 @@ export async function prepareProductionSnapshot(env:ProductionEnv,p:ProductionPa
   await resolvePending(db,history,prices,now);
   const current=buildResearchFrame(p,observations),config=configuration(env);
   const previousSources=await db.prepare("SELECT payload FROM production_records WHERE kind='sources' ORDER BY at DESC LIMIT 30").all<{payload:string}>();
-  const reliability=sourceReliability(p.sourceChecks??[],previousSources.results.map(r=>JSON.parse(r.payload).checks??[]));
-  const used=[...new Set(Object.values(current.sources).flatMap(s=>s.flatMap(x=>x.split(' + '))))];
-  current.sourceReliability=Math.min(current.sourceReliability,...used.filter(s=>reliability[s]).map(s=>reliability[s].score));
+  const reliability=sourceReliability(researchSourceChecks(current,p.sourceChecks??[]),previousSources.results.map(r=>researchSourceChecks(current,JSON.parse(r.payload).checks??[])));
+  current.sourceReliability=Math.min(current.sourceReliability,...Object.values(reliability).map(s=>s.score));
   const catalog=discoverRecipes(old.registry,current);
   const allOutcomes:ResolvedTarget[]=[];
   for(const horizon of outcomeHorizons)allOutcomes.push(...await targets(db,horizon));
@@ -105,6 +104,7 @@ export async function prepareProductionSnapshot(env:ProductionEnv,p:ProductionPa
     }
     c.evidenceAttribution=combineEvidence(c,components,{at:now,cap:config.cap,enabled:config.enabled,modelVersion:champions.map(m=>m.id).join(',')||null,regime:current.regime});
     current.final[c.code]=c.evidenceAttribution.finalEvidenceScore;current.attributions[c.code]=c.evidenceAttribution;
+    c.history[0]={ageDays:0,score:current.final[c.code]};
   }
   current.inputIds=inputIds;
   current.pairEvents=currencyPairs(current);
@@ -115,7 +115,7 @@ export async function prepareProductionSnapshot(env:ProductionEnv,p:ProductionPa
   const next:State={...old,at:now,registry,models,championIds,status:qualityOK?(allOutcomes.length?'SHADOW':'WAITING_FOR_DATA'):'WAITING_FOR_QUALITY_DATA',resolved:allOutcomes.length,trainingExamples:allOutcomes.filter(o=>forecastHorizons.includes(o.horizon as 10)).length,lastError:null,rollbackCount:old.rollbackCount+Number(lostChampion)};
   if(p.currencies.some(c=>c.evidenceAttribution!.status==='ACTIVE'))next.status='ACTIVE';
   // New daily predictions are immutable; intraday refreshes retain separate evidence history.
-  const firstToday=!history.some(f=>f.quality==='VALID'&&f.at.slice(0,10)===now.slice(0,10));
+  const firstToday=!history.some(f=>f.quality==='VALID'&&f.regimeVerified===true&&f.sourceReliability>=.8&&f.at.slice(0,10)===now.slice(0,10));
   const writes=[stateWrite(db,next),record(db,'decision',`decision:${now}`,now,{oldChampions:old.championIds,champions:championIds,rollback:lostChampion,registry:registry.map(r=>({id:r.id,status:r.status,weight:r.weight,reason:r.reason})),quality:current.quality}),record(db,'evidence',`evidence:${now}`,now,{asOf:now,attributions:current.attributions,pairs:currencyPairs(current),previous:history.at(-1)?.final??null}),record(db,'sources',`sources:${now}`,now,{checks:p.sourceChecks,quality:current.quality,reliability:current.sourceReliability,providers:reliability})];
   if(firstToday)writes.push(record(db,'frame',current.id,now,current));
   // Commit frame, attribution, lifecycle state and public snapshot atomically.

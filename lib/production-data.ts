@@ -1,5 +1,6 @@
 import { currencies, factorMeta, getBaselinePayload, rebuildDerivedScores, strengthScore, type CurrencyCode, type FactorKey, type TerminalPayload } from './terminal-data';
 import type { Receipt } from './hypothesis/provenance';
+import { coreEvidence, evidenceShift } from './adaptive-evidence';
 
 export const DATA_VERSION = 'observed-core-v2';
 export type Observation = Receipt & { sourceUrl:string; unit:string; releaseDate:string|null; normalizedValue?:number|null; quality:'VALID'|'STALE'|'INVALID'; frequency:string; definition?:string; featureVersion?:string };
@@ -32,7 +33,7 @@ export function historicalScores(payload:ProductionPayload, history:TerminalPayl
       const row=ageDays?history.filter(p=>Date.parse(p.asOf)<=cutoff).sort((a,b)=>b.asOf.localeCompare(a.asOf))[0]:payload;
       const old=row?.currencies.find(x=>x.code===c.code);
       // Neutral projection when history is absent; status explicitly identifies the missing datum.
-      return {ageDays,score:old?strengthScore(old):score,observedAt:row?.asOf??null,available:!!old};
+      return {ageDays,score:old?coreEvidence(old)+evidenceShift(old,Date.parse(row!.asOf)):score,observedAt:row?.asOf??null,available:!!old};
     });
   }
   payload.historyStatus='ARCHIVED_SNAPSHOTS; missing anchors use neutral projection, never synthetic history';
