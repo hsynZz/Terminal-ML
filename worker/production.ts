@@ -6,16 +6,21 @@ import { advanceRecipe, buildResearchFrame, chooseChampions, comparisons, curren
 import type { ResearchDB } from './hypothesis-research';
 import { buildPairForecast } from '../lib/model-engine';
 import { sourceReliability } from '../lib/source-health';
+import { effectiveRecipeWeight } from '../lib/production-research';
+import { issueEventPredictions, resolveEventPredictions, eventTargetStatus, type EventOutcome } from '../lib/shadow-targets';
+import { advanceContextModel, chooseContextChampions, contextScore, trainContextModel, type ContextModel } from '../lib/hypothesis-context';
+import { unavailableClasses } from '../lib/observed-sources';
 
 export type ProductionEnv={DB:ResearchDB;ADAPTIVE_ENABLED?:string;ADAPTIVE_MAX_WEIGHT?:string;ML_ENABLED?:string;HYPOTHESIS_ENGINE_ENABLED?:string};
-type State={at:string;registry:Recipe[];models:CandidateModel[];trainingSequence:number;championIds:string[];lastRetrain:string|null;lastError:string|null;status:string;resolved:number;trainingExamples:number;rollbackCount:number};
+type State={at:string;registry:Recipe[];models:CandidateModel[];contextModels:ContextModel[];contextChampionIds:string[];trainingSequence:number;championIds:string[];lastRetrain:string|null;lastError:string|null;status:string;resolved:number;trainingExamples:number;rollbackCount:number};
 const key='production:v2:state';
-const emptyState=():State=>({at:'',registry:[],models:[],trainingSequence:0,championIds:[],lastRetrain:null,lastError:null,status:'WAITING_FOR_DATA',resolved:0,trainingExamples:0,rollbackCount:0});
-async function state(db:ResearchDB){const r=await db.prepare('SELECT value FROM terminal_settings WHERE key=?').bind(key).first<{value:string}>();return r?JSON.parse(r.value) as State:emptyState();}
+const emptyState=():State=>({at:'',registry:[],models:[],contextModels:[],contextChampionIds:[],trainingSequence:0,championIds:[],lastRetrain:null,lastError:null,status:'WAITING_FOR_DATA',resolved:0,trainingExamples:0,rollbackCount:0});
+async function state(db:ResearchDB){const r=await db.prepare('SELECT value FROM terminal_settings WHERE key=?').bind(key).first<{value:string}>();return {...emptyState(),...(r?JSON.parse(r.value):{})} as State;}
 function stateWrite(db:ResearchDB,s:State){return db.prepare('INSERT INTO terminal_settings (key,value,updated_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at').bind(key,JSON.stringify(s),s.at);}
 function record(db:ResearchDB,kind:string,id:string,at:string,payload:unknown){return db.prepare('INSERT INTO production_records (id,kind,at,version,payload) VALUES (?,?,?,?,?) ON CONFLICT(id) DO NOTHING').bind(id,kind,at,RESEARCH_VERSION,JSON.stringify(payload));}
 async function batch(db:ResearchDB,rows:ReturnType<ResearchDB['prepare']>[]){for(let i=0;i<rows.length;i+=20)await db.batch(rows.slice(i,i+20));}
 async function records<T>(db:ResearchDB,kind:string){const result:T[]=[];let cursor='';for(;;){const r=await db.prepare('SELECT id,payload FROM production_records WHERE kind=? AND id>? ORDER BY id LIMIT 100').bind(kind,cursor).all<{id:string;payload:string}>();result.push(...r.results.map(r=>JSON.parse(r.payload) as T));if(r.results.length<100)break;cursor=r.results.at(-1)!.id;}return result;}
+async function verifiedEvents(db:ResearchDB){const rows=await records<EventOutcome&{digest:string}>(db,'event-outcome');for(const row of rows){const {digest:expected,...body}=row;if(!expected||expected!==await digest(body))throw new Error('EVENT_OUTCOME_INTEGRITY_FAILURE');}return rows;}
 async function frames(db:ResearchDB){
   const result=await records<ResearchFrame>(db,'frame');
   for(const f of result){const {digest:expected,...body}=f;if(!expected||expected!==await digest(body))throw new Error('FRAME_INTEGRITY_FAILURE');}
@@ -28,7 +33,7 @@ async function targets(db:ResearchDB,horizon:number){
   return result;
 }
 async function priceArchive(db:ResearchDB,now:string){
-  const rows=await db.prepare("SELECT payload FROM observation_vintages WHERE metric='fxReferenceUsd' AND period>=? ORDER BY received_at ASC").bind(new Date(Date.parse(now)-200*dayMs).toISOString().slice(0,10)).all<{payload:string}>();
+  const rows=await db.prepare("SELECT payload FROM observation_vintages WHERE metric IN ('fxReferenceUsd','vix') AND period>=? ORDER BY received_at ASC").bind(new Date(Date.parse(now)-200*dayMs).toISOString().slice(0,10)).all<{payload:string}>();
   return rows.results.map(r=>JSON.parse(r.payload) as Observation);
 }
 export async function archiveObservations(db:ResearchDB,rows:Observation[],at:string){
@@ -47,6 +52,7 @@ async function resolvePending(db:ResearchDB,history:ResearchFrame[],prices:Obser
   const recent=history.filter(f=>Date.parse(f.at)>=Date.parse(now)-105*dayMs);
   for(const f of recent){const resolved=resolveFrameTargets(f,prices,now);const writes=[];
     for(const o of resolved){const {pricePath,...base}=o;const body={...base,pricePathDigest:await digest(pricePath)};writes.push(record(db,`outcome:${o.horizon}`,`outcome:${o.horizon}:${o.currency}:${o.frameId}`,now,{...body,pricePath,digest:await digest(body)}));}
+    for(const event of resolveEventPredictions(f,f.eventPredictions??[],resolved,prices,now))writes.push(record(db,'event-outcome',event.id,now,{...event,digest:await digest(event)}));
     for(const prediction of f.pairForecasts??[]){
       const [base,quote]=prediction.pair.split('/'),a=resolved.find(o=>o.currency===base&&o.horizon===prediction.horizon),b=resolved.find(o=>o.currency===quote&&o.horizon===prediction.horizon);
       if(!a||!b||a.entryDate!==b.entryDate||a.labelEnd!==b.labelEnd)continue;
@@ -87,7 +93,11 @@ export async function prepareProductionSnapshot(env:ProductionEnv,p:ProductionPa
   });
   // Loss of a challenger falls back only to an independently current qualified champion.
   const champions=chooseChampions(models,old.championIds,history,allOutcomes,now);
-  const activeRecipes=nonRedundant(registry,history,allOutcomes);
+  const contextModels=old.contextModels.map(m=>advanceContextModel(m,history,allOutcomes,now,old.trainingSequence));
+  const contextChampions=chooseContextChampions(contextModels,old.contextChampionIds,history,allOutcomes,now);
+  const currencyContextChampions=contextChampions.filter(m=>m.scope==='currency');
+  const consumed=registry.filter(r=>currencyContextChampions.some(m=>m.recipeIds.includes(r.id)));
+  const activeRecipes=nonRedundant(registry,history,allOutcomes).filter(r=>!consumed.some(s=>s.id===r.id||s.lineage?.some(x=>r.lineage?.includes(x))||s.economicCauses?.some(x=>r.economicCauses?.includes(x))));
   for(const r of registry.filter(r=>r.status!=='REJECTED')){
     current.hypotheses[r.id]={};for(const c of currencies){const s=recipeSignal(r,current,history,c);if(s!==null)current.hypotheses[r.id][c]=.5+.4*s;}
   }
@@ -97,12 +107,15 @@ export async function prepareProductionSnapshot(env:ProductionEnv,p:ProductionPa
   for(const c of p.currencies){
     const components:EvidenceComponent[]=[];
     if(config.ml&&qualityOK)for(const m of champions){if(!modelInDistribution(m,current,c.code))continue;
-      components.push({id:m.id,kind:'ML',score:modelScore(m,current,c.code),weight:m.weight/Math.max(1,champions.length),confidence:m.gate.confidence,regimeFit:m.gate.regimeFit[current.regime]??0,sourceReliability:current.sourceReliability,validated:m.gate.passed});
+      components.push({id:m.id,kind:'ML',score:modelScore(m,current,c.code),weight:m.weight/Math.max(1,champions.length+currencyContextChampions.length),confidence:m.gate.confidence,regimeFit:m.gate.regimeFit[current.regime]??0,sourceReliability:current.sourceReliability,validated:m.gate.passed});
+    }
+    if(config.ml&&qualityOK)for(const m of currencyContextChampions){const prediction=contextScore(m,current,c.code);if(!prediction)continue;
+      components.push({id:m.id,kind:'ML',score:prediction.candidate,weight:m.weight/Math.max(1,champions.length+currencyContextChampions.length),confidence:Math.min(m.gate.confidence,m.incrementalGate.confidence),regimeFit:Math.min(m.gate.regimeFit[current.regime]??0,m.incrementalGate.regimeFit[current.regime]??0),sourceReliability:current.sourceReliability,validated:m.gate.passed&&m.incrementalGate.passed});
     }
     if(config.hypothesis&&qualityOK)for(const r of activeRecipes){const score=current.hypotheses[r.id]?.[c.code];if(!Number.isFinite(score)||!r.gate)continue;
-      components.push({id:r.id,kind:'HYPOTHESIS',score,weight:r.weight/Math.max(1,activeRecipes.length),confidence:r.gate.confidence,regimeFit:r.gate.regimeFit[current.regime]??0,sourceReliability:current.sourceReliability,validated:r.gate.passed});
+      components.push({id:r.id,kind:'HYPOTHESIS',score,weight:effectiveRecipeWeight(r,now)/Math.max(1,activeRecipes.length),confidence:r.gate.confidence,regimeFit:r.gate.regimeFit[current.regime]??0,sourceReliability:current.sourceReliability,validated:r.gate.passed});
     }
-    c.evidenceAttribution=combineEvidence(c,components,{at:now,cap:config.cap,enabled:config.enabled,modelVersion:champions.map(m=>m.id).join(',')||null,regime:current.regime});
+    c.evidenceAttribution=combineEvidence(c,components,{at:now,cap:config.cap,enabled:config.enabled,modelVersion:[...champions,...currencyContextChampions].map(m=>m.id).join(',')||null,regime:current.regime});
     current.final[c.code]=c.evidenceAttribution.finalEvidenceScore;current.attributions[c.code]=c.evidenceAttribution;
     c.history[0]={ageDays:0,score:current.final[c.code]};
   }
@@ -110,14 +123,24 @@ export async function prepareProductionSnapshot(env:ProductionEnv,p:ProductionPa
   current.pairEvents=currencyPairs(current);
   const baseline=structuredClone(p);for(const c of baseline.currencies)delete c.evidenceAttribution;
   current.pairForecasts=currencies.flatMap((a,i)=>currencies.slice(i+1).flatMap(b=>{const core=buildPairForecast(baseline,a,b),adaptive=buildPairForecast(p,a,b);return core.map((c,j)=>({pair:`${a}/${b}`,horizon:c.horizon,core:c.probability,adaptive:adaptive[j].probability}));}));
+  current.eventPredictions=issueEventPredictions(current,observations,await verifiedEvents(db));
+  current.contextPredictions={};
+  for(const model of contextModels.filter(m=>m.status!=='REJECTED')){
+    const entities=model.scope==='currency'?[...currencies]:currencyPairs(current).map(p=>p.pair);
+    current.contextPredictions[model.id]=Object.fromEntries(entities.flatMap(entity=>{const prediction=contextScore(model,current,entity);return prediction?[[entity,prediction]]:[];}));
+  }
   current.digest=await digest(current);
   const championIds=champions.map(m=>m.id),lostChampion=old.championIds.some(id=>!championIds.includes(id)&&!models.some(m=>m.id===id&&m.status==='ACTIVE'&&m.gate.passed));
-  const next:State={...old,at:now,registry,models,championIds,status:qualityOK?(allOutcomes.length?'SHADOW':'WAITING_FOR_DATA'):'WAITING_FOR_QUALITY_DATA',resolved:allOutcomes.length,trainingExamples:allOutcomes.filter(o=>forecastHorizons.includes(o.horizon as 10)).length,lastError:null,rollbackCount:old.rollbackCount+Number(lostChampion)};
+  const contextChampionIds=contextChampions.map(m=>m.id),lostContextChampion=old.contextChampionIds.some(id=>!contextChampionIds.includes(id)&&contextModels.some(m=>m.id===id&&m.status==='DEGRADED'));
+  const next:State={...old,at:now,registry,models,championIds,contextModels,contextChampionIds,status:qualityOK?(allOutcomes.length?'SHADOW':'WAITING_FOR_DATA'):'WAITING_FOR_QUALITY_DATA',resolved:allOutcomes.length,trainingExamples:allOutcomes.filter(o=>forecastHorizons.includes(o.horizon as 10)).length,lastError:null,rollbackCount:old.rollbackCount+Number(lostChampion||lostContextChampion)};
   if(p.currencies.some(c=>c.evidenceAttribution!.status==='ACTIVE'))next.status='ACTIVE';
   // New daily predictions are immutable; intraday refreshes retain separate evidence history.
   const firstToday=!history.some(f=>f.quality==='VALID'&&f.regimeVerified===true&&f.sourceReliability>=.8&&f.at.slice(0,10)===now.slice(0,10));
-  const writes=[stateWrite(db,next),record(db,'decision',`decision:${now}`,now,{oldChampions:old.championIds,champions:championIds,rollback:lostChampion,registry:registry.map(r=>({id:r.id,status:r.status,weight:r.weight,reason:r.reason})),quality:current.quality}),record(db,'evidence',`evidence:${now}`,now,{asOf:now,attributions:current.attributions,pairs:currencyPairs(current),previous:history.at(-1)?.final??null}),record(db,'sources',`sources:${now}`,now,{checks:p.sourceChecks,quality:current.quality,reliability:current.sourceReliability,providers:reliability})];
+  const writes=[stateWrite(db,next),record(db,'decision',`decision:${now}`,now,{oldChampions:old.championIds,champions:championIds,oldContextChampions:old.contextChampionIds,contextChampions:contextChampionIds,rollback:lostChampion||lostContextChampion,contextRollback:lostContextChampion,registry:registry.map(r=>({id:r.id,status:r.status,weight:r.weight,reason:r.reason})),quality:current.quality}),record(db,'evidence',`evidence:${now}`,now,{asOf:now,attributions:current.attributions,pairs:currencyPairs(current),previous:history.at(-1)?.final??null}),record(db,'sources',`sources:${now}`,now,{checks:p.sourceChecks,quality:current.quality,reliability:current.sourceReliability,providers:reliability})];
   if(firstToday)writes.push(record(db,'frame',current.id,now,current));
+  const totals=await db.prepare('SELECT (SELECT count(*) FROM terminal_snapshots) AS snapshots,(SELECT count(*) FROM currency_observations) AS observations,(SELECT count(*) FROM observation_vintages) AS vintages').first<{snapshots:number;observations:number;vintages:number}>();
+  writes.push(record(db,'coverage',`coverage:${now}`,now,{sourceCoverage:p.sourceCoverage,coreFactors:p.coreFactors,alternatives:Object.keys(current.featureOrigins??{}).filter(k=>k.startsWith('alt.')||k.startsWith('proxy.')),notConnected:unavailableClasses}));
+  writes.push(record(db,'status',`status:${now}`,now,{status:next.status,mlVersion:[...championIds,...currencyContextChampions.map(m=>m.id)].join(',')||'DETERMINISTIC_CORE',hypothesisCount:registry.length,active:registry.filter(r=>r.status==='ACTIVE').length,shadow:registry.filter(r=>r.status==='SHADOW').length,testing:registry.filter(r=>['DISCOVERY','TESTING','VALIDATING'].includes(r.status)).length,rejected:registry.filter(r=>r.status==='REJECTED').length,resolved:next.resolved,trainingExamples:next.trainingExamples,lastRetrain:next.lastRetrain,rollbackCount:next.rollbackCount,mlInfluence:Math.max(0,...p.currencies.map(c=>c.evidenceAttribution!.mlWeight)),hypothesisInfluence:Math.max(0,...p.currencies.map(c=>c.evidenceAttribution!.hypothesisWeight)),snapshotCount:(totals?.snapshots??0)+1,observationCountBeforeRefreshUpsert:totals?.observations??0,immutableVintages:totals?.vintages??0,coverage:p.sourceCoverage}));
   // Commit frame, attribution, lifecycle state and public snapshot atomically.
   // Source receipts may be archived earlier, but an aborted refresh publishes no prediction.
   return {commit:()=>db.batch([...writes,db.prepare('INSERT INTO terminal_snapshots (as_of,source_mode,payload) VALUES (?,?,?)').bind(p.asOf,p.sourceMode,JSON.stringify(p))])};
@@ -126,15 +149,17 @@ export async function prepareProductionSnapshot(env:ProductionEnv,p:ProductionPa
 export async function productionRetrain(env:ProductionEnv,now=new Date().toISOString()){
   const db=env.DB,old=await state(db),history=await frames(db),prices=await priceArchive(db,now);
   await resolvePending(db,history,prices,now);
-  const sequence=old.trainingSequence+1,candidates:CandidateModel[]=[];let samples=0;
+  const sequence=old.trainingSequence+1,candidates:CandidateModel[]=[],contexts:ContextModel[]=[];let samples=0;
   for(const horizon of forecastHorizons){const labels=await targets(db,horizon);samples+=labels.length;
     const candidate=trainChallenger(history,labels,horizon,now,sequence);if(candidate)candidates.push(candidate);
+    for(const scope of ['currency','pair'] as const){const context=trainContextModel(history,labels,horizon,scope,now,sequence);if(context)contexts.push(context);}
   }
   const writes=candidates.map(m=>record(db,'model',m.id,now,m));
-  const attempt={at:now,status:candidates.length?'SHADOW_TRAINED':'WAITING_FOR_DATA',samples,candidateIds:candidates.map(m=>m.id),accepted:candidates.filter(m=>m.status==='SHADOW').map(m=>m.id),legacyModelChanged:false};
-  const next={...old,at:now,lastRetrain:now,trainingSequence:sequence,models:[...old.models.filter(m=>m.status!=='REJECTED'),...candidates],resolved:Math.max(old.resolved,samples),trainingExamples:samples,lastError:old.lastError};
+  writes.push(...contexts.map(m=>record(db,'context-model',m.id,now,m)));
+  const attempt={at:now,status:candidates.length||contexts.length?'SHADOW_TRAINED':'WAITING_FOR_DATA',samples,candidateIds:[...candidates,...contexts].map(m=>m.id),accepted:[...candidates,...contexts].filter(m=>m.status==='SHADOW').map(m=>m.id),legacyModelChanged:false};
+  const next={...old,at:now,lastRetrain:now,trainingSequence:sequence,models:[...old.models.filter(m=>m.status!=='REJECTED'),...candidates],contextModels:[...old.contextModels.filter(m=>m.status!=='REJECTED'),...contexts],resolved:Math.max(old.resolved,samples),trainingExamples:samples,lastError:old.lastError};
   writes.push(stateWrite(db,next),record(db,'retrain',`retrain:${now}`,now,attempt));await batch(db,writes);
-  return {status:'waiting',samples,minimum:100,validation:candidates.length?'Challenger versions stored; prospective shadow gate pending':'WAITING_FOR_DATA',candidateVersion:candidates[0]?.id??null,attempt};
+  return {status:'waiting',samples,minimum:100,validation:candidates.length||contexts.length?'Challenger versions stored; prospective shadow gate pending':'WAITING_FOR_DATA',candidateVersion:candidates[0]?.id??contexts[0]?.id??null,attempt};
 }
 
 export async function productionHealth(env:ProductionEnv){
@@ -150,7 +175,17 @@ export async function productionHealth(env:ProductionEnv){
   const attributions=(fresh?Object.values(last?.attributions??{}):[]) as EvidenceAttribution[];
   const sourceStatus=sources?JSON.parse(sources.payload):null;
   const coreInputQuality=quality?.quality?JSON.parse(quality.quality):null;
-  return {version:ADAPTIVE_VERSION,status:fresh?s.status:'CORE_FALLBACK',lastSuccessfulSnapshot:snapshots?.latest??null,snapshotCount:snapshots?.count??0,observationCount:row?.observations??0,observationVintages:vintageCount?.count??0,coreInputQuality,sourceReliability:sourceStatus?.providers??{},counts:counts.results,trainingExamples:s.trainingExamples,resolvedOutcomes:counts.results.filter(c=>c.kind.startsWith('outcome:')).reduce((n,c)=>n+c.count,0),lastRetrain:s.lastRetrain,currentMlVersion:s.championIds.length?s.championIds.join(','):'DETERMINISTIC_CORE',challengerVersions:s.models.map(m=>({id:m.id,status:m.status,samples:m.trainingSamples,gate:m.gate})),mlInfluence:config.ml?Math.max(0,...attributions.map(a=>a.mlWeight)):0,hypothesisInfluence:config.hypothesis?Math.max(0,...attributions.map(a=>a.hypothesisWeight)):0,hypothesisCount:s.registry.length,activeHypotheses:s.registry.filter(r=>r.status==='ACTIVE').length,shadowHypotheses:s.registry.filter(r=>r.status==='SHADOW').length,rejectedHypotheses:s.registry.filter(r=>r.status==='REJECTED').length,registry:s.registry,failedDataSources:sourceStatus?.checks?.filter((c:{status:string})=>c.status!=='SUCCESS')??[],lastError:s.lastError,rollbackCount:s.rollbackCount,evidenceHistory:history.results.map(r=>JSON.parse(r.payload)),config:configuration(env),notice:'Prospective currency-basket validation. Daily fixing excursions are not intraday MFE/MAE. Model-generated dispersion is not an empirical confidence interval.'};
+  const readRun=async(type:string,cronOnly=false,successOnly=false)=>{
+    const found=await env.DB.prepare("SELECT value FROM terminal_settings WHERE key LIKE 'automation:run:%' AND json_extract(value,'$.type')=? AND (?=0 OR json_extract(value,'$.source')='CLOUDFLARE_CRON') AND (?=0 OR (json_extract(value,'$.status')='SUCCESS' AND json_extract(value,'$.snapshotAdvanced')=1)) ORDER BY updated_at DESC LIMIT 1").bind(type,Number(cronOnly),Number(successOnly)).first<{value:string}>();
+    return found?JSON.parse(found.value) as {id:string;timestamp:string;completedAt:string|null;source:string;status:string;snapshotAfter:string|null;trainingSamples:number|null}:null;
+  };
+  const [lastSuccessfulDailyRefresh,lastSuccessfulRealCronRefresh,lastRegularWeeklyRetrain]=await Promise.all([readRun('DAILY_REFRESH',false,true),readRun('DAILY_REFRESH',true,true),readRun('WEEKLY_RETRAIN',true)]);
+  const originRows=Object.entries((coreInputQuality??{}) as NonNullable<ProductionPayload['coreFactors']>).flatMap(([currency,factors])=>Object.entries(factors).map(([factor,origin])=>({currency,factor,...origin})));
+  const freshFactors=originRows.filter(r=>r.status==='OBSERVED').length;
+  const coverage={factors:originRows.length,fresh:freshFactors,carried:originRows.filter(r=>r.status==='LEGACY_OR_CARRIED').length,partial:originRows.filter(r=>r.status.startsWith('PARTIAL')).length,ratio:originRows.length?freshFactors/originRows.length:0,asOf:snapshots?.latest??null,scope:'Certified complete Core factors at snapshot; not percentage of live feeds'};
+  const eventTargets=eventTargetStatus(await verifiedEvents(env.DB));
+  const rest={lastSuccessfulDailyRefresh,lastSuccessfulRealCronRefresh,lastRegularWeeklyRetrain,weeklyVerification:lastRegularWeeklyRetrain?'REGULAR_INVOCATION_OBSERVED':'WAITING_FOR_NEXT_SCHEDULED_RUN',coverage,carriedInputs:originRows.filter(r=>r.status!=='OBSERVED'),notConnected:unavailableClasses,sourceChecks:sourceStatus?.checks??[],eventTargets,contextLearning:{status:s.contextModels.length?'SHADOW_OR_VALIDATING':'WAITING_FOR_DATA',champions:s.contextChampionIds,models:s.contextModels.map(m=>({id:m.id,scope:m.scope,horizon:m.horizon,status:m.status,samples:m.trainingSamples,gate:m.gate,incrementalGate:m.incrementalGate}))},testingHypotheses:s.registry.filter(r=>['DISCOVERY','TESTING','VALIDATING'].includes(r.status)).length};
+  return {...rest,version:ADAPTIVE_VERSION,status:fresh?s.status:'CORE_FALLBACK',lastSuccessfulSnapshot:snapshots?.latest??null,snapshotCount:snapshots?.count??0,observationCount:row?.observations??0,observationVintages:vintageCount?.count??0,coreInputQuality,sourceReliability:sourceStatus?.providers??{},counts:counts.results,trainingExamples:s.trainingExamples,resolvedOutcomes:counts.results.filter(c=>c.kind.startsWith('outcome:')).reduce((n,c)=>n+c.count,0),lastRetrain:s.lastRetrain,currentMlVersion:[...s.championIds,...s.contextChampionIds.filter(id=>s.contextModels.some(m=>m.id===id&&m.scope==='currency'))].join(',')||'DETERMINISTIC_CORE',challengerVersions:s.models.map(m=>({id:m.id,status:m.status,samples:m.trainingSamples,gate:m.gate})),mlInfluence:config.ml?Math.max(0,...attributions.map(a=>a.mlWeight)):0,hypothesisInfluence:config.hypothesis?Math.max(0,...attributions.map(a=>a.hypothesisWeight)):0,hypothesisCount:s.registry.length,activeHypotheses:s.registry.filter(r=>r.status==='ACTIVE').length,shadowHypotheses:s.registry.filter(r=>r.status==='SHADOW').length,rejectedHypotheses:s.registry.filter(r=>r.status==='REJECTED').length,registry:s.registry,failedDataSources:sourceStatus?.checks?.filter((c:{status:string})=>c.status!=='SUCCESS')??[],lastError:s.lastError,rollbackCount:s.rollbackCount,evidenceHistory:history.results.map(r=>JSON.parse(r.payload)),config:configuration(env),notice:'Prospective currency-basket validation. Daily fixing excursions are not intraday MFE/MAE. Model-generated dispersion is not an empirical confidence interval.'};
 }
 
 /** Fail closed also on read: runtime kill switches never wait for tomorrow's snapshot. */
@@ -158,7 +193,7 @@ export async function guardProductionPayload(env:ProductionEnv,p:TerminalPayload
   try{const s=await state(env.DB),config=configuration(env);if(!config.enabled||s.lastError||Date.now()-Date.parse(s.at)>36*3600000)throw new Error('ADAPTIVE_DISABLED');
     for(const c of p.currencies){const a=c.evidenceAttribution;if(!a)continue;
       if(a.version!==ADAPTIVE_VERSION||a.factorFingerprint!==factorFingerprint(c)||!Number.isFinite(Date.parse(a.expiresAt))||Date.parse(a.expiresAt)<Date.now()||!Number.isFinite(a.cap)){delete c.evidenceAttribution;continue;}
-      const valid=a.components.filter(x=>x.kind==='ML'?config.ml&&s.championIds.includes(x.id):config.hypothesis&&s.registry.some(r=>r.id===x.id&&r.status==='ACTIVE'));
+      const valid=a.components.filter(x=>x.kind==='ML'?config.ml&&(s.championIds.includes(x.id)||s.contextChampionIds.includes(x.id)&&s.contextModels.some(m=>m.id===x.id&&m.scope==='currency'&&m.status==='ACTIVE'&&m.gate.passed&&m.incrementalGate.passed)):config.hypothesis&&s.registry.some(r=>r.id===x.id&&effectiveRecipeWeight(r,new Date().toISOString())>0));
       c.evidenceAttribution=combineEvidence(c,valid,{at:a.at,cap:Math.min(config.cap,a.cap),enabled:true,modelVersion:a.modelVersion,regime:a.regime});
     }
   }catch{for(const c of p.currencies)delete c.evidenceAttribution;}return p;

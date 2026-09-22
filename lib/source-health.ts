@@ -19,7 +19,7 @@ export async function sourceAttempt<T>(checks:SourceCheck[],source:string,url:st
     return result;
   }catch(error){
     // Never record provider URLs with query credentials or untrusted response bodies.
-    const cause=error instanceof Error&&/^(HTTP_\d{3}|NO_VALID_OBSERVATIONS|INVALID_RESPONSE|TIMEOUT)$/.test(error.message)?error.message:'SOURCE_NETWORK_OR_FORMAT_ERROR';
+    const cause=error instanceof Error&&/^(HTTP_\d{3}|NO_VALID_OBSERVATIONS|INVALID_RESPONSE|TIMEOUT|RATE_LIMIT|PREMIUM_REQUIRED)$/.test(error.message)?error.message:'SOURCE_NETWORK_OR_FORMAT_ERROR';
     checks.push({at:new Date().toISOString(),source,url,currency,metrics,status:'FAILED',cause,fallback:'last archived input; adaptive use disabled for unavailable input',latencyMs:Date.now()-start});
     return null;
   }

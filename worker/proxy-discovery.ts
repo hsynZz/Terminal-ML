@@ -5,13 +5,14 @@ import { digest } from '../lib/hypothesis/provenance';
 import type { ResearchDB } from './hypothesis-research';
 
 type Indicator={id:string;name:string;sourceNote:string;unit:string;source?:{id:string}};
-type Catalog={page:number;pages:number;lastScan:string;indicators:(Indicator&{version:string;failedPolls?:number})[]};
+type Catalog={page:number;pages:number;lastScan:string;indicators:(Indicator&{version:string;failedPolls?:number;lastAttempt?:string})[]};
 const country:Record<CurrencyCode,string>={USD:'USA',EUR:'EMU',GBP:'GBR',CHF:'CHE',CAD:'CAN',AUD:'AUS',NZD:'NZL',JPY:'JPN'};
 /** No outcome-based selection: scan provider metadata, then measure availability for every major. */
 export function proxyCandidates(rows:Indicator[]){return rows.filter(r=>/^[A-Z0-9_.]+$/.test(r.id)&&r.name&&r.sourceNote&&r.source?.id==='2'&&/percent|%|growth|per capita|index|ratio|rate/i.test(r.name+' '+r.unit));}
 export async function collectProxies(db:ResearchDB,checks:SourceCheck[],now:string):Promise<Observation[]>{
   const key='production:v2:proxy-catalog',stored=await db.prepare('SELECT value FROM terminal_settings WHERE key=?').bind(key).first<{value:string}>();
   const catalog:Catalog=stored?JSON.parse(stored.value):{page:1,pages:1,lastScan:'',indicators:[]};
+  for(const indicator of catalog.indicators)if((indicator.failedPolls??0)>=3&&!indicator.lastAttempt)indicator.lastAttempt=catalog.lastScan||now;
   // A bounded universe, with continued discovery. Annual proxies are not presented as daily news.
   if(catalog.lastScan!==now.slice(0,10)){
     const url=`https://api.worldbank.org/v2/indicator?source=2&format=json&per_page=100&page=${catalog.page}`;
@@ -30,12 +31,15 @@ export async function collectProxies(db:ResearchDB,checks:SourceCheck[],now:stri
     }
   }
   const observations:Observation[]=[];
-  await Promise.all(catalog.indicators.filter(r=>(r.failedPolls??0)<3).map(async indicator=>{
+  // A failed candidate is quarantined, not permanently forgotten. Retry at most two after 30 days.
+  const active=catalog.indicators.filter(r=>(r.failedPolls??0)<3);
+  const retry=catalog.indicators.filter(r=>(r.failedPolls??0)>=3&&Date.parse(now)-Date.parse(r.lastAttempt??catalog.lastScan)>=30*dayMs).slice(0,2);
+  await Promise.all([...active,...retry].map(async indicator=>{
     const metric=`proxy.${indicator.id}.${indicator.version}`;
     // Refresh each annual feature weekly. Stored receipts preserve its actual first availability.
     const prior=await db.prepare('SELECT payload,max(received_at) AS received_at FROM observation_vintages WHERE metric=? GROUP BY currency ORDER BY received_at DESC').bind(metric).all<{payload:string;received_at:string}>();
     if(prior.results.length===8&&Date.parse(now)-Date.parse(prior.results[0].received_at)<7*dayMs){
-      observations.push(...prior.results.map(r=>JSON.parse(r.payload) as Observation));return;
+      observations.push(...prior.results.map(r=>JSON.parse(r.payload) as Observation));checks.push({at:now,source:'World Bank proxies',url:`https://api.worldbank.org/v2/indicator/${indicator.id}`,currency:'ALL',metrics:[metric],status:'SUCCESS',cause:null,fallback:'Reused immutable annual receipts within weekly polling interval',latencyMs:0});return;
     }
     const url=`https://api.worldbank.org/v2/country/${Object.values(country).join(';')}/indicator/${indicator.id}?source=2&format=json&per_page=200&mrv=3`;
     const rows=await sourceAttempt(checks,'World Bank proxies',url,'ALL',[metric],async()=>{
@@ -48,8 +52,9 @@ export async function collectProxies(db:ResearchDB,checks:SourceCheck[],now:stri
       // Cross-sectional comparability requires the same period and all eight currencies.
       if(selected.length!==8||new Set(selected.map(r=>r.period)).size!==1)return null;
       const values=selected.map(r=>r.value),lo=Math.min(...values),hi=Math.max(...values);
-      return selected.map(r=>({...r,metric,normalizedValue:hi===lo?0:2*(r.value-lo)/(hi-lo)-1,source:'World Bank proxies',sourceUrl:url,receivedAt:now,unit:indicator.unit||indicator.name,definition:indicator.sourceNote,featureVersion:indicator.version,releaseDate:null,quality:'VALID' as const,frequency:'annual'}));
+      return selected.map(r=>({...r,metric,normalizedValue:hi===lo?0:2*(r.value-lo)/(hi-lo)-1,source:'World Bank proxies',sourceUrl:url,receivedAt:now,unit:indicator.unit||indicator.name,definition:indicator.sourceNote,featureVersion:indicator.version,releaseDate:null,quality:'VALID' as const,frequency:'annual',lineage:[`WorldBank:${indicator.id}`],economicCause:`WorldBank:${indicator.id}`}));
     });
+    indicator.lastAttempt=now;
     if(rows){observations.push(...rows);indicator.failedPolls=0;}else indicator.failedPolls=(indicator.failedPolls??0)+1;
   }));
   await db.prepare('INSERT INTO terminal_settings (key,value,updated_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at').bind(key,JSON.stringify(catalog),now).run();
