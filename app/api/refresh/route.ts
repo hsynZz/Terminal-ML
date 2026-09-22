@@ -12,6 +12,8 @@ import { repairDerivedScores, historicalScores, truthfulEvidence, parseEcbRates,
 import { sourceAttempt, sourceFetch } from '@/lib/source-health';
 import { prepareProductionSnapshot, productionFailure } from '@/worker/production';
 import { collectProxies } from '@/worker/proxy-discovery';
+import { collectOfficialInputs, collectMacroProxies } from '@/lib/observed-sources';
+import { narrativeObservations } from '@/lib/narrative-features';
 import { captureProvenance, type ProvenancePayload, type Receipt } from "@/lib/hypothesis/provenance";
 
 const countryMap: Record<CurrencyCode, string> = {
@@ -67,11 +69,12 @@ async function alphaMomentum(apiKey: string, currency: Exclude<CurrencyCode, "US
   const response = await sourceFetch(`https://www.alphavantage.co/query?${params}`);
   if (!response.ok) return null;
   const body = await response.json() as Record<string, unknown>;
+  if(body.Information||body.Note)throw new Error(/premium/i.test(String(body.Information??body.Note))?'PREMIUM_REQUIRED':'RATE_LIMIT');
   const timeSeries = body["Time Series FX (Daily)"] as Record<string, { "4. close"?: string }> | undefined;
   if (!timeSeries) return null;
   const rows = Object.entries(timeSeries)
     .map(([period, values]) => ({ period, close: Number(values["4. close"]) }))
-    .filter((row) => Number.isFinite(row.close) && row.close > 0)
+    .filter((row) => Number.isFinite(row.close) && row.close > 0 && row.period<new Date().toISOString().slice(0,10))
     .sort((a, b) => b.period.localeCompare(a.period));
   if (rows.length < 2) return null;
   const latest = rows[0];
@@ -172,6 +175,8 @@ export async function POST(request: Request) {
   }));
 
   const fredApiKey = (env as unknown as { FRED_API_KEY?: string }).FRED_API_KEY;
+  const officialInputs=collectOfficialInputs(sourceChecks,new Date().toISOString());
+  const macroProxies=collectMacroProxies(sourceChecks,fredApiKey);
   if (fredApiKey) {
     const usd = payload.currencies.find((currency) => currency.code === "USD");
     if (usd) {
@@ -262,6 +267,13 @@ export async function POST(request: Request) {
     if(usd&&scores.length===7){usd.factors.momentum=1-scores.reduce((n,c)=>n+c.factors.momentum,0)/7;receipts.push({currency:'USD',metric:'momentum',value:usd.factors.momentum,period:ecbRows[0].period,source:'ECB reference fixing',receivedAt:new Date().toISOString()});}
   }
   const textSignals = await centralBankSignals(sourceChecks);
+  const official=await officialInputs;
+  for(const observation of official.filter(o=>o.metric==='rate'||o.metric==='cot')){
+    const c=payload.currencies.find(c=>c.code===observation.currency);if(!c||observation.quality!=='VALID')continue;
+    if(observation.metric==='rate')c.rate=observation.value;else c.factors.cot=observation.value;
+    receipts.push(observation);observations.push({currency:c.code,metric:observation.metric,value:observation.value,period:observation.period,source:observation.source,observedAt:observation.receivedAt});liveValues++;
+  }
+  vintageRows.push(...official.filter(o=>o.metric.startsWith('alt.')),...await macroProxies,...narrativeObservations(textSignals,new Date().toISOString()));
   // Age weights change by day, not by the millisecond of a button click.
   const sentimentAt = new Date(`${new Date().toISOString().slice(0, 10)}T00:00:00Z`);
   for (const currency of payload.currencies) {
@@ -343,7 +355,8 @@ export async function POST(request: Request) {
   for(const receipt of receipts){
     const sourceUrl=receipt.sourceUrl??(receipt.source==="FRED"?"https://fred.stlouisfed.org/":receipt.source==="World Bank Open Data"?"https://api.worldbank.org/v2/":receipt.source==="ECB reference fixing"?"https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml":receipt.source==="Alpha Vantage"?"https://www.alphavantage.co/documentation/#fx-daily":"https://www.bis.org/cbanks.htm");
     const quality=observationQuality(receipt.metric,receipt.value,receipt.period,refreshedAt);
-    vintageRows.push({...receipt,sourceUrl,unit:["momentum","nlpSentiment"].includes(receipt.metric)?"normalized score":"percent",releaseDate:null,frequency:receipt.period.length===4?"annual":"daily-or-release",quality});
+    const observed=receipt as Partial<Observation>;
+    vintageRows.push({...receipt,sourceUrl,unit:observed.unit??(["momentum","nlpSentiment","cot"].includes(receipt.metric)?"normalized score":"percent"),releaseDate:observed.releaseDate??null,frequency:observed.frequency??(receipt.period.length===4?"annual":"daily-or-release"),quality});
     for(const point of receipt.observations??[])vintageRows.push({...receipt,value:point.value,period:point.period,metric:receipt.source==="ECB reference fixing"?"fxReferenceUsd":"fxCloseUsd",observations:undefined,sourceUrl,unit:"USD per currency",releaseDate:null,frequency:"business-daily",quality:observationQuality("fxCloseUsd",point.value,point.period,refreshedAt)});
   }
   try{vintageRows.push(...await collectProxies((env as unknown as Parameters<typeof prepareProductionSnapshot>[0]).DB,sourceChecks,new Date().toISOString()));}

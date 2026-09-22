@@ -4,12 +4,15 @@ import { independentBlocks, signP, type Sample } from './hypothesis/engine';
 import { trainLearnedWeights, type TrainingExample } from './retraining';
 import { coreEvidence, type EvidenceAttribution } from './adaptive-evidence';
 import { DATA_VERSION, dayMs, type Observation, type ProductionPayload, type SourceCheck } from './production-data';
+import type { EventPrediction } from './shadow-targets';
+import type { ContextPrediction } from './hypothesis-context';
 
 export const RESEARCH_VERSION='prospective-evidence-v2';
 export const outcomeHorizons=[1,3,5,10,30,60,90] as const;
-export type ResearchFrame={id:string;at:string;version:string;regime:string;sourceReliability:number;regimeVerified?:boolean;pairForecasts?:{pair:string;horizon:number;core:number;adaptive:number}[];features:Record<string,Record<string,number>>;sources:Record<string,string[]>;core:Record<string,number>;final:Record<string,number>;ml:Record<string,Record<string,number>>;hypotheses:Record<string,Record<string,number>>;modelIds:string[];prices:Record<string,number>;volatility:Record<string,number>;attributions:Record<string,EvidenceAttribution>;quality:string;digest?:string;inputIds?:string[];pairEvents?:ReturnType<typeof currencyPairs>};
+export type FeatureOrigin={definition:string;version:string;sourceUrls:string[];lineage:string[];economicCauses:string[];retrievedAt:string};
+export type ResearchFrame={id:string;at:string;version:string;regime:string;sourceReliability:number;regimeVerified?:boolean;pairForecasts?:{pair:string;horizon:number;core:number;adaptive:number}[];features:Record<string,Record<string,number>>;sources:Record<string,string[]>;featureOrigins?:Record<string,FeatureOrigin>;eventPredictions?:EventPrediction[];contextPredictions?:Record<string,Record<string,ContextPrediction>>;core:Record<string,number>;final:Record<string,number>;ml:Record<string,Record<string,number>>;hypotheses:Record<string,Record<string,number>>;modelIds:string[];prices:Record<string,number>;volatility:Record<string,number>;attributions:Record<string,EvidenceAttribution>;quality:string;digest?:string;inputIds?:string[];pairEvents?:ReturnType<typeof currencyPairs>};
 export type ResolvedTarget={frameId:string;currency:string;horizon:number;asOf:string;entryDate:string;labelEnd:string;resolvedAt:string;label:0|1;forwardReturn:number;mfe:number;mae:number;volatilityAdjustedReturn:number|null;volatilityExpansion:boolean|null;targetVersion:string;source:string;pricePath:{date:string;value:number}[];regime:string;core:number;adaptive:number;digest?:string};
-export type Recipe={id:string;version:string;feature:string;other?:string;operator:'level'|'change'|'lag'|'interaction';lag:number;horizon:number;direction:1|-1;target:'direction';createdAt:string;status:'DISCOVERY'|'TESTING'|'VALIDATING'|'SHADOW'|'ACTIVE'|'DEGRADED'|'REJECTED';reason:string;weight:number;look:number;lastBlocks:number;lastChangedAt:string;shadowStartedAt?:string;gate?:Gate;previousActiveVersion?:string};
+export type Recipe={id:string;version:string;feature:string;other?:string;operator:'level'|'change'|'lag'|'interaction';lag:number;horizon:number;direction:1|-1;target:'direction';createdAt:string;status:'DISCOVERY'|'TESTING'|'VALIDATING'|'SHADOW'|'ACTIVE'|'DEGRADED'|'REJECTED';reason:string;weight:number;look:number;lastBlocks:number;lastChangedAt:string;shadowStartedAt?:string;gate?:Gate;previousActiveVersion?:string;lastValidatedAt?:string;rationale?:string;lineage?:string[];economicCauses?:string[]};
 export type Comparison=Sample&{candidate:number};
 export type Gate={passed:boolean;reason:string;blocks:number;samples:number;adjustedP:number;confidence:number;stability:number;regimeFit:Record<string,number>;improvement:number|null;core:ReturnType<typeof calibrationMetrics>;adaptive:ReturnType<typeof calibrationMetrics>;recentImprovement:number|null;foldImprovements:number[]};
 const clamp=(v:number,lo=-1,hi=1)=>Math.max(lo,Math.min(hi,v));
@@ -18,20 +21,23 @@ const addDays=(at:string,n:number)=>new Date(Date.parse(at.slice(0,10))+n*dayMs)
 
 /** A failed unrelated metric must not disqualify independently received, validated features. */
 export function researchSourceChecks(frame:Pick<ResearchFrame,'features'|'sources'>,checks:SourceCheck[]){
-  const dependencies:Record<string,string[]>={policy:['rate'],yields:['yield2y','yield10y'],inflation:['rate','inflation'],growth:['growth','unemployment'],risk:['currentAccount','debt'],momentum:['momentum'],sentiment:['nlpSentiment']};
+  const dependencies:Record<string,string[]>={policy:['rate'],yields:['yield2y','yield10y'],inflation:['rate','inflation'],growth:['growth','unemployment'],risk:['currentAccount','debt'],momentum:['momentum'],sentiment:['nlpSentiment'],cot:['cot']};
   const keys=[...new Set(Object.values(frame.features).flatMap(Object.keys))],metrics=new Set(['vix']);
   const used=new Set(keys.flatMap(k=>(frame.sources[k]??[]).flatMap(s=>s.split(' + '))));used.add('FRED');
-  for(const k of keys){if(k.startsWith('factor.'))for(const m of dependencies[k.slice(7)]??[])metrics.add(m);else if(k.startsWith('fx.'))metrics.add('fxReferenceUsd');else if(k.startsWith('proxy.'))metrics.add(k);}
+  for(const k of keys){if(k.startsWith('factor.'))for(const m of dependencies[k.slice(7)]??[])metrics.add(m);else if(k.startsWith('fx.'))metrics.add('fxReferenceUsd');else if(k.startsWith('proxy.')||k.startsWith('alt.'))metrics.add(k);}
+  if(keys.some(k=>k.startsWith('alt.narrative.')))metrics.add('nlpSentiment');
   return checks.filter(c=>(used.has(c.source)||used.has('Official central bank RSS')&&c.metrics.includes('nlpSentiment'))&&c.metrics.some(m=>metrics.has(m)));
 }
 
 export function buildResearchFrame(p:ProductionPayload,observations:Observation[],at=p.asOf):ResearchFrame{
-  const features:ResearchFrame['features']={},sources:ResearchFrame['sources']={},prices:Record<string,number>={},volatility:Record<string,number>={};
+  const features:ResearchFrame['features']={},sources:ResearchFrame['sources']={},featureOrigins:Record<string,FeatureOrigin>={},prices:Record<string,number>={},volatility:Record<string,number>={};
   const valid=observations.filter(o=>o.quality==='VALID'&&o.receivedAt<=at&&o.period<=at.slice(0,10));
   for(const c of p.currencies){
     const f:Record<string,number>={};
     for(const [key,meta] of Object.entries(p.coreFactors?.[c.code]??{}))if(meta.status==='OBSERVED'){
       f['factor.'+key]=2*c.factors[key as FactorKey]-1;sources['factor.'+key]=[...new Set([...(sources['factor.'+key]??[]),meta.source])];
+      const name='factor.'+key,old=featureOrigins[name];
+      featureOrigins[name]={definition:meta.definition??`Existing deterministic ${key} factor; weights and normalization unchanged.`,version:DATA_VERSION,sourceUrls:[...new Set([...(old?.sourceUrls??[]),...meta.sourceUrls??[]])],lineage:[...new Set([...(old?.lineage??[]),...meta.sourceUrls??[meta.source+':'+key]])],economicCauses:[key==='cot'?'speculative-positioning':key==='sentiment'?'central-bank-communication':key],retrievedAt:meta.availableAt??at};
     }
     const raw=valid.filter(o=>o.currency===c.code&&o.metric==='fxReferenceUsd').sort((a,b)=>b.period.localeCompare(a.period));
     if(raw.length>=20&&raw.every(r=>Number.isFinite(r.value)&&r.value>0&&r.value<=1000)&&(Date.parse(at)-Date.parse(raw[0].period))/dayMs<5){
@@ -52,18 +58,23 @@ export function buildResearchFrame(p:ProductionPayload,observations:Observation[
       f['fx.dispersion']=clamp(Math.max(...returns)-Math.min(...returns),0,1);
       for(const key of Object.keys(f).filter(k=>k.startsWith('fx.')))sources[key]=['ECB reference fixing'];
     }
-    for(const o of valid.filter(o=>o.currency===c.code&&o.metric.startsWith('proxy.'))){f[o.metric]=clamp(o.normalizedValue??o.value);sources[o.metric]=[o.source];}
+    for(const o of valid.filter(o=>(o.currency===c.code||o.currency==='GLOBAL')&&(o.metric.startsWith('proxy.')||o.metric.startsWith('alt.')))){
+      if(!o.definition||!o.featureVersion)continue;
+      f[o.metric]=clamp(o.normalizedValue??o.value);sources[o.metric]=[...new Set([...(sources[o.metric]??[]),o.source])];
+      const old=featureOrigins[o.metric];featureOrigins[o.metric]={definition:o.definition,version:o.featureVersion,sourceUrls:[...new Set([...(old?.sourceUrls??[]),...o.sourceUrl.split(/\s+/)])],lineage:[...new Set([...(old?.lineage??[]),...o.lineage??[o.sourceUrl]])],economicCauses:[...new Set([...(old?.economicCauses??[]),o.economicCause??o.metric])],retrievedAt:o.receivedAt};
+    }
     features[c.code]=f;
   }
   // Equal treatment: each currency's feature is relative to the other seven, including USD.
   const relative:typeof features={};
   for(const c of currencies){relative[c]={};for(const [key,value] of Object.entries(features[c])){
+    if(key.startsWith('alt.')){relative[c][key]=value;continue;} // Global or one-country observations are not fabricated cross-sections.
     const other=currencies.filter(x=>x!==c).map(x=>features[x][key]).filter(Number.isFinite);
     if(other.length>=3)relative[c][key]=clamp(value-mean(other));
   }}
   const checks=researchSourceChecks({features:relative,sources},p.sourceChecks??[]);
   const reliability=checks.length?checks.filter(x=>x.status==='SUCCESS').length/checks.length:0;
-  return {id:`frame:${at}`,at,version:DATA_VERSION,regime:p.regime.label,sourceReliability:reliability,regimeVerified:valid.some(o=>o.currency==='GLOBAL'&&o.metric==='vix'),features:relative,sources,core:Object.fromEntries(p.currencies.map(c=>[c.code,coreEvidence(c)])),final:Object.fromEntries(p.currencies.map(c=>[c.code,c.evidenceAttribution?.finalEvidenceScore??coreEvidence(c)])),ml:{},hypotheses:{},modelIds:[],prices,volatility,attributions:Object.fromEntries(p.currencies.filter(c=>c.evidenceAttribution).map(c=>[c.code,c.evidenceAttribution!])),quality:currencies.every(c=>prices[c]>0)?'VALID':'WAITING_FOR_PRICES'};
+  return {id:`frame:${at}`,at,version:DATA_VERSION,regime:p.regime.label,sourceReliability:reliability,regimeVerified:valid.some(o=>o.currency==='GLOBAL'&&o.metric==='vix'),features:relative,sources,featureOrigins,core:Object.fromEntries(p.currencies.map(c=>[c.code,coreEvidence(c)])),final:Object.fromEntries(p.currencies.map(c=>[c.code,c.evidenceAttribution?.finalEvidenceScore??coreEvidence(c)])),ml:{},hypotheses:{},modelIds:[],prices,volatility,attributions:Object.fromEntries(p.currencies.filter(c=>c.evidenceAttribution).map(c=>[c.code,c.evidenceAttribution!])),quality:currencies.every(c=>prices[c]>0)?'VALID':'WAITING_FOR_PRICES'};
 }
 
 /** Frozen deterministic feature grammar; discovery uses observed features, never outcomes. */
@@ -80,7 +91,9 @@ export function discoverRecipes(existing:Recipe[],frame:ResearchFrame):Recipe[]{
   let added=0;
   for(const d of definitions){const id=[d.version,d.feature,d.operator,d.other??'',d.lag,d.horizon,d.direction].join(':');
     if(ids.has(id))continue;if(result.filter(r=>r.status!=='REJECTED').length>=128||result.length>=4096||added>=8)break;
-    result.push({...d,id,createdAt:frame.at,status:'DISCOVERY',reason:'New reproducible candidate; influence zero',weight:0,look:0,lastBlocks:0,lastChangedAt:frame.at});ids.add(id);added++;
+    const origins=[frame.featureOrigins?.[d.feature],d.other?frame.featureOrigins?.[d.other]:undefined].filter((o):o is FeatureOrigin=>!!o);
+    const lineage=[...new Set(origins.flatMap(o=>o.lineage))],economicCauses=[...new Set(origins.flatMap(o=>o.economicCauses))];
+    result.push({...d,id,createdAt:frame.at,status:'DISCOVERY',reason:'New reproducible candidate; influence zero',weight:0,look:0,lastBlocks:0,lastChangedAt:frame.at,lineage,economicCauses,rationale:origins.length?`Test whether ${economicCauses.join(' / ')} carries incremental information through rates, risk appetite or trade demand; direction and lag are unproven. ${origins.map(o=>o.definition).join(' ')}`:'Observed relative macro or FX dynamics may transmit through monetary policy, capital flows and positioning; sign and lag require prospective validation.'});ids.add(id);added++;
   }
   return result;
 }
@@ -135,7 +148,7 @@ export function validationGate(rows:Comparison[],horizon:number,family:number,lo
   const folds=[0,1,2].map(i=>mean(effects.slice(Math.floor(i*effects.length/3),Math.floor((i+1)*effects.length/3))));
   const last=Date.parse(blocks.at(-1)?.asOf??'1970-01-01'),recency=blocks.map(b=>Math.exp(-Math.LN2*(last-Date.parse(b.asOf))/(180*dayMs)));
   const improvement=effects.length?effects.reduce((n,e,i)=>n+e*recency[i],0)/recency.reduce((a,b)=>a+b,0):null,recent=effects.length?mean(effects.slice(-20)):null,stability=effects.length?effects.filter(x=>x>0).length/effects.length:0;
-  const passed=blocks.length>=minBlocks&&adjustedP<=.05&&!!core&&!!adaptive&&adaptive.logLoss<core.logLoss&&adaptive.expectedCalibrationError<=core.expectedCalibrationError+.01&&folds.every(x=>x>0)&&stability>=.65&&recent!==null&&recent>0&&Object.values(regimeFit).filter(x=>x>0).length>=2;
+  const passed=blocks.length>=minBlocks&&adjustedP<=.05&&!!core&&!!adaptive&&adaptive.logLoss<core.logLoss&&adaptive.expectedCalibrationError<=core.expectedCalibrationError+.01&&folds.every(x=>x>0)&&stability>=.65&&recent!==null&&recent>0&&improvement!==null&&improvement>0&&Object.values(regimeFit).filter(x=>x>0).length>=2;
   return {passed,reason:passed?'OOS_BLOCKS_CALIBRATION_REGIMES_PASSED':blocks.length<minBlocks?'INSUFFICIENT_SAMPLE':'VALIDATION_NOT_PASSED',blocks:blocks.length,samples:all.length,adjustedP,confidence:passed?1-adjustedP:0,stability,regimeFit,improvement,core,adaptive,recentImprovement:recent,foldImprovements:folds};
 }
 /** Match contemporaneous predictions; a challenger cannot displace a qualified incumbent on selection rank alone. */
@@ -170,14 +183,16 @@ export function advanceRecipe(r:Recipe,rows:Comparison[],family:number,now:strin
   const wait=Date.parse(now)-Date.parse(r.lastChangedAt)<30*dayMs;
   if(materiallyBad||gate.blocks>=30&&!gate.passed)return {...r,status:'DEGRADED',weight:0,reason:gate.reason,gate,look,lastBlocks:count,lastChangedAt:now};
   if(!gate.passed||r.status==='DEGRADED'&&wait)return {...r,gate,look,lastBlocks:count,weight:0};
-  return {...r,status:'ACTIVE',weight:gate.stability<.75&&r.weight>0?r.weight*.5:Math.min(.025,r.weight>0?r.weight+.005:.005),reason:'Prospective evidence passed',gate,look,lastBlocks:count,lastChangedAt:r.status==='ACTIVE'?r.lastChangedAt:now};
+  return {...r,status:'ACTIVE',weight:gate.stability<.75&&r.weight>0?r.weight*.5:Math.min(.025,r.weight>0?r.weight+.005:.005),reason:'Prospective evidence passed',gate,look,lastBlocks:count,lastChangedAt:r.status==='ACTIVE'?r.lastChangedAt:now,lastValidatedAt:now};
 }
+export function effectiveRecipeWeight(r:Recipe,now:string){const age=Math.max(0,Date.parse(now)-Date.parse(r.lastValidatedAt??r.lastChangedAt));return r.status==='ACTIVE'&&r.gate?.passed&&age<180*dayMs?r.weight*Math.exp(-Math.LN2*age/(180*dayMs)):0;}
 export function correlation(a:number[],b:number[]){if(a.length!==b.length||a.length<10)return 1;const ma=mean(a),mb=mean(b),va=a.map(x=>x-ma),vb=b.map(x=>x-mb),den=Math.sqrt(va.reduce((s,x)=>s+x*x,0)*vb.reduce((s,x)=>s+x*x,0));return den?va.reduce((s,x,i)=>s+x*vb[i],0)/den:1;}
 export function nonRedundant(recipes:Recipe[],frames:ResearchFrame[],outcomes:ResolvedTarget[]=[]){
   const selected:Recipe[]=[];
-  const vector=(r:Recipe,mode:'signal'|'outcome')=>mode==='signal'?frames.slice(-120).flatMap(f=>currencies.map(c=>f.hypotheses[r.id]?.[c]??.5)):comparisons(frames,outcomes,r.id,r.horizon,'hypotheses').slice(-120).map(x=>(x.probability-x.label)**2);
+  const vector=(r:Recipe,mode:'feature'|'signal'|'outcome')=>new Map(mode==='outcome'?comparisons(frames,outcomes,r.id,r.horizon,'hypotheses').slice(-960).map(x=>[x.asOf+':'+x.pair+':'+x.labelEnd,(x.probability-x.label)**2]):frames.slice(-120).flatMap(f=>currencies.flatMap(c=>{const v=mode==='feature'?f.features[c]?.[r.feature]:f.hypotheses[r.id]?.[c];return Number.isFinite(v)?[[f.at+':'+c,v] as [string,number]]:[];})));
+  const correlated=(a:Recipe,b:Recipe,mode:'feature'|'signal'|'outcome')=>{const x=vector(a,mode),y=vector(b,mode),keys=[...x.keys()].filter(k=>y.has(k));return Math.abs(correlation(keys.map(k=>x.get(k)!),keys.map(k=>y.get(k)!)))>.8;};
   for(const r of recipes.filter(r=>r.status==='ACTIVE').sort((a,b)=>(b.gate?.improvement??0)-(a.gate?.improvement??0))){
-    if(selected.some(s=>s.feature===r.feature||s.other===r.feature||s.feature===r.other||Math.abs(correlation(vector(s,'signal'),vector(r,'signal')))>.8||Math.abs(correlation(vector(s,'outcome'),vector(r,'outcome')))>.8))continue;
+    if(selected.some(s=>s.feature===r.feature||s.other===r.feature||s.feature===r.other||s.lineage?.some(x=>r.lineage?.includes(x))||s.economicCauses?.some(x=>r.economicCauses?.includes(x))||correlated(s,r,'feature')||correlated(s,r,'signal')||correlated(s,r,'outcome')))continue;
     selected.push(r);
   }return selected;
 }

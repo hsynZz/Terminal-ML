@@ -3,9 +3,10 @@ import type { Receipt } from './hypothesis/provenance';
 import { coreEvidence, evidenceShift } from './adaptive-evidence';
 
 export const DATA_VERSION = 'observed-core-v2';
-export type Observation = Receipt & { sourceUrl:string; unit:string; releaseDate:string|null; normalizedValue?:number|null; quality:'VALID'|'STALE'|'INVALID'; frequency:string; definition?:string; featureVersion?:string };
+export type Observation = Receipt & { sourceUrl:string; unit:string; releaseDate:string|null; normalizedValue?:number|null; quality:'VALID'|'STALE'|'INVALID'; frequency:string; definition?:string; featureVersion?:string; economicCause?:string; lineage?:string[]; rawInputs?:unknown[] };
 export type SourceCheck = {at:string;source:string;url:string;currency:string;metrics:string[];status:'SUCCESS'|'FAILED'|'MISSING';cause:string|null;fallback:string;latencyMs:number};
-export type ProductionPayload = TerminalPayload & { calculationVersion?:string; sourceChecks?:SourceCheck[]; observationSummary?:{count:number;changed:number;failedSources:string[]}; historyStatus?:string; coreFactors?:Record<string,Record<string,{status:string;source:string;period:string|null;availableAt:string|null}>> };
+export type FactorOrigin={status:string;source:string;period:string|null;availableAt:string|null;availability?:string;sourceUrls?:string[];qualityStatus?:string;releaseDate?:string|null;failure?:string|null;fallback?:string;frequency?:string;definition?:string};
+export type ProductionPayload = TerminalPayload & { calculationVersion?:string; sourceChecks?:SourceCheck[]; observationSummary?:{count:number;changed:number;failedSources:string[]}; historyStatus?:string; coreFactors?:Record<string,Record<string,FactorOrigin>>; sourceCoverage?:{factors:number;fresh:number;carried:number;partial:number;ratio:number} };
 export const dayMs=86400000;
 const clamp=(v:number)=>Math.max(0,Math.min(1,v));
 const rank=(v:number,a:number[])=>Math.max(...a)===Math.min(...a)?.5:(v-Math.min(...a))/(Math.max(...a)-Math.min(...a));
@@ -48,12 +49,16 @@ export function truthfulEvidence(payload:ProductionPayload, receipts:Receipt[]) 
       const required=dependencies[factor],rows=required.map(metric=>receipts.find(r=>r.currency===c.code&&r.metric===metric));
       const available=rows.every(r=>r&&observationQuality(r.metric,r.value,r.period,payload.asOf)==='VALID');
       const ranked=['policy','yields','inflation','growth'].includes(factor),complete=!ranked||currencies.every(code=>required.every(metric=>receipts.some(r=>r.currency===code&&r.metric===metric&&observationQuality(metric,r.value,r.period,payload.asOf)==='VALID')));
-      const latest=rows.filter((r):r is Receipt=>!!r).sort((a,b)=>b.receivedAt.localeCompare(a.receivedAt))[0];
-      factorStatus[c.code][factor]={status:factor==='risk'?'PARTIAL_ANCHORED':available&&complete?'OBSERVED':available?'PARTIAL_CROSS_SECTION':'LEGACY_OR_CARRIED',source:available?[...new Set(rows.map(r=>r!.source))].join(' + '):'Preserved baseline/carried factor',period:latest?.period??null,availableAt:available?latest!.receivedAt:null};
+      const received=rows.filter((r):r is Receipt=>!!r) as Observation[],latest=received.sort((a,b)=>b.receivedAt.localeCompare(a.receivedAt))[0],prior=payload.coreFactors?.[c.code]?.[factor];
+      const failures=payload.sourceChecks?.filter(r=>r.status!=='SUCCESS'&&(r.currency===c.code||r.currency==='ALL')&&r.metrics.some(m=>required.includes(m)))??[];
+      const status=factor==='risk'?'PARTIAL_ANCHORED':available&&complete?'OBSERVED':available?'PARTIAL_CROSS_SECTION':'LEGACY_OR_CARRIED';
+      factorStatus[c.code][factor]={status,availability:status==='OBSERVED'?'FRESH':received.some(r=>observationQuality(r.metric,r.value,r.period,payload.asOf)==='STALE')?'STALE':failures.length?'FALLBACK':'CARRIED INPUT',source:available?[...new Set(received.map(r=>r.source))].join(' + '):prior?.source??'Preserved baseline/carried factor',period:latest?.period??prior?.period??null,availableAt:available?latest!.receivedAt:prior?.availableAt??null,sourceUrls:[...new Set(received.flatMap(r=>(r.sourceUrl??'').split(/\s+/).filter(Boolean)))],qualityStatus:status==='OBSERVED'?'VALID':status,releaseDate:latest?.releaseDate??null,failure:failures.map(r=>`${r.source}: ${r.cause}`).join('; ')||null,fallback:status==='OBSERVED'?'none':available?'Cross-section or risk anchor contains carried values':'CARRIED INPUT; no fresh observation certified',frequency:latest?.frequency??(latest?.period.length===4?'annual':'unknown'),definition:latest?.definition};
     }
   }
   payload.coreFactors=factorStatus;
-  payload.evidence=payload.evidence.map(e=>{const m=factorStatus[e.currency][e.factor];return {...e,ageDays:m.availableAt?Math.max(0,(Date.parse(payload.asOf)-Date.parse(m.availableAt))/dayMs):0,observedAt:m.availableAt??payload.asOf,source:m.source,quality:m.status,observationPeriod:m.period,releaseDate:null};});
+  const origins=Object.values(factorStatus).flatMap(Object.values),fresh=origins.filter(m=>m.status==='OBSERVED').length;
+  payload.sourceCoverage={factors:origins.length,fresh,carried:origins.filter(m=>m.status==='LEGACY_OR_CARRIED').length,partial:origins.filter(m=>m.status.startsWith('PARTIAL')).length,ratio:fresh/Math.max(1,origins.length)};
+  payload.evidence=payload.evidence.map(e=>{const m=factorStatus[e.currency][e.factor];return {...e,ageDays:m.availableAt?Math.max(0,(Date.parse(payload.asOf)-Date.parse(m.availableAt))/dayMs):e.ageDays,observedAt:m.availableAt??e.observedAt,source:m.source,quality:m.availability+'; '+m.status,observationPeriod:m.period,releaseDate:m.releaseDate??null};});
   return payload;
 }
 
@@ -80,8 +85,9 @@ export function momentumFromObservations(rows:Observation[],currency:CurrencyCod
 export function observationQuality(metric:string,value:number,period:string,at:string):Observation['quality']{
   if(!Number.isFinite(value)||!/^\d{4}(-\d{2}-\d{2})?$/.test(period)||!Number.isFinite(Date.parse(period))||Date.parse(period)>Date.parse(at))return 'INVALID';
   const bounds:Record<string,[number,number]>={rate:[-10,100],yield2y:[-10,100],yield10y:[-10,100],inflation:[-100,1000],growth:[-100,100],unemployment:[0,100],debt:[0,1000],currentAccount:[-100,100],momentum:[0,1],nlpSentiment:[0,1],vix:[0,200]};
-  const range=bounds[metric];if(range&&(value<range[0]||value>range[1]))return 'INVALID';
+  const range=metric==='cot'?[0,1]:bounds[metric];if(range&&(value<range[0]||value>range[1]))return 'INVALID';
   if(metric.startsWith('fx')&&(value<=0||value>1000))return 'INVALID';
   const annual=period.length===4,age=(Date.parse(at)-Date.parse(period+(annual?'-12-31':'')))/dayMs;
-  return age>(annual?1095:10)?'STALE':'VALID';
+  const maxAge=annual?1095:metric==='rate'||metric==='cot'||metric.startsWith('alt.cot.')?14:metric.includes('funding.')||metric.includes('labor.')?21:metric.includes('consumption.')?75:10;
+  return age>maxAge?'STALE':'VALID';
 }

@@ -121,3 +121,21 @@ test('historical Evidence is evaluated at its issue time, not reinterpreted afte
   const previous=payload(at),c=previous.currencies[0];c.evidenceAttribution=evidence.combineEvidence(c,[{id:'fixture',kind:'ML',score:.9,weight:.02,confidence:1,regimeFit:1,sourceReliability:1,validated:true}],{at});
   const next=payload('2026-01-11T17:00:00.000Z');ingest.historicalScores(next,[previous]);assert.equal(next.currencies[0].history.find(h=>h.ageDays===10).score,c.evidenceAttribution.finalEvidenceScore);
 });
+test('event predictions/outcomes persist separately, remain immutable, and report waiting health',async()=>{
+  const {db,sql}=sqlite();await (await runtime.prepareProductionSnapshot({DB:db},payload(),observations())).commit();
+  const first=JSON.parse(sql.prepare("SELECT payload FROM production_records WHERE kind='frame'").get().payload);assert.ok(first.eventPredictions.length>0);assert.deepEqual(first.contextPredictions,{});
+  assert.equal(sql.prepare("SELECT count(*) n FROM production_records WHERE kind='event-outcome'").get().n,0);
+  const later='2026-01-20T17:00:00.000Z';await (await runtime.prepareProductionSnapshot({DB:db},payload(later),observations(later,90))).commit();
+  const outcome=sql.prepare("SELECT payload FROM production_records WHERE kind='event-outcome' LIMIT 1").get().payload;
+  await (await runtime.prepareProductionSnapshot({DB:db},payload(later),observations(later,90))).commit();
+  assert.equal(sql.prepare("SELECT payload FROM production_records WHERE kind='event-outcome' LIMIT 1").get().payload,outcome);
+  const h=await runtime.productionHealth({DB:db});assert.equal(h.mlInfluence,0);assert.equal(h.contextLearning.status,'WAITING_FOR_DATA');assert.ok(h.eventTargets.every(t=>t.influence===0));
+  sql.prepare("UPDATE production_records SET payload=json_set(payload,'$.label',9) WHERE kind='event-outcome'").run();await assert.rejects(runtime.productionHealth({DB:db}),/EVENT_OUTCOME_INTEGRITY/);sql.close();
+});
+test('health distinguishes real daily Cron from later manual and controlled runs',async()=>{
+  const {db,sql}=sqlite();
+  for(const [source,timestamp,snapshotAdvanced] of [['CLOUDFLARE_CRON','2026-09-21T15:15:00Z',true],['CONTROLLED_TEST','2026-09-21T16:15:00Z',true],['MANUAL','2026-09-21T17:15:00Z',true],['CLOUDFLARE_CRON','2026-09-21T17:30:00Z',false]]){
+    const r={id:timestamp,source,type:'DAILY_REFRESH',status:'SUCCESS',snapshotAdvanced,timestamp,completedAt:timestamp};sql.prepare('INSERT INTO terminal_settings (key,value,updated_at) VALUES (?,?,?)').run('automation:run:'+timestamp,JSON.stringify(r),timestamp);
+  }
+  const h=await runtime.productionHealth({DB:db});assert.equal(h.lastSuccessfulRealCronRefresh.timestamp,'2026-09-21T15:15:00Z');assert.equal(h.lastSuccessfulDailyRefresh.source,'MANUAL');assert.equal(h.weeklyVerification,'WAITING_FOR_NEXT_SCHEDULED_RUN');sql.close();
+});
