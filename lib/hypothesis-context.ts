@@ -69,7 +69,7 @@ export function trainContextModel(frames:ResearchFrame[],outcomes:ResolvedTarget
   const step=Math.max(1,Math.floor(days.length/6));
   for(let i=Math.floor(days.length*.5);i<days.length;i+=step){
     const start=days[i],end=days[Math.min(days.length-1,i+step-1)];
-    const training=data.filter(o=>o.labelEnd<start).slice(-2400),test=data.filter(o=>o.frame.at.slice(0,10)>=start&&o.frame.at.slice(0,10)<=end);if(training.length<100)continue;
+    const training=data.filter(o=>Date.parse(o.labelEnd)+dayMs<Date.parse(start)).slice(-2400),test=data.filter(o=>o.frame.at.slice(0,10)>=start&&o.frame.at.slice(0,10)<=end);if(training.length<100)continue;
     const keys=[...new Set(training.flatMap(o=>Object.keys(o.x)))],weights=fit(training,keys);
     for(const row of test){if(Object.keys(row.x).some(k=>!(k in weights)))continue;
       const candidate=sigmoid(logit(row.core)+Object.entries(row.x).reduce((n,[k,v])=>n+v*weights[k],0));coreRows.push(comparison(row,candidate));incrementalRows.push(comparison(row,candidate,true));

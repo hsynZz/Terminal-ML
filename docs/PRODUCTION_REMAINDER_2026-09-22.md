@@ -1,5 +1,18 @@
 # Production remainder after v18 — 2026-09-22
 
+## Follow-up after deployed v19
+
+Baseline: Site v19, source `6e3dee5208418777f55c6768289da391b04da76f`, GitHub main `2534f9410d9efc34fcc968617a60b776b3f2035f`; identical source tree. Targeted follow-up only:
+
+- Fixed a concrete RSS point-in-time/freshness defect: undated/future/older-than-28-day items and duplicate publications cannot influence lexical sentiment. Existing lexicon, 21-day decay and Core weights remain. `official-tone-v2` records the latest actual publication date separately from retrieval, plus raw component scores. Empty eligible feeds are missing, not fresh neutral observations.
+- Added official Bank of Canada RSS speeches to CAD sentiment and the existing shadow narrative discovery. RDF `cb:speech` entries only; webcast announcements are excluded. Source-only HTTP 200 probe yielded four dated eligible speeches, latest 2026-09-21. No production write was made by this probe. This is a bounded publication sample, not comprehensive semantic speech analysis.
+- Added individual append-only `factor-status` and `source-status` records within the existing atomic snapshot commit. Large aggregate diagnostic JSON remains backward-compatible; individual factor/source results can now be inspected through D1 without losing the entire list to one truncated cell. No schema change.
+- Rejected unverified daily Canadian bond ingestion: current Valet metadata identifies V122531 as 3-month Treasury bills; V122544 returned 404; confirmed 2-year V122538 returned monthly-looking observations with latest 2026-08-01, stale for a daily yield. No daily values or current Core coverage were invented.
+
+Official references: https://www.bankofcanada.ca/rss-feeds/ ; https://www.bankofcanada.ca/content_type/speeches/feed/ ; https://www.bankofcanada.ca/valet-api-how-to/ ; https://www.bankofcanada.ca/terms/ . Derived features are our transformations, not Bank of Canada endorsement. Source material is available free from the Bank; any paid redistribution must retain that notice and attribution.
+
+Local follow-up suite: 84 tests passed, including RDF parsing, RSS temporal eligibility and persisted individual diagnostics. Tests use isolated local databases only. New-release Cron/production receipts and real outcome-based activation remain waiting for actual scheduled events; existing read-only daily/weekly verification tasks are retained.
+
 ## Baseline and scope
 
 Existing Site `appgprj_6a9af546bb708191b3d1f60440ead234`, URL `https://fx-macro-terminal.hysnzz.chatgpt.site`, v18 source `abb97e5bbe06c6ae25767269067a1a37a76dcf67`. GitHub main `8de3265688ef32acd1b57d94408f35e919f8ad4f`. No changes to deterministic Core weights, existing migrations, production data, secret values, access controls or scheduler deployment. No new Site or D1. Fixtures run only in local in-memory SQLite.

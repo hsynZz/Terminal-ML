@@ -10,7 +10,10 @@ export function ProductionStatus(){
     <h2>Evidence & Hintergrundbetrieb</h2>
     {error?<p role="status">Status derzeit nicht erreichbar. Letzte Anzeige kann veraltet sein.</p>:!data?<p>Lade gespeicherten Betriebsstand …</p>:null}
     {data&&<>
-      <p><strong>{data.status}</strong> · ML {pct(data.mlInfluence)} · Hypothesen {pct(data.hypothesisInfluence)} · gemeinsamer Deckel {pct(data.config.cap)}</p>
+      <p><strong>Datenquellen: {data.dataSourceStatus?.toUpperCase()??'UNAVAILABLE'}</strong> · PARTIAL LIVE beschreibt ausschließlich die Datenabdeckung, nicht den Lernstatus.</p>
+      <p>ML: <strong>{data.mlStatus}</strong> · ML {pct(data.mlInfluence)} · Hypothesen {pct(data.hypothesisInfluence)} · adaptiv gesamt {pct(data.adaptiveTotalInfluence)} · gemeinsamer Deckel {pct(data.adaptiveCap)}</p>
+      <p>Automatische Freigabe: {data.runtimeGateStatus} · Evidence: {data.evidencePipelineStatus}</p>
+      <p>Runtime: {Object.entries(data.runtimeFlags??{}).map(([name,enabled])=>`${name}=${enabled}`).join(' · ')}</p>
       <p>{data.snapshotCount} Snapshots · {data.trainingExamples} abgeschlossene ML-Beispiele · {data.resolvedOutcomes} Ergebnisse · {data.activeHypotheses}/{data.hypothesisCount} Hypothesen aktiv</p>
       <p>Letzter Snapshot: {data.lastSuccessfulSnapshot??'Noch keiner'} · Retraining: {data.lastRetrain??'WAITING FOR DATA'}</p>
       <p>Letzter erfolgreicher regulärer Cron: {data.lastSuccessfulRealCronRefresh?.completedAt??'WAITING FOR NEXT SCHEDULED RUN'} · letzter erfolgreicher Daily Refresh: {data.lastSuccessfulDailyRefresh?.completedAt??'WAITING'}.</p>
@@ -23,7 +26,8 @@ export function ProductionStatus(){
         <p>Aktuelles Modell: {data.currentMlVersion} · Rollbacks: {data.rollbackCount}</p>
         <p>{data.observationVintages} unveränderliche Datenstände. Jahresdaten ändern sich erst bei einer Veröffentlichung oder Revision. Fortgeführte Faktoren bleiben als solche gekennzeichnet und qualifizieren keine neue adaptive Freigabe.</p>
         {data.coreInputQuality&&<details><summary>Herkunft der Core-Faktoren</summary><p>FRESH heißt innerhalb des Aktualitätsfensters, nicht heute veröffentlicht oder live gehandelt. PARTIAL enthält fortgeführte Teilwerte; die Coverage ist keine Live-Feed-Quote. BIS-Daten: Quelle Bank for International Settlements; deutsche Erläuterungen sind keine offizielle BIS-Übersetzung.</p><div className="lab-scroll"><table><thead><tr><th>Währung</th><th>Faktor</th><th>Status</th><th>Periode</th><th>Quelle</th></tr></thead><tbody>{Object.entries(data.coreInputQuality as Record<string,Record<string,{status:string;availability?:string;period:string|null;source:string;sourceUrls?:string[];failure?:string|null}>>).flatMap(([currency,factors])=>Object.entries(factors).map(([factor,q])=><tr key={currency+factor}><td>{currency}</td><td>{factor}</td><td>{q.availability??q.status}{q.status.startsWith('PARTIAL')?' · PARTIAL':''}{q.failure&&<div>{q.failure}</div>}</td><td>{q.period??'nicht belegt'}</td><td>{q.source}{q.sourceUrls?.map(url=><div key={url}><a href={url} target="_blank" rel="noreferrer">Quelle öffnen</a></div>)}</td></tr>))}</tbody></table></div></details>}
-        <p>{data.testingHypotheses??0} in Discovery/Testing/Validating · {data.shadowHypotheses} Shadow · {data.rejectedHypotheses} verworfen · Kontext-ML: {data.contextLearning?.status??'WAITING FOR DATA'}.</p>
+        <p>{Object.entries(data.hypothesisLifecycle??{}).map(([status,count])=>`${status}: ${count}`).join(' · ')} · Kontext-ML: {data.contextLearning?.status??'WAITING FOR DATA'}.</p>
+        <p>LIVE erfordert alle 80 Core-Faktoren mit vollständig belegten Eingaben innerhalb ihrer jeweiligen Aktualitätsfenster. Jahresdaten dürfen älter sein; fortgeführte, partielle oder fehlende Faktoren verhindern LIVE.</p>
         <details><summary>Zusätzliche Shadow-Targets</summary><p>Anfangs unkalibrierte Kandidaten, keine gemessenen Wahrscheinlichkeiten; kein Richtungseinfluss.</p>{data.eventTargets?.map(t=><p key={t.target+t.horizon}>{t.target} · {t.horizon}D · {t.status} · {t.resolved} Outcomes · Einfluss 0. {t.definition}</p>)}</details>
         <details><summary>Noch nicht angebundene Datenklassen</summary>{data.notConnected?.map(s=><p key={s.name}><strong>{s.name}</strong>: {s.reason}</p>)}</details>
         {data.lastError&&<p role="status">Letzter Fehler: {data.lastError}</p>}

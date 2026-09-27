@@ -1,6 +1,7 @@
 import {
   factorMeta,
   forecastHorizons,
+  sanitizeModelSettings,
   type CurrencyCode,
   type CurrencySnapshot,
   type FactorKey,
@@ -8,7 +9,7 @@ import {
   type ForecastHorizon,
 } from "@/lib/terminal-data";
 import { applyRegimeWeights } from "@/lib/regime";
-import { evidenceShift } from './adaptive-evidence';
+import { coreEvidence, evidenceShift } from './adaptive-evidence';
 
 export type DistributionPoint = {
   id: string;
@@ -88,7 +89,8 @@ function quantile(values: number[], position: number) {
 
 function projectedFeature(currency: CurrencySnapshot, factor: FactorKey, horizon: number) {
   const current = currency.factors[factor];
-  const recentMove = currency.history[0].score - currency.history[1].score;
+  // Core-only history prevents a second application through projected momentum.
+  const recentMove = (currency.history[0].coreScore ?? coreEvidence(currency)) - (currency.history[1].coreScore ?? currency.history[1].score);
   const decayedMomentum = recentMove * Math.exp(-horizon / 48) * 0.85;
   const meanReversion = (0.5 - current) * (horizon / 90) * 0.12;
   return clamp(current + decayedMomentum + meanReversion, 0.02, 0.98);
@@ -102,14 +104,13 @@ function normalizeWeights(weights: Record<FactorKey, number>) {
   ])) as Record<FactorKey, number>;
 }
 
-function learnedWeightsForHorizon(payload: TerminalPayload, horizon?: number) {
-  const global = normalizeWeights(payload.model?.learnedWeights ?? Object.fromEntries(factors.map((factor) => [factor, factorMeta[factor].weight])) as Record<FactorKey, number>);
+function frozenWeightsForHorizon(payload: TerminalPayload, horizon?: number) {
+  const baseline = sanitizeModelSettings(payload.model).forecastBaseline!;
+  const global = baseline.global;
   if (horizon === undefined) return global;
   const lower = [...forecastHorizons].reverse().find((value) => value <= horizon) ?? forecastHorizons[0];
   const upper = forecastHorizons.find((value) => value >= horizon) ?? forecastHorizons.at(-1)!;
-  const at = (anchor: ForecastHorizon) => payload.model?.horizonTrainingSamples?.[anchor] >= 100
-    ? normalizeWeights(payload.model.horizonWeights[anchor])
-    : global;
+  const at = (anchor: ForecastHorizon) => baseline.horizons[anchor];
   if (lower === upper) return at(lower);
   const share = (horizon - lower) / (upper - lower);
   const lowWeights = at(lower);
@@ -121,14 +122,7 @@ function learnedWeightsForHorizon(payload: TerminalPayload, horizon?: number) {
 }
 
 export function effectiveModelWeights(payload: TerminalPayload, horizon?: number) {
-  const modelBlend = clamp(payload.model?.modelBlend ?? 0.8, 0, 1);
-  const expert = normalizeWeights(payload.model?.expertWeights ?? Object.fromEntries(factors.map((factor) => [factor, factorMeta[factor].weight])) as Record<FactorKey, number>);
-  const learned = learnedWeightsForHorizon(payload, horizon);
-  const hybrid = normalizeWeights(Object.fromEntries(factors.map((factor) => [
-    factor,
-    expert[factor] * (1 - modelBlend) + learned[factor] * modelBlend,
-  ])) as Record<FactorKey, number>);
-  return applyRegimeWeights(hybrid, payload.regime);
+  return applyRegimeWeights(frozenWeightsForHorizon(payload, horizon), payload.regime);
 }
 
 function weightedStrength(currency: CurrencySnapshot, weights: Record<FactorKey, number>) {

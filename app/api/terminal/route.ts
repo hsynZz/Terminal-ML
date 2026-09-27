@@ -1,6 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import { env } from 'cloudflare:workers';
 import { guardProductionPayload, type ProductionEnv } from '@/worker/production';
+import { refreshSourceStatus } from '@/lib/production-data';
 import { getDb } from "@/db";
 import { terminalSettings, terminalSnapshots } from "@/db/schema";
 import { getBaselinePayload, hydrateTerminalPayload, sanitizeModelSettings, type ModelSettings, type TerminalPayload } from "@/lib/terminal-data";
@@ -16,7 +17,7 @@ export async function GET() {
     if (savedModel?.value) {
       payload.model = sanitizeModelSettings(JSON.parse(savedModel.value) as Partial<ModelSettings>);
     }
-    return Response.json(await guardProductionPayload(env as unknown as ProductionEnv,payload),{headers:{'Cache-Control':'private, no-store'}});
+    return Response.json(await guardProductionPayload(env as unknown as ProductionEnv,refreshSourceStatus(payload)),{headers:{'Cache-Control':'private, no-store'}});
   } catch {
     // The first deployment intentionally falls back until the initial refresh is stored.
   }

@@ -1,6 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import { env } from 'cloudflare:workers';
 import { guardProductionPayload, type ProductionEnv } from '@/worker/production';
+import { refreshSourceStatus } from '@/lib/production-data';
 import { getDb } from "@/db";
 import { terminalSettings, terminalSnapshots } from "@/db/schema";
 import { buildPairForecast } from "@/lib/model-engine";
@@ -39,14 +40,15 @@ export async function GET(request: Request) {
     return Response.json({status:'unavailable',reason:'Forecast storage unavailable'},{status:503});
   }
 
-  await guardProductionPayload(env as unknown as ProductionEnv,payload);
+  await guardProductionPayload(env as unknown as ProductionEnv,refreshSourceStatus(payload));
   return Response.json({
     pair: `${base}/${quote}`,
     asOf: payload.asOf,
     forecasts: buildPairForecast(payload, base, quote),
     model: {
       version: "DETERMINISTIC_CORE + GATED_ADAPTIVE_V2",
-      modelBlend: payload.model.modelBlend,
+      allocationMode: 'AUTOMATIC_VALIDATION_ONLY',
+      baselineVersion: payload.model.forecastBaseline?.version,
       trainingSamples: payload.model.trainingSamples,
       trainedAt: payload.model.trainedAt,
       validation: payload.model.validation,

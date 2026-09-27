@@ -11,6 +11,22 @@ const research=await vite.ssrLoadModule('/lib/production-research.ts');
 const targets=await vite.ssrLoadModule('/lib/shadow-targets.ts');
 const context=await vite.ssrLoadModule('/lib/hypothesis-context.ts');
 const at='2026-09-22T12:00:00.000Z',day=86400000;
+test('RSS eligibility rejects future, undated, stale and duplicate items without a fresh neutral observation',async()=>{
+  const sentiment=await vite.ssrLoadModule('/lib/sentiment.ts');
+  const item={currency:'CAD',source:'Bank of Canada',title:'Policy remains restrictive',summary:'',publishedAt:'2026-09-22T10:00:00.000Z'};
+  const valid=sentiment.aggregateTextSignals([item],new Date(at));
+  const mixed=sentiment.aggregateTextSignals([item,item,...[null,'invalid','2026-09-23T00:00:00Z','2026-08-01T00:00:00Z'].map(publishedAt=>({...item,publishedAt}))],new Date(at));
+  assert.deepEqual(mixed,valid);assert.equal(mixed.sampleCount,1);assert.equal(mixed.latestPublishedAt,item.publishedAt);
+  assert.equal(sentiment.aggregateTextSignals([{...item,publishedAt:null}],new Date(at)).sampleCount,0);
+  assert.equal(sentiment.aggregateTextSignals([item],new Date('2026-09-22T11:00:00Z')).factorScore,valid.factorScore);
+});
+test('Bank of Canada RDF feed uses published speeches, not webcast/event announcements',async()=>{
+  const sentiment=await vite.ssrLoadModule('/lib/sentiment.ts');
+  const feed=sentiment.centralBankFeeds.find(f=>f.currency==='CAD');
+  const xml='<rdf:RDF><item rdf:about="a"><title>Future webcast</title><dc:date>2026-09-21T10:00:00Z</dc:date><cb:news /></item><item rdf:about="b"><title>Actual speech</title><description>Restrictive policy</description><dc:date>2026-09-21T11:00:00Z</dc:date><cb:speech rdf:parseType="Resource"></cb:speech></item></rdf:RDF>';
+  const rows=sentiment.extractFeedItems(xml,feed);assert.equal(rows.length,1);assert.equal(rows[0].title,'Actual speech');assert.equal(rows[0].publishedAt,'2026-09-21T11:00:00.000Z');
+  assert.equal(narrative.narrativeObservations(rows,at)[0].currency,'CAD');
+});
 const priceRows=(now=at,n=70)=>Array.from({length:n},(_,i)=>data.currencies.map((currency,j)=>({currency,metric:'fxReferenceUsd',value:currency==='USD'?1:1+j*.1+i*.002*(j%2?1:-1),period:new Date(Date.parse(now)-(n-i)*day).toISOString().slice(0,10),receivedAt:now,source:'ECB reference fixing',sourceUrl:'https://www.ecb.europa.eu/',unit:'USD per currency',releaseDate:null,quality:'VALID',frequency:'business-daily'}))).flat();
 function frame(now=at){const p=data.getBaselinePayload();p.asOf=now;p.sourceChecks=[];return research.buildResearchFrame(p,priceRows(now));}
 const cot=(code,date,long='60',short='20',oi='100')=>({cftc_contract_market_code:code,report_date_as_yyyy_mm_dd:date,noncomm_positions_long_all:long,noncomm_positions_short_all:short,open_interest_all:oi,market_and_exchange_names:'fixture contract'});

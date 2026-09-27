@@ -5,7 +5,7 @@ import { currencyObservations, evidenceEntries, modelDebugLogs, terminalSettings
 import { buildFeatureExplanation } from "@/lib/explainability";
 import { effectiveModelWeights } from "@/lib/model-engine";
 import { detectMarketRegime } from "@/lib/regime";
-import { aggregateTextSignals, centralBankFeeds, extractFeedItems } from "@/lib/sentiment";
+import { aggregateTextSignals, centralBankFeeds, eligibleTextSignals, extractFeedItems } from "@/lib/sentiment";
 import { buildEvidence, getBaselinePayload, hydrateTerminalPayload, sanitizeModelSettings, type CurrencyCode, type ModelSettings, type TerminalPayload } from "@/lib/terminal-data";
 import { berlinRefreshParts, canReuseRefresh } from "@/lib/refresh-policy";
 import { repairDerivedScores, historicalScores, truthfulEvidence, parseEcbRates, momentumFromObservations, observationQuality, type Observation, type ProductionPayload, type SourceCheck } from '@/lib/production-data';
@@ -90,7 +90,8 @@ async function centralBankSignals(checks:SourceCheck[]) {
   const results = await Promise.allSettled(centralBankFeeds.map(async (feed) => sourceAttempt(checks,feed.source,feed.url,feed.currency,["nlpSentiment"],async()=>{
     const response = await sourceFetch(feed.url,"application/rss+xml, application/atom+xml, text/xml, application/xml");
     if (!response.ok) throw new Error(`feed unavailable: ${feed.source}`);
-    return extractFeedItems(await response.text(), feed);
+    const items = eligibleTextSignals(extractFeedItems(await response.text(), feed));
+    return items.length ? items : null;
   })));
   return results.flatMap((result) => result.status === "fulfilled" ? result.value??[] : []);
 }
@@ -275,19 +276,30 @@ export async function POST(request: Request) {
   }
   vintageRows.push(...official.filter(o=>o.metric.startsWith('alt.')),...await macroProxies,...narrativeObservations(textSignals,new Date().toISOString()));
   // Age weights change by day, not by the millisecond of a button click.
-  const sentimentAt = new Date(`${new Date().toISOString().slice(0, 10)}T00:00:00Z`);
+  const sentimentAt = new Date();
   for (const currency of payload.currencies) {
-    const items = textSignals.filter((item) => item.currency === currency.code);
+    const items = eligibleTextSignals(textSignals.filter((item) => item.currency === currency.code), sentimentAt);
     if (!items.length) continue;
     const sentiment = aggregateTextSignals(items, sentimentAt);
+    if (!sentiment.sampleCount || !sentiment.latestPublishedAt) continue;
     currency.factors.sentiment = sentiment.factorScore;
-    receipts.push({currency:currency.code,metric:"nlpSentiment",value:sentiment.factorScore,period:sentimentAt.toISOString().slice(0,10),source:"Official central bank RSS",sourceUrl:centralBankFeeds.filter(f=>f.currency===currency.code).map(f=>f.url).join(" "),receivedAt:new Date().toISOString()});
+    const receipt: Observation = {
+      currency:currency.code,metric:'nlpSentiment',value:sentiment.factorScore,
+      period:sentiment.latestPublishedAt.slice(0,10),source:'Official central bank RSS',
+      sourceUrl:centralBankFeeds.filter(f=>items.some(item=>item.source===f.source)).map(f=>f.url).join(' '),
+      receivedAt:sentimentAt.toISOString(),releaseDate:sentiment.latestPublishedAt,
+      featureVersion:'official-tone-v2',unit:'normalized score',frequency:'publication-event',
+      quality:observationQuality('nlpSentiment',sentiment.factorScore,sentiment.latestPublishedAt.slice(0,10),sentimentAt.toISOString()),
+      definition:'Existing lexical score, 21-day exponential decay using UTC calendar days; unique dated publications from the preceding 28 days only. Observation date is latest publication, not retrieval date.',
+      rawInputs:items.map(item=>({source:item.source,publishedAt:item.publishedAt,tone:aggregateTextSignals([item],sentimentAt).rawScore})),
+    };
+    receipts.push(receipt);
     nlpValues += sentiment.sampleCount;
     observations.push({
       currency: currency.code,
       metric: "nlpSentiment",
       value: sentiment.factorScore,
-      period: sentimentAt.toISOString().slice(0, 10),
+      period: sentiment.latestPublishedAt.slice(0, 10),
       source: "Official central bank RSS",
       observedAt: sentimentAt.toISOString(),
     });

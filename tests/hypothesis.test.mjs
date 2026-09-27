@@ -17,7 +17,14 @@ test('immutable pre-change baseline: scores evidence ML clouds and 56 pairs x fo
   const p=d.getBaselinePayload();
   const output={scores:p.currencies.map(d.strengthScore),evidence:p.evidence,model:p.model,distribution:m.buildModelDistribution(p,d.currencies),forecasts:d.currencies.flatMap(a=>d.currencies.filter(b=>a!==b).map(b=>m.buildPairForecast(p,a,b)))};
   const expected={scores:'66d9077bb7c4671c15fc70c1a90ed0e79fa53e40f8ae4f31cf4f10a8ae9038ff',evidence:'75cfb846784071f5f1454353c4860e381c8294f0d9b2c3ee9f092958cafae084',model:'ec8232c1127de675b2b3bc0a068ef6e4df6c1b791344e4b3a84d98b7ea9c011b',distribution:'cf0457c250e6657764ba03ba7167af79aa6185621f1ceb7e8b00afb1fa2daf93',forecasts:'25957818eeb8873ea23a1577be891ab5e63f3e01b17647ab853c26b716592867'};
-  for(const [k,v]of Object.entries(output))assert.equal(hash(v),expected[k],k);
+  for(const k of ['scores','evidence','model'])assert.equal(hash(output[k]),expected[k],k);
+  // Keep the original forecast hashes as provenance. Freezing pre-regime weights
+  // only changes floating-point operation order; tolerate at most 1e-12.
+  const golden=JSON.parse(readFileSync(new URL('./fixtures/pre-automatic-forecasts.json',import.meta.url),'utf8')).cases[0];
+  assert.equal(hash(golden.distribution),expected.distribution);
+  assert.equal(hash(golden.pairs.map(x=>x.points)),expected.forecasts);
+  function near(a,b){if(typeof b==='number'){assert.ok(Math.abs(a-b)<=1e-12);return;}if(b&&typeof b==='object'){assert.deepEqual(Object.keys(a),Object.keys(b));for(const k of Object.keys(b))near(a[k],b[k]);}else assert.equal(a,b);}
+  near(output.distribution,golden.distribution);near(output.forecasts,golden.pairs.map(x=>x.points));
 });
 test('finite versioned factory and fail-closed feature flags',()=>{
   const h=e.factory(now);assert.equal(h.length,32);assert.equal(new Set(h.map(h=>h.id)).size,32);

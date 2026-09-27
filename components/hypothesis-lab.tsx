@@ -23,13 +23,13 @@ export function HypothesisLab() {
   return <main className="quant-shell hypothesis-lab">
     <header className="quant-header"><div className="quant-brand"><span>FX</span><div><strong>HYPOTHESIS LAB</strong><small>ISOLATED RESEARCH · {lab?.protocol??"LOADING"}</small></div></div><Link href="/">← Terminal</Link></header>
     <ProductionStatus />
-    <section className="lab-intro"><span className="mono-label">ERHALTENES RESEARCH-ARCHIV V1</span><h1>Frühere Forschung</h1><p>Die frühere USD-Forschung bleibt getrennt archiviert. Ihr bisheriger Beitrag beträgt <strong>{percent(lab?.currentContribution??0)}</strong>. Die neue Evidence-Pipeline und ihre automatische Freigabe stehen oben.</p>
+    <section className="lab-intro"><span className="mono-label">ERHALTENES RESEARCH-ARCHIV V1</span><h1>Frühere Forschung</h1><p>Die frühere USD-Forschung bleibt archiviert und hat keinen Produktionsbeitrag. Die aktuelle Evidence-Pipeline und ihre automatische Freigabe stehen oben.</p>
       <button className="audit-button" onClick={run} disabled={busy}>{busy?"Research läuft …":"Research prüfen / einmal ausführen"}</button><p>Maximal ein erfolgreicher Research-Lauf pro UTC-Tag. Automatischer Anschluss nach erfolgreichem Daily Refresh; kein neuer Cron. Die gespeicherten Ausführungen stehen im Audit Trail.</p>
       {error&&<p role="alert">{error}</p>}{!lab&&!error&&<p role="status">Lade gespeicherten Forschungsstand …</p>}
     </section>
     {lab&&<>
       <section className="lab-stats" aria-label="Forschungsstatus">{statuses.map(s=><div key={s}><span>{s.replaceAll("_"," ")}</span><strong>{lab.counts[s]??0}</strong></div>)}</section>
-      <section className="lab-panel"><h2>Sicherheits- und Datenstatus</h2><p>Research: {lab.flags.enabled?"ENABLED":"DISABLED"} · Produktionsadapter: {lab.productionIntegration} · angefordertes Gewicht: {percent(lab.flags.requestedWeight)} · effektives Gewicht: {percent(lab.currentContribution)} · Budgetdeckel: 5 %; je Prognose höchstens eine qualifizierte Hypothese mit maximal 1 %</p>
+      <section className="lab-panel"><h2>Archivstatus</h2><p>Frühere Research-Pipeline: {lab.flags.enabled?"ENABLED":"DISABLED"} · Produktionsbeitrag dieses Archivs: 0 %. Ausschließlich die aktuelle Pipeline oben kann validierte Beiträge freigeben.</p>
         <p>Letzter Research-Lauf: {runInfo?`${runInfo.at} · ${runInfo.status} · ${runInfo.result??runInfo.message??""} · ${runInfo.id}`:"NOT VERIFIED — noch kein gespeicherter Lauf"}</p>
         <p>Suchbudget: {lab.hypotheses.length}/{lab.searchBudget} Kandidaten inklusive aller Horizonte und verworfenen Varianten. Keine zufällige Parametersuche.</p>
         {quality&&<><p>{quality.historicalCaptures} historische Captures · {quality.prospectiveCaptures} tatsächlich neue Captures · {quality.priceRows} vorhandene Kurse · {quality.verifiedSignals??0} Signale mit geprüftem Herkunftsnachweis · {quality.archivedOutcomes??0} unveränderlich archivierte Ergebnisse. Abdeckung: {quality.first??"—"} bis {quality.last??"—"}.</p><ul>{quality.limitations.map(x=><li key={x}>{x}</li>)}</ul></>}

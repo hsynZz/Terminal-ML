@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test, { after } from "node:test";
 import { fileURLToPath } from "node:url";
 import { createServer } from "vite";
+import { readFileSync } from 'node:fs';
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const vite = await createServer({
@@ -13,6 +14,22 @@ const vite = await createServer({
 });
 
 after(async () => vite.close());
+
+test('automatic baseline preserves all pre-migration forecasts and dominance for legacy settings', async () => {
+  const data=await vite.ssrLoadModule('/lib/terminal-data.ts');
+  const core=await vite.ssrLoadModule('/lib/model-engine.ts');
+  const fixture=JSON.parse(readFileSync(new URL('./fixtures/pre-automatic-forecasts.json',import.meta.url),'utf8'));
+  function near(a,b){if(typeof b==='number'){assert.ok(Math.abs(a-b)<=fixture.tolerance,`${a} != ${b}`);return;}
+    if(b&&typeof b==='object'){assert.deepEqual(Object.keys(a),Object.keys(b));for(const k of Object.keys(b))near(a[k],b[k]);}else assert.equal(a,b);}
+  for(const row of fixture.cases){const p=data.getBaselinePayload();p.model=data.sanitizeModelSettings(row.model);
+    near(core.buildModelDistribution(p,data.currencies),row.distribution);
+    for(const {a,b,points} of row.pairs)near(core.buildPairForecast(p,a,b),points);
+    const frozen=core.buildPairForecast(p,'EUR','USD');
+    p.model.modelBlend=0;p.model.learnedWeights.momentum=999;p.model.expertWeights.policy=999;
+    p.model.horizonTrainingSamples[10]=999;p.model.horizonWeights[10].risk=999;
+    assert.deepEqual(core.buildPairForecast(p,'EUR','USD'),frozen);
+  }
+});
 
 test("refresh timestamps do not move clouds or change dominance", async () => {
   const { getBaselinePayload } = await vite.ssrLoadModule("/lib/terminal-data.ts");

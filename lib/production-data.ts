@@ -5,7 +5,7 @@ import { coreEvidence, evidenceShift } from './adaptive-evidence';
 export const DATA_VERSION = 'observed-core-v2';
 export type Observation = Receipt & { sourceUrl:string; unit:string; releaseDate:string|null; normalizedValue?:number|null; quality:'VALID'|'STALE'|'INVALID'; frequency:string; definition?:string; featureVersion?:string; economicCause?:string; lineage?:string[]; rawInputs?:unknown[] };
 export type SourceCheck = {at:string;source:string;url:string;currency:string;metrics:string[];status:'SUCCESS'|'FAILED'|'MISSING';cause:string|null;fallback:string;latencyMs:number};
-export type FactorOrigin={status:string;source:string;period:string|null;availableAt:string|null;availability?:string;sourceUrls?:string[];qualityStatus?:string;releaseDate?:string|null;failure?:string|null;fallback?:string;frequency?:string;definition?:string};
+export type FactorOrigin={status:string;source:string;period:string|null;availableAt:string|null;availability?:string;sourceUrls?:string[];qualityStatus?:string;releaseDate?:string|null;failure?:string|null;fallback?:string;frequency?:string;definition?:string;inputs?:{metric:string;value:number;period:string;receivedAt:string;source:string}[]};
 export type ProductionPayload = TerminalPayload & { calculationVersion?:string; sourceChecks?:SourceCheck[]; observationSummary?:{count:number;changed:number;failedSources:string[]}; historyStatus?:string; coreFactors?:Record<string,Record<string,FactorOrigin>>; sourceCoverage?:{factors:number;fresh:number;carried:number;partial:number;ratio:number} };
 export const dayMs=86400000;
 const clamp=(v:number)=>Math.max(0,Math.min(1,v));
@@ -34,7 +34,7 @@ export function historicalScores(payload:ProductionPayload, history:TerminalPayl
       const row=ageDays?history.filter(p=>Date.parse(p.asOf)<=cutoff).sort((a,b)=>b.asOf.localeCompare(a.asOf))[0]:payload;
       const old=row?.currencies.find(x=>x.code===c.code);
       // Neutral projection when history is absent; status explicitly identifies the missing datum.
-      return {ageDays,score:old?coreEvidence(old)+evidenceShift(old,Date.parse(row!.asOf)):score,observedAt:row?.asOf??null,available:!!old};
+      return {ageDays,score:old?coreEvidence(old)+evidenceShift(old,Date.parse(row!.asOf)):score,coreScore:old?coreEvidence(old):coreEvidence(c),observedAt:row?.asOf??null,available:!!old};
     });
   }
   payload.historyStatus='ARCHIVED_SNAPSHOTS; missing anchors use neutral projection, never synthetic history';
@@ -47,18 +47,41 @@ export function truthfulEvidence(payload:ProductionPayload, receipts:Receipt[]) 
     factorStatus[c.code]={};
     for(const factor of Object.keys(factorMeta) as FactorKey[]){
       const required=dependencies[factor],rows=required.map(metric=>receipts.find(r=>r.currency===c.code&&r.metric===metric));
-      const available=rows.every(r=>r&&observationQuality(r.metric,r.value,r.period,payload.asOf)==='VALID');
-      const ranked=['policy','yields','inflation','growth'].includes(factor),complete=!ranked||currencies.every(code=>required.every(metric=>receipts.some(r=>r.currency===code&&r.metric===metric&&observationQuality(metric,r.value,r.period,payload.asOf)==='VALID')));
+      const validReceipt=(r:Receipt|undefined)=>!!r&&Number.isFinite(Date.parse(r.receivedAt))&&r.receivedAt<=payload.asOf&&observationQuality(r.metric,r.value,r.period,payload.asOf)==='VALID';
+      const available=rows.every(validReceipt);
+      const ranked=['policy','yields','inflation','growth'].includes(factor),complete=!ranked||currencies.every(code=>required.every(metric=>receipts.some(r=>r.currency===code&&r.metric===metric&&validReceipt(r))));
       const received=rows.filter((r):r is Receipt=>!!r) as Observation[],latest=received.sort((a,b)=>b.receivedAt.localeCompare(a.receivedAt))[0],prior=payload.coreFactors?.[c.code]?.[factor];
       const failures=payload.sourceChecks?.filter(r=>r.status!=='SUCCESS'&&(r.currency===c.code||r.currency==='ALL')&&r.metrics.some(m=>required.includes(m)))??[];
       const status=factor==='risk'?'PARTIAL_ANCHORED':available&&complete?'OBSERVED':available?'PARTIAL_CROSS_SECTION':'LEGACY_OR_CARRIED';
       factorStatus[c.code][factor]={status,availability:status==='OBSERVED'?'FRESH':received.some(r=>observationQuality(r.metric,r.value,r.period,payload.asOf)==='STALE')?'STALE':failures.length?'FALLBACK':'CARRIED INPUT',source:available?[...new Set(received.map(r=>r.source))].join(' + '):prior?.source??'Preserved baseline/carried factor',period:latest?.period??prior?.period??null,availableAt:available?latest!.receivedAt:prior?.availableAt??null,sourceUrls:[...new Set(received.flatMap(r=>(r.sourceUrl??'').split(/\s+/).filter(Boolean)))],qualityStatus:status==='OBSERVED'?'VALID':status,releaseDate:latest?.releaseDate??null,failure:failures.map(r=>`${r.source}: ${r.cause}`).join('; ')||null,fallback:status==='OBSERVED'?'none':available?'Cross-section or risk anchor contains carried values':'CARRIED INPUT; no fresh observation certified',frequency:latest?.frequency??(latest?.period.length===4?'annual':'unknown'),definition:latest?.definition};
+      factorStatus[c.code][factor].inputs=received.map(r=>({metric:r.metric,value:r.value,period:r.period,receivedAt:r.receivedAt,source:r.source}));
     }
   }
   payload.coreFactors=factorStatus;
   const origins=Object.values(factorStatus).flatMap(Object.values),fresh=origins.filter(m=>m.status==='OBSERVED').length;
   payload.sourceCoverage={factors:origins.length,fresh,carried:origins.filter(m=>m.status==='LEGACY_OR_CARRIED').length,partial:origins.filter(m=>m.status.startsWith('PARTIAL')).length,ratio:fresh/Math.max(1,origins.length)};
+  refreshSourceStatus(payload,payload.asOf);
   payload.evidence=payload.evidence.map(e=>{const m=factorStatus[e.currency][e.factor];return {...e,ageDays:m.availableAt?Math.max(0,(Date.parse(payload.asOf)-Date.parse(m.availableAt))/dayMs):e.ageDays,observedAt:m.availableAt??e.observedAt,source:m.source,quality:m.availability+'; '+m.status,observationPeriod:m.period,releaseDate:m.releaseDate??null};});
+  return payload;
+}
+
+/** All 8 x 10 Core factors are required for LIVE; no ML state enters this decision. */
+export function refreshSourceStatus(payload:ProductionPayload,at=new Date().toISOString()) {
+  const expected=currencies.length*Object.keys(factorMeta).length;
+  const rows=currencies.flatMap(c=>Object.keys(factorMeta).map(f=>({currency:c,factor:f,origin:payload.coreFactors?.[c]?.[f]})));
+  let observedInputs=0;
+  for(const row of rows){const o=row.origin;if(!o)continue;
+    const current=o.inputs?.every(r=>r.receivedAt<=at&&Number.isFinite(Date.parse(r.receivedAt))&&observationQuality(r.metric,r.value,r.period,at)==='VALID');
+    const hasValid=o.inputs?.some(r=>r.receivedAt<=at&&observationQuality(r.metric,r.value,r.period,at)==='VALID');
+    if(hasValid)observedInputs++;
+    // Old snapshots lack complete dependency dates. Do not manufacture a live certificate.
+    if(o.status==='OBSERVED'&&current!==true&&Date.parse(at)-Date.parse(payload.asOf)>36*3600000)o.availability='STALE';
+    else if(o.status==='OBSERVED'&&o.inputs?.length&&current!==true)o.availability='STALE';
+  }
+  const fresh=rows.filter(({origin:o})=>o?.status==='OBSERVED'&&o.availability==='FRESH').length;
+  const complete=fresh===expected&&rows.every(({origin:o})=>!!o?.inputs?.length&&o.inputs.every(r=>r.receivedAt<=at&&observationQuality(r.metric,r.value,r.period,at)==='VALID'));
+  payload.sourceCoverage={factors:expected,fresh,carried:rows.filter(({origin:o})=>!o||o.status==='LEGACY_OR_CARRIED').length,partial:rows.filter(({origin:o})=>o?.status.startsWith('PARTIAL')).length,ratio:fresh/expected};
+  payload.sourceMode=complete?'live':fresh>0||observedInputs>0?'partial-live':'baseline';
   return payload;
 }
 

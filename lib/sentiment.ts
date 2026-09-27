@@ -8,13 +8,15 @@ export type TextSignal = {
   source: string;
 };
 
-export const centralBankFeeds: { currency: CurrencyCode; source: string; url: string }[] = [
+export const centralBankFeeds: { currency: CurrencyCode; source: string; url: string; speechOnly?: boolean }[] = [
   { currency: "USD", source: "Federal Reserve · Monetary Policy", url: "https://www.federalreserve.gov/feeds/press_monetary.xml" },
   { currency: "USD", source: "Federal Reserve · Speeches", url: "https://www.federalreserve.gov/feeds/speeches.xml" },
   { currency: "EUR", source: "European Central Bank", url: "https://www.ecb.europa.eu/rss/press.html" },
   { currency: "GBP", source: "Bank of England", url: "https://www.bankofengland.co.uk/rss/speeches" },
   { currency: "AUD", source: "Reserve Bank of Australia · Releases", url: "https://www.rba.gov.au/rss/rss-cb-media-releases.xml" },
   { currency: "AUD", source: "Reserve Bank of Australia · Speeches", url: "https://www.rba.gov.au/rss/rss-cb-speeches.xml" },
+  { currency: "CAD", source: "Bank of Canada · Speeches", url: "https://www.bankofcanada.ca/content_type/speeches/feed/", speechOnly: true },
+  { currency: "CHF", source: "Swiss National Bank · Speeches", url: "https://www.snb.ch/public/rss/en/speeches" },
 ];
 
 const positiveTerms = [
@@ -50,10 +52,11 @@ function tag(block: string, names: string[]) {
   return "";
 }
 
-export function extractFeedItems(xml: string, feed: { currency: CurrencyCode; source: string }, limit = 12): TextSignal[] {
+export function extractFeedItems(xml: string, feed: { currency: CurrencyCode; source: string; speechOnly?: boolean }, limit = 12): TextSignal[] {
   const blocks = xml.match(/<(?:item|entry)(?:\s[^>]*)?>[\s\S]*?<\/(?:item|entry)>/gi) ?? [];
-  return blocks.slice(0, limit).map((block) => {
-    const date = tag(block, ["pubDate", "published", "updated", "dc:date"]);
+  return blocks.filter(block => !feed.speechOnly || /<cb:speech(?:\s|>)/i.test(block)).slice(0, limit).map((block) => {
+    // An Atom modification timestamp is not an original publication date.
+    const date = tag(block, ["pubDate", "published", "dc:date"]);
     const parsed = date ? new Date(date) : null;
     return {
       currency: feed.currency,
@@ -80,13 +83,23 @@ export function scoreFinancialText(text: string) {
   return Math.tanh((count(positiveTerms) - count(negativeTerms)) / 3);
 }
 
+/** Only dated, already published items in the documented 28-day collection window. */
+export function eligibleTextSignals(items: TextSignal[], now = new Date()) {
+  const seen = new Set<string>();
+  return items.filter(item => {
+    const age = now.getTime() - Date.parse(item.publishedAt ?? '');
+    const key = `${item.currency}:${item.title}:${item.publishedAt}`;
+    if (!Number.isFinite(age) || age < 0 || age >= 28 * 86_400_000 || seen.has(key)) return false;
+    seen.add(key); return true;
+  });
+}
+
 export function aggregateTextSignals(items: TextSignal[], now = new Date()) {
+  const eligible = eligibleTextSignals(items, now);
   let weighted = 0;
   let totalWeight = 0;
-  for (const item of items) {
-    const ageDays = item.publishedAt
-      ? Math.max(0, (now.getTime() - new Date(item.publishedAt).getTime()) / 86_400_000)
-      : 7;
+  for (const item of eligible) {
+    const ageDays = Math.floor(now.getTime() / 86_400_000) - Math.floor(Date.parse(item.publishedAt!) / 86_400_000);
     const recency = Math.exp(-ageDays / 21);
     const score = scoreFinancialText(`${item.title}. ${item.summary}`);
     weighted += score * recency;
@@ -96,6 +109,7 @@ export function aggregateTextSignals(items: TextSignal[], now = new Date()) {
   return {
     factorScore: Math.max(0.05, Math.min(0.95, 0.5 + rawScore * 0.45)),
     rawScore,
-    sampleCount: items.length,
+    sampleCount: eligible.length,
+    latestPublishedAt: eligible.map(item => item.publishedAt!).sort().at(-1) ?? null,
   };
 }

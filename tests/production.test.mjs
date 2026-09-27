@@ -64,7 +64,8 @@ test('fresh snapshot persistence, immutable labels and weekly waiting work throu
   const count=sql.prepare("SELECT count(*) n FROM production_records WHERE kind LIKE 'outcome:%'").get().n;assert.ok(count>0);const outcome=sql.prepare("SELECT payload FROM production_records WHERE kind LIKE 'outcome:%' LIMIT 1").get().payload;
   await (await runtime.prepareProductionSnapshot(env,payload(later),observations(later,90).map(o=>({...o,value:o.value*1.01})))).commit();
   assert.equal(sql.prepare("SELECT payload FROM production_records WHERE kind='frame' ORDER BY at LIMIT 1").get().payload,first);assert.equal(sql.prepare("SELECT payload FROM production_records WHERE kind LIKE 'outcome:%' LIMIT 1").get().payload,outcome);
-  const result=await runtime.productionRetrain(env,later);assert.equal(result.status,'waiting');assert.equal(sql.prepare("SELECT count(*) n FROM terminal_settings WHERE key='model'").get().n,0);assert.equal(sql.prepare("SELECT count(*) n FROM production_records WHERE kind='retrain'").get().n,1);
+  const fixedBefore=sql.prepare("SELECT value FROM terminal_settings WHERE key='model'").get().value;
+  const result=await runtime.productionRetrain(env,later);assert.equal(result.status,'waiting');assert.equal(sql.prepare("SELECT value FROM terminal_settings WHERE key='model'").get().value,fixedBefore);assert.equal(sql.prepare("SELECT count(*) n FROM production_records WHERE kind='retrain'").get().n,1);
   const kill=await runtime.guardProductionPayload({...env,ADAPTIVE_ENABLED:'false'},p);assert.ok(kill.currencies.every(c=>!c.evidenceAttribution));
   sql.prepare("UPDATE production_records SET payload=json_set(payload,'$.label',9) WHERE kind LIKE 'outcome:%'").run();await assert.rejects(runtime.productionRetrain(env,later),/INTEGRITY/);sql.close();
 });
@@ -76,12 +77,21 @@ test('snapshot publication is atomic and a failed publication leaves no training
   assert.equal(sql.prepare("SELECT count(*) n FROM production_records WHERE kind='frame'").get().n,0);
   assert.equal(sql.prepare("SELECT count(*) n FROM terminal_settings WHERE key='production:v2:state'").get().n,0);sql.close();
 });
+test('source and factor diagnostics are individually inspectable without modifying old records',async()=>{
+  const {db,sql}=sqlite();const p=payload();
+  p.coreFactors={CAD:{seasonality:{status:'LEGACY_OR_CARRIED',source:'baseline',period:null,availableAt:null,availability:'CARRIED INPUT'}}};
+  await (await runtime.prepareProductionSnapshot({DB:db},p,observations())).commit();
+  const factor=JSON.parse(sql.prepare("SELECT payload FROM production_records WHERE kind='factor-status'").get().payload);
+  assert.equal(factor.currency,'CAD');assert.equal(factor.factor,'seasonality');assert.equal(factor.availability,'CARRIED INPUT');
+  assert.equal(sql.prepare("SELECT count(*) n FROM production_records WHERE kind='source-status'").get().n,p.sourceChecks.length);
+  assert.ok(sql.prepare("SELECT payload FROM production_records WHERE kind='coverage'").get());sql.close();
+});
 test('walk-forward trains a frozen challenger on purged past labels; no automatic champion replacement without common OOS evidence',()=>{
   const frames=[],outcomes=[];
   for(let i=0;i<150;i++){
     const time=new Date(Date.parse('2008-01-01')+i*41*day).toISOString(),label=i%2;
     const f=research.buildResearchFrame(payload(time),observations(time));f.sourceReliability=1;f.regimeVerified=true;f.regime=i%3?'risk-on':'risk-off';
-    for(const c of data.currencies){f.features[c]={'factor.momentum':label?.8:-.8};f.core[c]=label?.3:.7;outcomes.push({frameId:f.id,currency:c,horizon:10,asOf:time,labelEnd:new Date(Date.parse(time)+11*day).toISOString().slice(0,10),label,core:f.core[c],regime:f.regime});}frames.push(f);
+    for(const c of data.currencies){f.features[c]={'factor.momentum':label?.8:-.8};f.core[c]=label?.3:.7;outcomes.push({frameId:f.id,currency:c,horizon:10,asOf:time,labelEnd:new Date(Date.parse(time)+11*day).toISOString().slice(0,10),resolvedAt:new Date(Date.parse(time)+12*day).toISOString(),label,core:f.core[c],regime:f.regime});}frames.push(f);
   }
   const now=new Date(Date.parse(frames.at(-1).at)+30*day).toISOString();
   const candidate=research.trainChallenger(frames,outcomes,10,now,1);

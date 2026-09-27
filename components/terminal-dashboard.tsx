@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeftRight, RefreshCw, Save, SlidersHorizontal } from "lucide-react";
+import { ArrowLeftRight, RefreshCw, SlidersHorizontal } from "lucide-react";
 import {
   ReferenceArea,
   ReferenceLine,
@@ -36,7 +36,6 @@ import {
   type DistributionPoint,
 } from "@/lib/model-engine";
 
-import { applyPairOverlay, type Overlay } from "@/lib/hypothesis/adapter";
 import { ProductionStatus } from './production-status';
 
 const currencyColors: Record<CurrencyCode, string> = {
@@ -100,13 +99,11 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
   const [refreshFailed, setRefreshFailed] = useState(false);
   const [base, setBase] = useState<CurrencyCode>("EUR");
   const [quote, setQuote] = useState<CurrencyCode>("USD");
-  const [draftModel, setDraftModel] = useState(payload.model);
-  const [savingModel, setSavingModel] = useState(false);
   const [overlayClock, setOverlayClock] = useState(0);
-  const hasOverlay = !!(payload as TerminalPayload & {hypothesisOverlay?:Overlay}).hypothesisOverlay || payload.currencies.some(c=>c.evidenceAttribution?.status==='ACTIVE');
-  // An active overlay expires locally and rechecks the server kill switch every 30 seconds.
+  const hasOverlay = payload.currencies.some(c=>c.evidenceAttribution?.status==='ACTIVE');
+  // Read-only polling picks up new snapshots/automatic activation; active contributions
+  // also expire locally and recheck the server kill switch every 30 seconds.
   useEffect(() => {
-    if (!hasOverlay) return;
     let active = true;
     const timer = setInterval(async () => {
       setOverlayClock(Date.now());
@@ -117,22 +114,21 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
         if (active) setPayload(latest);
       } catch {
         if (active) setPayload(current => {
-          const next = {...current} as TerminalPayload & {hypothesisOverlay?:Overlay};
-          delete next.hypothesisOverlay;
+          const next = {...current};
           next.currencies=next.currencies.map(c=>{const copy={...c};delete copy.evidenceAttribution;return copy;});
           return next;
         });
       }
-    }, 30000);
+    }, hasOverlay ? 30000 : 60000);
     return () => { active = false; clearInterval(timer); };
   }, [hasOverlay]);
 
   const distribution = useMemo(
-    () => buildModelDistribution(payload, selected),
-    [payload, selected],
+    () => { void overlayClock; return buildModelDistribution(payload, selected); },
+    [payload, selected, overlayClock],
   );
   const pairForecast = useMemo(
-    () => applyPairOverlay(buildPairForecast(payload, base, quote), `${base}/${quote}`, payload.asOf, (payload as TerminalPayload & {hypothesisOverlay?:Overlay}).hypothesisOverlay,new Date(overlayClock||Date.parse(payload.asOf)).toISOString()),
+    () => { void overlayClock; return buildPairForecast(payload, base, quote); },
     [payload, base, quote, overlayClock],
   );
 
@@ -156,7 +152,6 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
         const latest = await response.json() as TerminalPayload;
         if (active) {
           setPayload(latest);
-          setDraftModel(latest.model);
         }
       } catch {
         // Keep the last complete snapshot visible.
@@ -182,7 +177,6 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
       if (!response.ok) throw new Error("refresh failed");
       const next = await response.json() as TerminalPayload;
       setPayload(next);
-      setDraftModel(next.model);
     } catch {
       setRefreshFailed(true);
     } finally {
@@ -198,23 +192,6 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
   function changeQuote(next: CurrencyCode) {
     if (next === base) setBase(quote);
     setQuote(next);
-  }
-
-  async function saveModelSettings() {
-    setSavingModel(true);
-    try {
-      const response = await fetch("/api/settings", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(draftModel),
-      });
-      if (!response.ok) return;
-      const model = await response.json() as TerminalPayload["model"];
-      setPayload((current) => ({ ...current, model }));
-      setDraftModel(model);
-    } finally {
-      setSavingModel(false);
-    }
   }
 
   return (
@@ -253,48 +230,25 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
                     <div><span>ENGINE</span><strong>Probabilistic ensemble</strong></div>
                     <div><span>VERSION</span><strong>{distribution.version}</strong></div>
                     <div><span>ABDECKUNG</span><strong>{modeLabel(payload.sourceMode)} · Quellenstatus unten</strong></div>
-                    <div><span>TRAINING</span><strong className="warning-text">{payload.model.trainingSamples ? `${payload.model.trainingSamples} Samples` : "Bootstrap"}</strong></div>
+                    <div><span>FORECAST-BASIS</span><strong>Fester deterministischer Core</strong></div>
                     <div><span>REGIME</span><strong>{payload.regime.label.toUpperCase()} · {percent(payload.regime.riskOffProbability)} RISK-OFF</strong></div>
-                    <div><span>VALIDATION</span><strong>{payload.model.validation ? `${payload.model.validation.folds} WALK-FORWARD FOLDS` : "WAITING FOR HISTORY"}</strong></div>
+                    <div><span>ADAPTIVE VALIDATION</span><strong>Separater Betriebsstatus unten</strong></div>
                   </section>
                   <section>
                     <h2>Was ein Punkt bedeutet</h2>
                     <p>Ein Punkt ist ein vollständiger Modellzustand. Für jeden Horizont werden alle Merkmalsgruppen gemeinsam neu gewichtet und als Ensemble ausgewertet. Ein Punkt ist kein Event, keine News-Meldung und kein einzelner Indikator.</p>
                   </section>
                   <section>
-                    <h2>Hybrid-Gewichtung</h2>
-                    <p className="weight-help">Modell und Trader-Bias werden vor jeder Prognose zu einem gemeinsamen Gewichtssatz normalisiert.</p>
-                    <div className="blend-control">
-                      <div><span>Feste Basis-Gewichtung</span><strong>{Math.round(draftModel.modelBlend * 100)}%</strong></div>
-                      <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={Math.round(draftModel.modelBlend * 100)}
-                        onChange={(event) => setDraftModel((current) => ({ ...current, modelBlend: Number(event.target.value) / 100 }))}
-                        aria-label="Modellanteil"
-                      />
-                    </div>
-                    <div className="audit-factors editable">
+                    <h2>Fester Core · automatische Ergänzung</h2>
+                    <p className="weight-help">ML und Hypothesen beginnen bei 0 %. Nur echte, zeitlich getrennte Validation erlaubt einen begrenzten Beitrag. Bei Qualitätsverlust fällt dieser automatisch zurück. Die bisherige Forecast-Basis ist unverändert eingefroren; es gibt keinen manuellen ML-Anteil.</p>
+                    <div className="audit-factors">
                       {factorKeys.map((factor) => (
-                        <label key={factor}>
+                        <div key={factor}>
                           <span>{factorMeta[factor].label}</span>
-                          <input
-                            type="range"
-                            min="0"
-                            max="30"
-                            value={Math.round(draftModel.expertWeights[factor] * 100)}
-                            onChange={(event) => setDraftModel((current) => ({
-                              ...current,
-                              expertWeights: { ...current.expertWeights, [factor]: Number(event.target.value) / 100 },
-                            }))}
-                            aria-label={`${factorMeta[factor].label} Trader-Gewicht`}
-                          />
-                          <strong>{Math.round(draftModel.expertWeights[factor] * 100)}%</strong>
-                        </label>
+                          <strong>{Math.round(factorMeta[factor].weight * 100)}%</strong>
+                        </div>
                       ))}
                     </div>
-                    <Button className="save-model" onClick={saveModelSettings} disabled={savingModel}><Save />{savingModel ? "Speichert" : "Gewichte speichern"}</Button>
                   </section>
                   <section>
                     <h2>Datenquellen</h2>
@@ -328,7 +282,6 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
             {pairForecast.map((forecast) => (
               <div key={forecast.horizon}>
                 <span>{forecast.horizon}T</span>
-                {forecast.hypothesis&&<small>Hypothese: {(forecast.hypothesis.adjustment*100).toFixed(2)} Prozentpunkte · Core {percent(forecast.hypothesis.coreProbability)}</small>}
                 <strong className={forecast.signal === "neutral" ? "" : forecast.signal === "up" ? "positive" : "negative"}>{percent(forecast.probability)}</strong>
                 <small title={`Konfidenz aus Signalstreuung und ${forecast.sampleCount} Trainingsbeispielen`}>
                   {forecast.signal === "neutral" ? "NEUTRAL" : forecast.signal === "up" ? "LONG" : "SHORT"} · MODELLSTABILITÄT {percent(forecast.confidence)}

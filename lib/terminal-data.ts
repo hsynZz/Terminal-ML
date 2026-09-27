@@ -30,7 +30,7 @@ export type CurrencySnapshot = {
   currentAccount: number;
   debt: number;
   factors: FactorScores;
-  history: { ageDays: number; score: number }[];
+  history: { ageDays: number; score: number; coreScore?: number }[];
 };
 
 export type CalendarEvent = {
@@ -78,7 +78,9 @@ export const forecastHorizons = [10, 30, 60, 90] as const;
 export type ForecastHorizon = (typeof forecastHorizons)[number];
 
 export type ModelSettings = {
+  /** Legacy fields retained for audit; adaptive allocation is separate. */
   modelBlend: number;
+  forecastBaseline?: { version: 'frozen-core-v1'; global: FactorScores; horizons: Record<ForecastHorizon, FactorScores> };
   expertWeights: FactorScores;
   learnedWeights: FactorScores;
   horizonWeights: Record<ForecastHorizon, FactorScores>;
@@ -167,7 +169,7 @@ export function sanitizeModelSettings(input?: Partial<ModelSettings>): ModelSett
       validatedAt: typeof validation.validatedAt === "string" ? validation.validatedAt : new Date(0).toISOString(),
     }
     : null;
-  return {
+  const settings: ModelSettings = {
     modelBlend: Number.isFinite(blend) ? Math.max(0, Math.min(1, blend)) : fallback.modelBlend,
     expertWeights: normalizeFactorScores(input?.expertWeights, fallback.expertWeights),
     learnedWeights,
@@ -187,6 +189,15 @@ export function sanitizeModelSettings(input?: Partial<ModelSettings>): ModelSett
     trainingSamples: Number.isFinite(Number(input?.trainingSamples)) ? Math.max(0, Math.floor(Number(input?.trainingSamples))) : 0,
     validation: sanitizeValidation(input?.validation),
   };
+  // Freeze pre-migration forecasts once. Learning never changes this compatibility baseline.
+  const blendWeights = (learned: FactorScores) => normalizeFactorScores(Object.fromEntries(
+    (Object.keys(factorMeta) as FactorKey[]).map(k => [k, settings.expertWeights[k] * (1-settings.modelBlend) + learned[k] * settings.modelBlend]),
+  ), settings.expertWeights);
+  const existing = input?.forecastBaseline;
+  settings.forecastBaseline = existing?.version === 'frozen-core-v1'
+    ? { version: existing.version, global: normalizeFactorScores(existing.global, settings.expertWeights), horizons: Object.fromEntries(forecastHorizons.map(h => [h, normalizeFactorScores(existing.horizons?.[h], existing.global)])) as Record<ForecastHorizon, FactorScores> }
+    : { version: 'frozen-core-v1', global: blendWeights(settings.learnedWeights), horizons: Object.fromEntries(forecastHorizons.map(h => [h, blendWeights(settings.horizonTrainingSamples[h] >= 100 ? settings.horizonWeights[h] : settings.learnedWeights)])) as Record<ForecastHorizon, FactorScores> };
+  return settings;
 }
 
 const seed: Omit<CurrencySnapshot, "history">[] = [

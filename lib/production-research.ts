@@ -93,7 +93,8 @@ export function discoverRecipes(existing:Recipe[],frame:ResearchFrame):Recipe[]{
     if(ids.has(id))continue;if(result.filter(r=>r.status!=='REJECTED').length>=128||result.length>=4096||added>=8)break;
     const origins=[frame.featureOrigins?.[d.feature],d.other?frame.featureOrigins?.[d.other]:undefined].filter((o):o is FeatureOrigin=>!!o);
     const lineage=[...new Set(origins.flatMap(o=>o.lineage))],economicCauses=[...new Set(origins.flatMap(o=>o.economicCauses))];
-    result.push({...d,id,createdAt:frame.at,status:'DISCOVERY',reason:'New reproducible candidate; influence zero',weight:0,look:0,lastBlocks:0,lastChangedAt:frame.at,lineage,economicCauses,rationale:origins.length?`Test whether ${economicCauses.join(' / ')} carries incremental information through rates, risk appetite or trade demand; direction and lag are unproven. ${origins.map(o=>o.definition).join(' ')}`:'Observed relative macro or FX dynamics may transmit through monetary policy, capital flows and positioning; sign and lag require prospective validation.'});ids.add(id);added++;
+    const rationale=origins.length?`Test whether ${economicCauses.join(' / ')} carries incremental information through rates, risk appetite or trade demand; direction and lag are unproven. ${origins.map(o=>o.definition).join(' ')}`:'Observed relative macro or FX dynamics may transmit through monetary policy, capital flows and positioning; sign and lag require prospective validation.';
+    result.push({...d,id,createdAt:frame.at,status:'DISCOVERY',reason:'New reproducible candidate; influence zero',weight:0,look:0,lastBlocks:0,lastChangedAt:frame.at,lineage,economicCauses,rationale:rationale+' Null hypothesis: coincidence, a common third cause, or information already explained by Core and existing hypotheses. Association alone does not establish causation.'});ids.add(id);added++;
   }
   return result;
 }
@@ -203,7 +204,7 @@ export function modelFeatures(frame:ResearchFrame,currency:string):FactorScores{
 export function modelScore(m:CandidateModel,f:ResearchFrame,c:string){const values=modelFeatures(f,c);return 1/(1+Math.exp(-5*Object.keys(factorMeta).reduce((n,k)=>n+values[k as FactorKey]*m.weights[k as FactorKey],0)));}
 export function trainChallenger(frames:ResearchFrame[],outcomes:ResolvedTarget[],horizon:number,now:string,sequence:number):CandidateModel|null{
   const frameMap=new Map(frames.map(f=>[f.id,f]));
-  const dataset=outcomes.filter(o=>o.horizon===horizon&&o.labelEnd<now.slice(0,10)).flatMap(o=>{
+  const dataset=outcomes.filter(o=>o.horizon===horizon&&o.labelEnd<now.slice(0,10)&&o.resolvedAt<=now&&o.asOf<now).flatMap(o=>{
     const f=frameMap.get(o.frameId);if(!f||f.version!==DATA_VERSION||f.quality!=='VALID'||f.regimeVerified!==true||f.sourceReliability<.8)return [];
     return [{features:modelFeatures(f,o.currency),label:o.label,asOf:o.asOf,labelEnd:o.labelEnd,pair:o.currency,horizon,core:o.core,regime:o.regime}] as (TrainingExample&{core:number;regime:string})[];
   });
@@ -212,7 +213,7 @@ export function trainChallenger(frames:ResearchFrame[],outcomes:ResolvedTarget[]
   const results:Comparison[]=[],folds:CandidateModel['folds']=[];
   for(let i=Math.floor(days.length*.5);i<days.length;i+=Math.max(1,Math.floor(days.length/6))){
     const start=days[i],end=days[Math.min(days.length-1,i+Math.max(1,Math.floor(days.length/6))-1)];
-    const train=dataset.filter(x=>x.labelEnd!<start),test=dataset.filter(x=>x.asOf!.slice(0,10)>=start&&x.asOf!.slice(0,10)<=end);
+    const train=dataset.filter(x=>Date.parse(x.labelEnd!)+dayMs<Date.parse(start)),test=dataset.filter(x=>x.asOf!.slice(0,10)>=start&&x.asOf!.slice(0,10)<=end);
     if(train.length<60||!test.length)continue;
     const fitted=trainLearnedWeights(train,initial,180);
     for(const row of test){const candidate=1/(1+Math.exp(-5*Object.entries(row.features).reduce((s,[k,v])=>s+v*fitted.weights[k as FactorKey],0)));results.push({asOf:row.asOf!,labelEnd:row.labelEnd!,pair:row.pair!,label:row.label,baseline:row.core,probability:row.core+.05*(candidate-row.core),candidate,regime:row.regime});}

@@ -15,21 +15,6 @@ export async function GET() {
   }
 }
 
-export async function PUT(request: Request) {
-  try {
-    const settings = sanitizeModelSettings(await request.json() as Partial<ModelSettings>);
-    const now = new Date().toISOString();
-    const db = getDb();
-    await db.insert(terminalSettings).values({
-      key: "model",
-      value: JSON.stringify(settings),
-      updatedAt: now,
-    }).onConflictDoUpdate({
-      target: terminalSettings.key,
-      set: { value: JSON.stringify(settings), updatedAt: now },
-    });
-    return Response.json(settings);
-  } catch {
-    return Response.json({ error: "Model settings could not be saved" }, { status: 400 });
-  }
+export async function PUT() {
+  return Response.json({ error: 'AUTOMATIC_VALIDATION_ONLY', message: 'Core is fixed. Adaptive influence requires prospective validation.' }, { status: 409 });
 }
