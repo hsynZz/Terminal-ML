@@ -47,7 +47,8 @@ export type CalendarEvent = {
 export type TerminalPayload = {
   asOf: string;
   nextRefresh: string;
-  sourceMode: "baseline" | "partial-live" | "live";
+  sourceMode: "baseline" | "partial-live" | "live" | "full-live";
+  forecastSourceMode?: "baseline" | "partial-live" | "live";
   currencies: CurrencySnapshot[];
   evidence: EvidenceEntry[];
   events: CalendarEvent[];

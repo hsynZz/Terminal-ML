@@ -1,4 +1,6 @@
 import { currencies, factorMeta, getBaselinePayload, rebuildDerivedScores, strengthScore, type CurrencyCode, type FactorKey, type TerminalPayload } from './terminal-data';
+import type { researchCoverage } from './research-coverage';
+import { coreRequirement, COVERAGE_VERSION } from './core-coverage';
 import type { Receipt } from './hypothesis/provenance';
 import { coreEvidence, evidenceShift } from './adaptive-evidence';
 
@@ -6,7 +8,7 @@ export const DATA_VERSION = 'observed-core-v2';
 export type Observation = Receipt & { sourceUrl:string; unit:string; releaseDate:string|null; normalizedValue?:number|null; quality:'VALID'|'STALE'|'INVALID'; frequency:string; definition?:string; featureVersion?:string; economicCause?:string; lineage?:string[]; rawInputs?:unknown[] };
 export type SourceCheck = {at:string;source:string;url:string;currency:string;metrics:string[];status:'SUCCESS'|'FAILED'|'MISSING';cause:string|null;fallback:string;latencyMs:number};
 export type FactorOrigin={status:string;source:string;period:string|null;availableAt:string|null;availability?:string;sourceUrls?:string[];qualityStatus?:string;releaseDate?:string|null;failure?:string|null;fallback?:string;frequency?:string;definition?:string;inputs?:{metric:string;value:number;period:string;receivedAt:string;source:string}[]};
-export type ProductionPayload = TerminalPayload & { calculationVersion?:string; sourceChecks?:SourceCheck[]; observationSummary?:{count:number;changed:number;failedSources:string[]}; historyStatus?:string; coreFactors?:Record<string,Record<string,FactorOrigin>>; sourceCoverage?:{factors:number;fresh:number;carried:number;partial:number;ratio:number} };
+export type ProductionPayload = TerminalPayload & { researchCoverage?:ReturnType<typeof researchCoverage>; calculationVersion?:string; sourceChecks?:SourceCheck[]; observationSummary?:{count:number;changed:number;failedSources:string[]}; historyStatus?:string; coreFactors?:Record<string,Record<string,FactorOrigin>>; sourceCoverage?:{factors:number;fresh:number;carried:number;partial:number;ratio:number;critical?:{total:number;fresh:number;ratio:number;missing:string[]};stale?:number;failed?:number;unavailable?:number;categoryGaps?:string[];version?:string} };
 export const dayMs=86400000;
 const clamp=(v:number)=>Math.max(0,Math.min(1,v));
 const rank=(v:number,a:number[])=>Math.max(...a)===Math.min(...a)?.5:(v-Math.min(...a))/(Math.max(...a)-Math.min(...a));
@@ -47,7 +49,7 @@ export function truthfulEvidence(payload:ProductionPayload, receipts:Receipt[]) 
     factorStatus[c.code]={};
     for(const factor of Object.keys(factorMeta) as FactorKey[]){
       const required=dependencies[factor],rows=required.map(metric=>receipts.find(r=>r.currency===c.code&&r.metric===metric));
-      const validReceipt=(r:Receipt|undefined)=>!!r&&Number.isFinite(Date.parse(r.receivedAt))&&r.receivedAt<=payload.asOf&&observationQuality(r.metric,r.value,r.period,payload.asOf)==='VALID';
+      const validReceipt=(r:Receipt|undefined)=>!!r&&Number.isFinite(Date.parse(r.receivedAt))&&r.receivedAt<=payload.asOf&&(!(r as Observation).releaseDate||Number.isFinite(Date.parse((r as Observation).releaseDate!))&&(r as Observation).releaseDate!<=payload.asOf)&&observationQuality(r.metric,r.value,r.period,payload.asOf)==='VALID';
       const available=rows.every(validReceipt);
       const ranked=['policy','yields','inflation','growth'].includes(factor),complete=!ranked||currencies.every(code=>required.every(metric=>receipts.some(r=>r.currency===code&&r.metric===metric&&validReceipt(r))));
       const received=rows.filter((r):r is Receipt=>!!r) as Observation[],latest=received.sort((a,b)=>b.receivedAt.localeCompare(a.receivedAt))[0],prior=payload.coreFactors?.[c.code]?.[factor];
@@ -65,7 +67,7 @@ export function truthfulEvidence(payload:ProductionPayload, receipts:Receipt[]) 
   return payload;
 }
 
-/** All 8 x 10 Core factors are required for LIVE; no ML state enters this decision. */
+/** Certification uses Core dependencies only; research availability and ML status are independent. */
 export function refreshSourceStatus(payload:ProductionPayload,at=new Date().toISOString()) {
   const expected=currencies.length*Object.keys(factorMeta).length;
   const rows=currencies.flatMap(c=>Object.keys(factorMeta).map(f=>({currency:c,factor:f,origin:payload.coreFactors?.[c]?.[f]})));
@@ -78,10 +80,17 @@ export function refreshSourceStatus(payload:ProductionPayload,at=new Date().toIS
     if(o.status==='OBSERVED'&&current!==true&&Date.parse(at)-Date.parse(payload.asOf)>36*3600000)o.availability='STALE';
     else if(o.status==='OBSERVED'&&o.inputs?.length&&current!==true)o.availability='STALE';
   }
-  const fresh=rows.filter(({origin:o})=>o?.status==='OBSERVED'&&o.availability==='FRESH').length;
-  const complete=fresh===expected&&rows.every(({origin:o})=>!!o?.inputs?.length&&o.inputs.every(r=>r.receivedAt<=at&&observationQuality(r.metric,r.value,r.period,at)==='VALID'));
-  payload.sourceCoverage={factors:expected,fresh,carried:rows.filter(({origin:o})=>!o||o.status==='LEGACY_OR_CARRIED').length,partial:rows.filter(({origin:o})=>o?.status.startsWith('PARTIAL')).length,ratio:fresh/expected};
-  payload.sourceMode=complete?'live':fresh>0||observedInputs>0?'partial-live':'baseline';
+  const certified=(o:FactorOrigin|undefined)=>o?.status==='OBSERVED'&&o.availability==='FRESH'&&!!o.inputs?.length&&o.inputs.every(r=>Number.isFinite(Date.parse(r.receivedAt))&&r.receivedAt<=at&&observationQuality(r.metric,r.value,r.period,at)==='VALID');
+  const fresh=rows.filter(r=>certified(r.origin)).length;
+  const complete=fresh===expected;
+  const critical=rows.filter(r=>coreRequirement(r.factor as FactorKey,r.currency).critical);
+  const missing=critical.filter(r=>!certified(r.origin)).map(r=>`${r.currency}.${r.factor}`);
+  // Only isolated context gaps may be tolerated; an entirely absent category is never hidden.
+  const categoryGaps=Object.keys(factorMeta).filter(f=>!rows.some(r=>r.factor===f&&certified(r.origin)));
+  payload.sourceCoverage={factors:expected,fresh,carried:rows.filter(({origin:o})=>!o||o.status==='LEGACY_OR_CARRIED').length,partial:rows.filter(({origin:o})=>o?.status.startsWith('PARTIAL')).length,ratio:fresh/expected,critical:{total:critical.length,fresh:critical.length-missing.length,ratio:(critical.length-missing.length)/critical.length,missing},stale:rows.filter(r=>r.origin?.availability==='STALE').length,failed:rows.filter(r=>r.origin?.failure).length,unavailable:rows.filter(r=>!r.origin||!r.origin.inputs?.length).length,categoryGaps,version:COVERAGE_VERSION};
+  // Preserve the previous inference calibration: a display-only LIVE upgrade is not extra confidence.
+  payload.forecastSourceMode=complete?'live':fresh>0||observedInputs>0?'partial-live':'baseline';
+  payload.sourceMode=complete?'full-live':!missing.length&&!categoryGaps.length?'live':fresh>0||observedInputs>0?'partial-live':'baseline';
   return payload;
 }
 
@@ -107,10 +116,11 @@ export function momentumFromObservations(rows:Observation[],currency:CurrencyCod
 
 export function observationQuality(metric:string,value:number,period:string,at:string):Observation['quality']{
   if(!Number.isFinite(value)||!/^\d{4}(-\d{2}-\d{2})?$/.test(period)||!Number.isFinite(Date.parse(period))||Date.parse(period)>Date.parse(at))return 'INVALID';
+  if(period.length===10&&new Date(Date.parse(period)).toISOString().slice(0,10)!==period)return 'INVALID';
   const bounds:Record<string,[number,number]>={rate:[-10,100],yield2y:[-10,100],yield10y:[-10,100],inflation:[-100,1000],growth:[-100,100],unemployment:[0,100],debt:[0,1000],currentAccount:[-100,100],momentum:[0,1],nlpSentiment:[0,1],vix:[0,200]};
   const range=metric==='cot'?[0,1]:bounds[metric];if(range&&(value<range[0]||value>range[1]))return 'INVALID';
   if(metric.startsWith('fx')&&(value<=0||value>1000))return 'INVALID';
   const annual=period.length===4,age=(Date.parse(at)-Date.parse(period+(annual?'-12-31':'')))/dayMs;
-  const maxAge=annual?1095:metric==='rate'||metric==='cot'||metric.startsWith('alt.cot.')?14:metric.includes('funding.')||metric.includes('labor.')?21:metric.includes('consumption.')?75:10;
+  const maxAge=annual?1095:metric==='rate'||metric==='cot'||metric.startsWith('alt.cot.')?14:metric.includes('funding.')||metric.includes('labor.')?21:metric.includes('consumption.')||metric.includes('supply.')||metric.includes('commodity.basket.')?75:metric==='nlpSentiment'?28:10;
   return age>maxAge?'STALE':'VALID';
 }

@@ -82,7 +82,7 @@ export async function runResearch(env:ResearchEnv,source="POST_REFRESH",now=new 
       if(snapshots.results.length>128||archives.results.length>5000) throw new Error("HISTORICAL_IMPORT_BUDGET_EXCEEDED");
       for(const s of snapshots.results) {
         if(!Number.isFinite(Date.parse(s.as_of))||s.as_of>=now) continue;
-        const raw=json<TerminalPayload>(s.payload); if(!["live","partial-live"].includes(raw.sourceMode)) continue;
+        const raw=json<TerminalPayload>(s.payload); if(!["live","full-live","partial-live"].includes(raw.sourceMode)) continue;
         if(!captureReadiness(raw)) { importExcluded.incompatibleSnapshot++; continue; }
         const baseline:Record<string,number>={};
         for(const a of archives.results.filter(a=>a.observed_at===s.as_of&&a.pair.endsWith("/USD"))) baseline[`${a.pair.split("/")[0]}/${a.horizon}`]=a.probability;
@@ -100,7 +100,7 @@ export async function runResearch(env:ResearchEnv,source="POST_REFRESH",now=new 
       if(model) payload.model=sanitizeModelSettings(json(model.value));
       if(!await verifyProvenance((payload as ProvenancePayload).inputProvenance))delete (payload as ProvenancePayload).inputProvenance;
       // Reject stale/baseline/malformed data rather than hydrating synthetic factor defaults.
-      if(["live","partial-live"].includes(payload.sourceMode)&&Date.parse(now)-Date.parse(latest.as_of)<=48*3600000) {
+      if(["live","full-live","partial-live"].includes(payload.sourceMode)&&Date.parse(now)-Date.parse(latest.as_of)<=48*3600000) {
         const baselines:Record<string,number>={};
         for(const c of currencies.filter(c=>c!=="USD")) for(const f of buildPairForecast(payload,c,"USD")) baselines[`${c}/${f.horizon}`]=f.probability;
         const f=makeFrame(payload,now,`snapshot:${latest.as_of};model:${payload.model.trainedAt??"bootstrap"}`,hypotheses,all,baselines);

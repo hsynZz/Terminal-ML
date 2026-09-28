@@ -53,7 +53,7 @@ test('alternative macro inputs preserve raw data, real receipt time and no missi
   const rows=sources.parseMacroProxy({observations:[{date:'2026-09-18',value:'-0.6'},{date:'2026-10-01',value:'5'}]},spec,at);
   assert.equal(rows.length,2);assert.equal(rows[0].value,-.6);assert.ok(Math.abs(rows[1].value-Math.tanh(-.2))<1e-12);assert.equal(rows[1].receivedAt,at);assert.equal(rows[1].currency,'GLOBAL');assert.deepEqual(rows[1].lineage,['FRED:STLFSI4']);
   assert.equal(sources.parseMacroProxy({observations:[{date:'2020-01-01',value:'1'}]},spec,at).length,0);
-  const checks=[];assert.deepEqual(await sources.collectMacroProxies(checks,undefined),[]);assert.equal(checks.length,5);assert.ok(checks.every(c=>c.status==='MISSING'&&c.fallback.includes('UNAVAILABLE')));
+  const checks=[];assert.deepEqual(await sources.collectMacroProxies(checks,undefined),[]);assert.equal(checks.length,sources.macroProxySeries.length);assert.ok(checks.every(c=>c.status==='MISSING'&&c.fallback.includes('UNAVAILABLE')));
   const oil=sources.macroProxySeries[0];assert.deepEqual(sources.parseMacroProxy({observations:[{date:'2026-09-21',value:'70'}]},oil,at),[]);
 });
 test('official narrative features reject future/undated items, deduplicate and identify bounded RSS sample',()=>{

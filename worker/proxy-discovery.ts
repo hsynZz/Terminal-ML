@@ -11,6 +11,7 @@ const country:Record<CurrencyCode,string>={USD:'USA',EUR:'EMU',GBP:'GBR',CHF:'CH
 /** No outcome-based selection: scan provider metadata, then measure availability for every major. */
 export function proxyMechanism(indicator:Indicator){
   const text=indicator.name+' '+indicator.sourceNote;
+  if(indicator.id==='VC.IHR.PSRC.P5')return 'aggregate public safety, investment climate, tourism and fiscal costs';
   const channels:[RegExp,string][]=[
     [/export|import|trade|freight|shipping|port activity|logistic/i,'trade receipts, import costs and external financing'],
     [/agricultur|crop|fertili|food|commodity|metal|mining|energy|electric|fuel|oil|gas/i,'production costs, export capacity and terms of trade'],
@@ -20,15 +21,15 @@ export function proxyMechanism(indicator:Indicator){
   ];
   return channels.find(([pattern])=>pattern.test(text))?.[1]??null;
 }
-export function proxyCandidates(rows:Indicator[]){return rows.filter(r=>/^[A-Z0-9_.]+$/.test(r.id)&&r.name&&r.sourceNote&&r.source?.id==='2'&&proxyMechanism(r));}
+export function proxyCandidates(rows:Indicator[]){return rows.filter(r=>/^[A-Z0-9_.]+$/.test(r.id)&&r.name&&r.sourceNote&&r.source?.id==='2'&&(!/crime|homicide|violence|victim/i.test(r.name+' '+r.sourceNote)||r.id==='VC.IHR.PSRC.P5')&&proxyMechanism(r));}
 type ProxyRow={countryiso3code:string;date:string;value:number|null};
 const proxyMetric=(indicator:ProxyIndicator)=>`${indicator.normalization?'alt.proxy':'proxy'}.${indicator.id}.${indicator.version}`;
 /** New series use own-country changes; missing peers never become invented observations. */
 export function parseProxyRows(rows:ProxyRow[],indicator:ProxyIndicator,now:string,url:string):Observation[]{
   const metric=proxyMetric(indicator);
   const selected=currencies.flatMap(currency=>{
-    const values=rows.filter(r=>r.countryiso3code===country[currency]&&typeof r.value==='number'&&observationQuality(metric,r.value,r.date,now)==='VALID').sort((a,b)=>b.date.localeCompare(a.date));
-    const latest=values[0];if(!latest)return [];
+    const values=rows.filter(r=>r.countryiso3code===country[currency]&&typeof r.value==='number'&&observationQuality(metric,r.value,r.date,now)!=='INVALID').sort((a,b)=>b.date.localeCompare(a.date));
+    const latest=values[0];if(!latest||observationQuality(metric,latest.value!,latest.date,now)!=='VALID')return [];
     if(indicator.normalization){const prior=values.find(r=>Number(r.date)===Number(latest.date)-1);if(!prior)return [];
       const scale=Math.abs(latest.value!)+Math.abs(prior.value!);
       return [{currency,value:latest.value!,period:latest.date,normalizedValue:scale?Math.max(-1,Math.min(1,2*(latest.value!-prior.value!)/scale)):0,rawInputs:[latest,prior]}];

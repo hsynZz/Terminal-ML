@@ -9,6 +9,8 @@ import { sourceReliability } from '../lib/source-health';
 import { effectiveRecipeWeight } from '../lib/production-research';
 import { issueEventPredictions, resolveEventPredictions, eventTargetStatus, type EventOutcome } from '../lib/shadow-targets';
 import { advanceContextModel, chooseContextChampions, contextScore, trainContextModel, type ContextModel } from '../lib/hypothesis-context';
+import { researchCoverage } from '../lib/research-coverage';
+import { coreRequirement } from '../lib/core-coverage';
 import { unavailableClasses } from '../lib/observed-sources';
 import { prepareModelMigration } from './model-migration';
 
@@ -40,10 +42,14 @@ async function priceArchive(db:ResearchDB,now:string){
 export async function archiveObservations(db:ResearchDB,rows:Observation[],at:string){
   const statements=[];
   for(const o of rows){
-    if(o.quality==='INVALID'||!Number.isFinite(o.value)||o.receivedAt>at)continue;
-    const id=await digest({currency:o.currency,metric:o.metric,period:o.period,source:o.source,value:o.value,receivedAt:o.receivedAt});
-    const payload={...o,rawValue:o.value,normalizedValue:o.normalizedValue??null,id,vintage:id,releaseDate:o.releaseDate??null,availabilityBasis:'actual-receipt',freshness:Math.max(0,(Date.parse(at)-Date.parse(o.period.length===4?`${o.period}-12-31`:o.period))/dayMs)};
-    statements.push(db.prepare('INSERT INTO observation_vintages (id,currency,metric,period,source,received_at,value,payload) SELECT ?,?,?,?,?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM observation_vintages WHERE currency=? AND metric=? AND period=? AND source=? AND value=? AND received_at=(SELECT max(received_at) FROM observation_vintages WHERE currency=? AND metric=? AND period=? AND source=?))').bind(id,o.currency,o.metric,o.period,o.source,o.receivedAt,o.value,JSON.stringify(payload),o.currency,o.metric,o.period,o.source,o.value,o.currency,o.metric,o.period,o.source));
+    if(o.quality==='INVALID'||!Number.isFinite(o.value)||!Number.isFinite(Date.parse(o.receivedAt))||o.receivedAt>at||o.releaseDate&&(!Number.isFinite(Date.parse(o.releaseDate))||o.releaseDate>at))continue;
+    // A revision of an older component can change a normalized feature even when its latest raw value is unchanged.
+    // Receipt clocks in nested dependencies are audit metadata, not economic revisions.
+    const economicInputs=JSON.parse(JSON.stringify(o.rawInputs??null,(key,value)=>['receivedAt','retrievedAt','retrievalTime'].includes(key)?undefined:value));
+    const contentHash=await digest({value:o.value,normalizedValue:o.normalizedValue??null,featureVersion:o.featureVersion??null,rawInputs:economicInputs,releaseDate:o.releaseDate??null});
+    const id=await digest({currency:o.currency,metric:o.metric,period:o.period,source:o.source,contentHash,receivedAt:o.receivedAt});
+    const payload={...o,rawValue:o.value,normalizedValue:o.normalizedValue??null,id,vintage:id,contentHash,releaseDate:o.releaseDate??null,availabilityBasis:'actual-receipt',freshness:Math.max(0,(Date.parse(at)-Date.parse(o.period.length===4?`${o.period}-12-31`:o.period))/dayMs)};
+    statements.push(db.prepare("INSERT INTO observation_vintages (id,currency,metric,period,source,received_at,value,payload) SELECT ?,?,?,?,?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM observation_vintages WHERE currency=? AND metric=? AND period=? AND source=? AND json_extract(payload,'$.contentHash')=? AND received_at=(SELECT max(received_at) FROM observation_vintages WHERE currency=? AND metric=? AND period=? AND source=?))").bind(id,o.currency,o.metric,o.period,o.source,o.receivedAt,o.value,JSON.stringify(payload),o.currency,o.metric,o.period,o.source,contentHash,o.currency,o.metric,o.period,o.source));
   }await batch(db,statements);
   const current=await db.prepare('SELECT currency,metric,period,source,id,max(received_at) AS received_at FROM observation_vintages GROUP BY currency,metric,period,source').all<{currency:string;metric:string;period:string;source:string;id:string}>();
   const ids=new Map(current.results.map(r=>[[r.currency,r.metric,r.period,r.source].join('|'),r.id]));
@@ -75,6 +81,7 @@ export async function prepareProductionSnapshot(env:ProductionEnv,p:ProductionPa
   const old=await state(db),history=await frames(db),prices=await priceArchive(db,now);
   // Runtime state is mutable; predictions and labels are immutable records with stable IDs.
   await resolvePending(db,history,prices,now);
+  p.researchCoverage=researchCoverage(observations,p.sourceChecks??[],now);
   const current=buildResearchFrame(p,observations),config=configuration(env);
   const previousSources=await db.prepare("SELECT payload FROM production_records WHERE kind='sources' ORDER BY at DESC LIMIT 30").all<{payload:string}>();
   const reliability=sourceReliability(researchSourceChecks(current,p.sourceChecks??[]),previousSources.results.map(r=>researchSourceChecks(current,JSON.parse(r.payload).checks??[])));
@@ -141,10 +148,11 @@ export async function prepareProductionSnapshot(env:ProductionEnv,p:ProductionPa
   const writes=[stateWrite(db,next),record(db,'decision',`decision:${now}`,now,{oldChampions:old.championIds,champions:championIds,oldContextChampions:old.contextChampionIds,contextChampions:contextChampionIds,rollback:lostChampion||lostContextChampion,contextRollback:lostContextChampion,registry:registry.map(r=>({id:r.id,status:r.status,weight:r.weight,reason:r.reason})),quality:current.quality}),record(db,'evidence',`evidence:${now}`,now,{asOf:now,attributions:current.attributions,pairs:currencyPairs(current),previous:history.at(-1)?.final??null}),record(db,'sources',`sources:${now}`,now,{checks:p.sourceChecks,quality:current.quality,reliability:current.sourceReliability,providers:reliability})];
   if(firstToday)writes.push(record(db,'frame',current.id,now,current));
   const totals=await db.prepare('SELECT (SELECT count(*) FROM terminal_snapshots) AS snapshots,(SELECT count(*) FROM currency_observations) AS observations,(SELECT count(*) FROM observation_vintages) AS vintages').first<{snapshots:number;observations:number;vintages:number}>();
-  writes.push(record(db,'coverage',`coverage:${now}`,now,{sourceCoverage:p.sourceCoverage,coreFactors:p.coreFactors,alternatives:Object.keys(current.featureOrigins??{}).filter(k=>k.startsWith('alt.')||k.startsWith('proxy.')),notConnected:unavailableClasses}));
+  writes.push(record(db,'coverage',`coverage:${now}`,now,{sourceCoverage:p.sourceCoverage,researchCoverage:p.researchCoverage,coreFactors:p.coreFactors,alternatives:Object.keys(current.featureOrigins??{}).filter(k=>k.startsWith('alt.')||k.startsWith('proxy.')),notConnected:unavailableClasses}));
   // Individually inspectable diagnostics: large aggregate JSON cells may be truncated by admin readers.
   for(const [currency,factors] of Object.entries(p.coreFactors??{}))for(const [factor,origin] of Object.entries(factors))
     writes.push(record(db,'factor-status',`factor-status:${now}:${currency}:${factor}`,now,{currency,factor,...origin}));
+  for(const research of p.researchCoverage.classes)writes.push(record(db,'research-status',`research-status:${now}:${research.name}`,now,research));
   for(const [index,check] of (p.sourceChecks??[]).entries())
     writes.push(record(db,'source-status',`source-status:${now}:${index}`,now,check));
   writes.push(record(db,'status',`status:${now}`,now,{status:next.status,mlVersion:[...championIds,...currencyContextChampions.map(m=>m.id)].join(',')||'DETERMINISTIC_CORE',hypothesisCount:registry.length,active:registry.filter(r=>r.status==='ACTIVE').length,shadow:registry.filter(r=>r.status==='SHADOW').length,testing:registry.filter(r=>['DISCOVERY','TESTING','VALIDATING'].includes(r.status)).length,rejected:registry.filter(r=>r.status==='REJECTED').length,resolved:next.resolved,trainingExamples:next.trainingExamples,lastRetrain:next.lastRetrain,rollbackCount:next.rollbackCount,mlInfluence:Math.max(0,...p.currencies.map(c=>c.evidenceAttribution!.mlWeight)),hypothesisInfluence:Math.max(0,...p.currencies.map(c=>c.evidenceAttribution!.hypothesisWeight)),snapshotCount:(totals?.snapshots??0)+1,observationCountBeforeRefreshUpsert:totals?.observations??0,immutableVintages:totals?.vintages??0,coverage:p.sourceCoverage}));
@@ -191,8 +199,17 @@ export async function productionHealth(env:ProductionEnv){
   };
   const [lastSuccessfulDailyRefresh,lastSuccessfulRealCronRefresh,lastRegularWeeklyRetrain]=await Promise.all([readRun('DAILY_REFRESH',false,true),readRun('DAILY_REFRESH',true,true),readRun('WEEKLY_RETRAIN',true)]);
   const originRows=Object.entries((coreInputQuality??{}) as NonNullable<ProductionPayload['coreFactors']>).flatMap(([currency,factors])=>Object.entries(factors).map(([factor,origin])=>({currency,factor,...origin})));
-  const freshFactors=originRows.filter(r=>r.status==='OBSERVED'&&r.availability==='FRESH').length;
-  const coverage={factors:originRows.length,fresh:freshFactors,carried:originRows.filter(r=>r.status==='LEGACY_OR_CARRIED').length,partial:originRows.filter(r=>r.status.startsWith('PARTIAL')).length,ratio:originRows.length?freshFactors/originRows.length:0,asOf:snapshots?.latest??null,scope:'Certified complete Core factors at snapshot; not percentage of live feeds'};
+  const coverage={...coveragePayload.sourceCoverage!,asOf:snapshots?.latest??null,scope:'Current Core certification; critical dependencies and isolated context gaps are explicit'};
+  const researchAt=new Date().toISOString();
+  let researchReceipts=(guarded as ProductionPayload|null)?.researchCoverage?.receipts;
+  // Older immutable snapshots predate the coverage field. Read their real archive,
+  // without rewriting snapshots or making already-collected Research look absent.
+  if(!researchReceipts){
+    const archived=await env.DB.prepare("SELECT payload FROM (SELECT payload,row_number() OVER (PARTITION BY currency,metric ORDER BY received_at DESC,period DESC,id DESC) AS rank FROM observation_vintages WHERE (metric LIKE 'alt.%' OR metric LIKE 'proxy.%') AND received_at<=?) WHERE rank=1").bind(researchAt).all<{payload:string}>();
+    researchReceipts=archived.results.map(r=>JSON.parse(r.payload) as Observation);
+  }
+  const research=researchCoverage(researchReceipts,sourceStatus?.checks??[],researchAt);
+  const requirements=originRows.map(r=>({currency:r.currency,factor:r.factor,...coreRequirement(r.factor as Parameters<typeof coreRequirement>[0],r.currency as Parameters<typeof coreRequirement>[1])}));
   const eventTargets=eventTargetStatus(await verifiedEvents(env.DB));
   const mlInfluence=config.ml?Math.max(0,...attributions.map(a=>a.mlWeight)):0;
   const hypothesisInfluence=config.hypothesis?Math.max(0,...attributions.map(a=>a.hypothesisWeight)):0;
@@ -203,7 +220,7 @@ export async function productionHealth(env:ProductionEnv){
   const runtimeGateStatus=!config.enabled||config.cap===0?'DISABLED':!config.ml||!config.hypothesis?'PARTIALLY_DISABLED':'AUTOMATIC_QUALIFICATION_ENABLED';
   const lifecycleCounts=Object.fromEntries(['DISCOVERY','TESTING','VALIDATING','SHADOW','ACTIVE','DEGRADED','REJECTED'].map(status=>[status,s.registry.filter(r=>r.status===status).length]));
   const diagnostics={mlStatus,runtimeFlags,runtimeGateStatus,adaptiveTotalInfluence,adaptiveCap:config.cap,dataSourceStatus:coveragePayload.sourceMode,hypothesisLifecycle:lifecycleCounts,evidencePipelineStatus:!fresh?'CORE_FALLBACK':adaptiveTotalInfluence>0?'GATED_ADAPTIVE_ACTIVE':'CORE_ONLY_WAITING_FOR_VALIDATION',automaticActivationRequires:'Frozen OOS + prospective shadow, calibration, multiple testing, >=2 regimes, incremental value, current source quality and qualification; retrain alone never activates'};
-  const rest={lastSuccessfulDailyRefresh,lastSuccessfulRealCronRefresh,lastRegularWeeklyRetrain,weeklyVerification:lastRegularWeeklyRetrain?'REGULAR_INVOCATION_OBSERVED':'WAITING_FOR_NEXT_SCHEDULED_RUN',coverage,carriedInputs:originRows.filter(r=>r.status!=='OBSERVED'),notConnected:unavailableClasses,sourceChecks:sourceStatus?.checks??[],eventTargets,contextLearning:{status:s.contextModels.length?'SHADOW_OR_VALIDATING':'WAITING_FOR_DATA',champions:s.contextChampionIds,models:s.contextModels.map(m=>({id:m.id,scope:m.scope,horizon:m.horizon,status:m.status,samples:m.trainingSamples,gate:m.gate,incrementalGate:m.incrementalGate}))},testingHypotheses:s.registry.filter(r=>['DISCOVERY','TESTING','VALIDATING'].includes(r.status)).length};
+  const rest={lastSuccessfulDailyRefresh,lastSuccessfulRealCronRefresh,lastRegularWeeklyRetrain,researchCoverage:research,coreRequirements:requirements,weeklyVerification:lastRegularWeeklyRetrain?'REGULAR_INVOCATION_OBSERVED':'WAITING_FOR_NEXT_SCHEDULED_RUN',coverage,carriedInputs:originRows.filter(r=>r.status!=='OBSERVED'),notConnected:unavailableClasses,sourceChecks:sourceStatus?.checks??[],eventTargets,contextLearning:{status:s.contextModels.length?'SHADOW_OR_VALIDATING':'WAITING_FOR_DATA',champions:s.contextChampionIds,models:s.contextModels.map(m=>({id:m.id,scope:m.scope,horizon:m.horizon,status:m.status,samples:m.trainingSamples,gate:m.gate,incrementalGate:m.incrementalGate}))},testingHypotheses:s.registry.filter(r=>['DISCOVERY','TESTING','VALIDATING'].includes(r.status)).length};
   return {...rest,...diagnostics,version:ADAPTIVE_VERSION,status:fresh?s.status:'CORE_FALLBACK',lastSuccessfulSnapshot:snapshots?.latest??null,snapshotCount:snapshots?.count??0,observationCount:row?.observations??0,observationVintages:vintageCount?.count??0,coreInputQuality,sourceReliability:sourceStatus?.providers??{},counts:counts.results,trainingExamples:s.trainingExamples,resolvedOutcomes:counts.results.filter(c=>c.kind.startsWith('outcome:')).reduce((n,c)=>n+c.count,0),lastRetrain:s.lastRetrain,currentMlVersion:[...s.championIds,...s.contextChampionIds.filter(id=>s.contextModels.some(m=>m.id===id&&m.scope==='currency'))].join(',')||'DETERMINISTIC_CORE',challengerVersions:s.models.map(m=>({id:m.id,status:m.status,samples:m.trainingSamples,gate:m.gate})),mlInfluence,hypothesisInfluence,hypothesisCount:s.registry.length,activeHypotheses:s.registry.filter(r=>r.status==='ACTIVE').length,shadowHypotheses:s.registry.filter(r=>r.status==='SHADOW').length,rejectedHypotheses:s.registry.filter(r=>r.status==='REJECTED').length,registry:s.registry,failedDataSources:sourceStatus?.checks?.filter((c:{status:string})=>c.status!=='SUCCESS')??[],lastError:s.lastError,rollbackCount:s.rollbackCount,evidenceHistory:history.results.map(r=>JSON.parse(r.payload)),config:configuration(env),notice:'Prospective currency-basket validation. Daily fixing excursions are not intraday MFE/MAE. Model-generated dispersion is not an empirical confidence interval.'};
 }
 

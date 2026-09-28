@@ -13,6 +13,7 @@ import { sourceAttempt, sourceFetch } from '@/lib/source-health';
 import { prepareProductionSnapshot, productionFailure } from '@/worker/production';
 import { collectProxies } from '@/worker/proxy-discovery';
 import { collectOfficialInputs, collectMacroProxies } from '@/lib/observed-sources';
+import { collectExpansion, relativeYieldFeatures } from '@/lib/source-expansion';
 import { narrativeObservations } from '@/lib/narrative-features';
 import { captureProvenance, type ProvenancePayload, type Receipt } from "@/lib/hypothesis/provenance";
 
@@ -177,6 +178,7 @@ export async function POST(request: Request) {
 
   const fredApiKey = (env as unknown as { FRED_API_KEY?: string }).FRED_API_KEY;
   const officialInputs=collectOfficialInputs(sourceChecks,new Date().toISOString());
+  const expansionInputs=collectExpansion(sourceChecks);
   const macroProxies=collectMacroProxies(sourceChecks,fredApiKey);
   if (fredApiKey) {
     const usd = payload.currencies.find((currency) => currency.code === "USD");
@@ -268,13 +270,14 @@ export async function POST(request: Request) {
     if(usd&&scores.length===7){usd.factors.momentum=1-scores.reduce((n,c)=>n+c.factors.momentum,0)/7;receipts.push({currency:'USD',metric:'momentum',value:usd.factors.momentum,period:ecbRows[0].period,source:'ECB reference fixing',receivedAt:new Date().toISOString()});}
   }
   const textSignals = await centralBankSignals(sourceChecks);
-  const official=await officialInputs;
-  for(const observation of official.filter(o=>o.metric==='rate'||o.metric==='cot')){
+  const expanded=await expansionInputs;
+  const official=[...await officialInputs,...expanded];
+  for(const observation of official.filter(o=>['rate','cot','yield2y','yield10y','seasonality'].includes(o.metric))){
     const c=payload.currencies.find(c=>c.code===observation.currency);if(!c||observation.quality!=='VALID')continue;
-    if(observation.metric==='rate')c.rate=observation.value;else c.factors.cot=observation.value;
+    if(observation.metric==='rate')c.rate=observation.value;else if(observation.metric==='yield2y')c.yield2y=observation.value;else if(observation.metric==='yield10y')c.yield10y=observation.value;else if(observation.metric==='seasonality')c.factors.seasonality=observation.value;else c.factors.cot=observation.value;
     receipts.push(observation);observations.push({currency:c.code,metric:observation.metric,value:observation.value,period:observation.period,source:observation.source,observedAt:observation.receivedAt});liveValues++;
   }
-  vintageRows.push(...official.filter(o=>o.metric.startsWith('alt.')),...await macroProxies,...narrativeObservations(textSignals,new Date().toISOString()));
+  vintageRows.push(...official.filter(o=>o.metric.startsWith('alt.')||o.metric.startsWith('raw.')),...relativeYieldFeatures(receipts,new Date().toISOString()),...await macroProxies,...narrativeObservations(textSignals,new Date().toISOString()));
   // Age weights change by day, not by the millisecond of a button click.
   const sentimentAt = new Date();
   for (const currency of payload.currencies) {
@@ -322,7 +325,7 @@ export async function POST(request: Request) {
     evidence: buildEvidence(
       payload.currencies,
       refreshedAt,
-      totalLiveValues > 0 ? "Live sources + hybrid model" : "Model baseline",
+      totalLiveValues > 0 ? "Observed sources + fixed Core + validated adaptive evidence" : "Model baseline",
       effectiveModelWeights(payload),
     ),
     sources: payload.sources.map((source) => {

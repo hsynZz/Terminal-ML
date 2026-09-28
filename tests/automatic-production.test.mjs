@@ -69,15 +69,15 @@ test('Final Evidence reaches Strength, Pair, relative dominance and forecasts on
   delete c.evidenceAttribution;assert.deepEqual(core.buildPairForecast(q,'EUR','USD'),oldPair);
 });
 
-test('LIVE requires all 80 current verified Core factors, annual windows count, carried and future inputs do not',()=>{
+test('FULL LIVE requires 80 verified factors; isolated context gaps permit LIVE but never certify missing inputs',()=>{
   const p=data.getBaselinePayload();p.asOf=at;p.coreFactors={};
   ingest.refreshSourceStatus(p,at);assert.equal(p.sourceMode,'baseline');
   for(const c of data.currencies)p.coreFactors[c]=Object.fromEntries(Object.keys(data.factorMeta).map(f=>[f,{status:'OBSERVED',availability:'FRESH',source:'test receipt',period:'2025',availableAt:at,inputs:[{metric:'growth',value:2,period:'2025',receivedAt:at,source:'test receipt'}]}]));
-  ingest.refreshSourceStatus(p,at);assert.equal(p.sourceMode,'live');assert.equal(p.sourceCoverage.fresh,80);
+  ingest.refreshSourceStatus(p,at);assert.equal(p.sourceMode,'full-live');assert.equal(p.sourceCoverage.fresh,80);
   p.coreFactors.CAD.seasonality.status='LEGACY_OR_CARRIED';p.coreFactors.CAD.seasonality.availability='CARRIED INPUT';
-  ingest.refreshSourceStatus(p,at);assert.equal(p.sourceMode,'partial-live');
+  ingest.refreshSourceStatus(p,at);assert.equal(p.sourceMode,'live');
   p.coreFactors.CAD.seasonality.status='OBSERVED';p.coreFactors.CAD.seasonality.availability='FRESH';p.coreFactors.CAD.seasonality.inputs[0].receivedAt='2026-10-01T00:00:00Z';
-  ingest.refreshSourceStatus(p,at);assert.equal(p.sourceMode,'partial-live');assert.equal(p.coreFactors.CAD.seasonality.availability,'STALE');
+  ingest.refreshSourceStatus(p,at);assert.equal(p.sourceMode,'live');assert.equal(p.coreFactors.CAD.seasonality.availability,'STALE');
   ingest.refreshSourceStatus(p,'2030-01-01T00:00:00Z');assert.equal(p.sourceMode,'baseline');
 });
 

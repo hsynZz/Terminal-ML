@@ -75,6 +75,8 @@ export const macroProxySeries = [
   {id:'STLFSI4',metric:'alt.global.funding.stress.v1',group:'funding-stress',maxAge:21,unit:'index',definition:'St Louis Fed financial stress index, weekly. Bounded tanh(level/3), not cross-currency basis.'},
   {id:'ICSA',metric:'alt.us.labor.claims.v1',group:'labor',maxAge:21,unit:'initial claims',definition:'US Department of Labor initial claims; negative four-observation log change, a USD labor proxy.'},
   {id:'RSAFS',metric:'alt.us.consumption.retail.v1',group:'consumption',maxAge:75,unit:'millions USD',definition:'US Census advance retail sales; three-observation log change. Historical revisions are received now, never backdated.'},
+  {id:'NFCI',metric:'alt.global.funding.conditions.v1',group:'funding-stress',maxAge:21,unit:'standard deviations',definition:'Chicago Fed National Financial Conditions Index. Weekly credit, leverage and risk conditions; bounded tanh(level/3). Not cross-currency basis.'},
+  {id:'DHHNGSP',metric:'alt.global.energy.gas.v1',group:'energy',maxAge:10,unit:'USD per million Btu',definition:'EIA Henry Hub natural gas spot price; 20-observation log change; no fixed currency exposure.'},
 ] as const;
 export function parseMacroProxy(body:{observations?:{date:string;value:string}[]},spec:typeof macroProxySeries[number],now:string):Observation[] {
   const rows=(body.observations??[]).filter(r=>r.value!=='.'&&r.value.trim()!==''&&Number.isFinite(Number(r.value))&&/^\d{4}-\d{2}-\d{2}$/.test(r.date)&&r.date<=now.slice(0,10)).sort((a,b)=>b.date.localeCompare(a.date));
@@ -96,9 +98,4 @@ export async function collectMacroProxies(checks:SourceCheck[],apiKey:string|und
   })));
   return values.flatMap(v=>v??[]);
 }
-export const unavailableClasses = [
-  {name:'Seasonality core',reason:'No documented historical estimator or licensed Seasonax feed; CARRIED INPUT.'},
-  {name:'Commodity core',reason:'Observed oil proxies enter shadow research only; no validated currency-exposure mapping replaces core.'},
-  {name:'Non-US 2Y/10Y yields',reason:'No verified daily like-for-like series connected; CARRIED INPUT.'},
-  ...['Social media','YouTube activity','Google Trends','FX options / implied volatility / risk reversals','Cross-currency basis','Retail positioning','Shipping / freight','Expectation dispersion','Broad news acceleration / novelty'].map(name=>({name,reason:'NOT YET CONNECTED: no configured reliable licensed point-in-time feed.'})),
-];
+export { sourceGaps as unavailableClasses } from './research-coverage';

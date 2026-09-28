@@ -3,7 +3,7 @@ import { calibrationMetrics } from './calibration';
 import { independentBlocks, signP, type Sample } from './hypothesis/engine';
 import { trainLearnedWeights, type TrainingExample } from './retraining';
 import { coreEvidence, type EvidenceAttribution } from './adaptive-evidence';
-import { DATA_VERSION, dayMs, type Observation, type ProductionPayload, type SourceCheck } from './production-data';
+import { observationQuality, DATA_VERSION, dayMs, type Observation, type ProductionPayload, type SourceCheck } from './production-data';
 import type { EventPrediction } from './shadow-targets';
 import type { ContextPrediction } from './hypothesis-context';
 
@@ -26,12 +26,18 @@ export function researchSourceChecks(frame:Pick<ResearchFrame,'features'|'source
   const used=new Set(keys.flatMap(k=>(frame.sources[k]??[]).flatMap(s=>s.split(' + '))));used.add('FRED');
   for(const k of keys){if(k.startsWith('factor.'))for(const m of dependencies[k.slice(7)]??[])metrics.add(m);else if(k.startsWith('fx.'))metrics.add('fxReferenceUsd');else if(k.startsWith('proxy.')||k.startsWith('alt.'))metrics.add(k);}
   if(keys.some(k=>k.startsWith('alt.narrative.')))metrics.add('nlpSentiment');
-  return checks.filter(c=>(used.has(c.source)||used.has('Official central bank RSS')&&c.metrics.includes('nlpSentiment'))&&c.metrics.some(m=>metrics.has(m)));
+  return checks.filter(c=>{
+    if(!(used.has(c.source)||used.has('Official central bank RSS')&&c.metrics.includes('nlpSentiment'))||!c.metrics.some(m=>metrics.has(m)))return false;
+    if(c.currency==='ALL'||c.currency==='GLOBAL')return true;
+    // A missing country that supplies no feature must not veto a different country's observed input.
+    const local=Object.keys(frame.features[c.currency]??{});
+    return c.metrics.some(m=>m==='vix'||local.some(k=>k===m||k.startsWith('factor.')&&(dependencies[k.slice(7)]??[]).includes(m)||k.startsWith('fx.')&&m==='fxReferenceUsd'||k.startsWith('alt.narrative.')&&m==='nlpSentiment'));
+  });
 }
 
 export function buildResearchFrame(p:ProductionPayload,observations:Observation[],at=p.asOf):ResearchFrame{
   const features:ResearchFrame['features']={},sources:ResearchFrame['sources']={},featureOrigins:Record<string,FeatureOrigin>={},prices:Record<string,number>={},volatility:Record<string,number>={};
-  const valid=observations.filter(o=>o.quality==='VALID'&&o.receivedAt<=at&&o.period<=at.slice(0,10));
+  const valid=observations.filter(o=>o.quality==='VALID'&&Number.isFinite(Date.parse(o.receivedAt))&&o.receivedAt<=at&&(!o.releaseDate||Number.isFinite(Date.parse(o.releaseDate))&&o.releaseDate<=at)&&o.period<=at.slice(0,10));
   for(const c of p.currencies){
     const f:Record<string,number>={};
     for(const [key,meta] of Object.entries(p.coreFactors?.[c.code]??{}))if(meta.status==='OBSERVED'){
@@ -59,7 +65,7 @@ export function buildResearchFrame(p:ProductionPayload,observations:Observation[
       for(const key of Object.keys(f).filter(k=>k.startsWith('fx.')))sources[key]=['ECB reference fixing'];
     }
     for(const o of valid.filter(o=>(o.currency===c.code||o.currency==='GLOBAL')&&(o.metric.startsWith('proxy.')||o.metric.startsWith('alt.')))){
-      if(!o.definition||!o.featureVersion)continue;
+      if(!o.definition||!o.featureVersion||observationQuality(o.metric,o.value,o.period,at)!=='VALID')continue;
       f[o.metric]=clamp(o.normalizedValue??o.value);sources[o.metric]=[...new Set([...(sources[o.metric]??[]),o.source])];
       const old=featureOrigins[o.metric];featureOrigins[o.metric]={definition:o.definition,version:o.featureVersion,sourceUrls:[...new Set([...(old?.sourceUrls??[]),...o.sourceUrl.split(/\s+/)])],lineage:[...new Set([...(old?.lineage??[]),...o.lineage??[o.sourceUrl]])],economicCauses:[...new Set([...(old?.economicCauses??[]),o.economicCause??o.metric])],retrievedAt:o.receivedAt};
     }

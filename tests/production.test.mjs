@@ -35,6 +35,16 @@ test('vintages retain first availability and revisions without deleting old obse
   const {sql,db}=sqlite(),o=observations()[0];await runtime.archiveObservations(db,[o],at);await runtime.archiveObservations(db,[{...o,receivedAt:'2026-01-02T00:00:00Z'}],'2026-01-02T00:00:00Z');assert.equal(sql.prepare('SELECT count(*) n FROM observation_vintages').get().n,1);
   await runtime.archiveObservations(db,[{...o,value:o.value+1,receivedAt:'2026-01-03T00:00:00Z'}],'2026-01-03T00:00:00Z');assert.equal(sql.prepare('SELECT count(*) n FROM observation_vintages').get().n,2);assert.equal(sql.prepare('SELECT value FROM observation_vintages ORDER BY received_at LIMIT 1').get().value,o.value);sql.close();
 });
+test('health reads existing Research vintages before the first upgraded snapshot without inventing new writes',async()=>{
+  const {sql,db}=sqlite(),now=new Date().toISOString();
+  const o={currency:'CAD',metric:'alt.safety.homicide.change.v1',value:2,normalizedValue:-.2,period:String(new Date().getUTCFullYear()-1),receivedAt:now,source:'UNODC via World Bank',sourceUrl:'https://api.worldbank.org/',releaseDate:null,quality:'VALID',frequency:'annual'};
+  await runtime.archiveObservations(db,[o],now);
+  const before=sql.prepare('SELECT count(*) n FROM observation_vintages').get().n;
+  const h=await runtime.productionHealth({DB:db});
+  assert.equal(h.researchCoverage.classes.find(c=>c.name==='Aggregate public-safety statistics').observations,1);
+  assert.equal(h.snapshotCount,0);assert.equal(h.dataSourceStatus,'baseline');assert.equal(h.mlInfluence,0);
+  assert.equal(sql.prepare('SELECT count(*) n FROM observation_vintages').get().n,before);sql.close();
+});
 test('prospective features and future targets never backdate availability or mix vintages',()=>{
   const f=research.buildResearchFrame(payload(),observations());assert.equal(f.quality,'VALID');assert.equal(Object.keys(f.features).length,8);assert.ok(f.volatility.USD>0);assert.equal(research.currencyPairs(f).length,28);
   const future=observations('2026-02-01T17:00:00Z',110);assert.equal(research.resolveFrameTargets(f,future,at).length,0);

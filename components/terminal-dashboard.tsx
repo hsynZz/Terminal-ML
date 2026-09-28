@@ -52,7 +52,8 @@ const currencyColors: Record<CurrencyCode, string> = {
 const factorKeys = Object.keys(factorMeta) as FactorKey[];
 
 function modeLabel(mode: TerminalPayload["sourceMode"]) {
-  if (mode === "live") return "LIVE INPUT";
+  if (mode === "full-live") return "FULL LIVE";
+  if (mode === "live") return "LIVE";
   if (mode === "partial-live") return "PARTIAL LIVE";
   return "BASELINE INPUT";
 }
@@ -202,7 +203,7 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
           <div><strong>DOMINANCE</strong><small>EVIDENCE ENGINE</small></div>
         </div>
         <div className="quant-status">
-          <div><i className={payload.sourceMode === "live" ? "live" : "partial"} />{modeLabel(payload.sourceMode)}</div>
+          <div><i className={(payload.sourceMode === "live" || payload.sourceMode === "full-live") ? "live" : "partial"} />{modeLabel(payload.sourceMode)}</div>
           <span>{formatAsOf(payload.asOf)}</span>
         </div>
       </header>

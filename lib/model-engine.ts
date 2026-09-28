@@ -151,7 +151,7 @@ function latentSample(
 }
 
 function dataCoverage(mode: TerminalPayload["sourceMode"]) {
-  if (mode === "live") return 0.92;
+  if (mode === "live" || mode === "full-live") return 0.92;
   if (mode === "partial-live") return 0.68;
   return 0.46;
 }
@@ -160,7 +160,7 @@ export function buildModelDistribution(
   payload: TerminalPayload,
   selected: CurrencyCode[],
 ): ModelDistribution {
-  const coverage = dataCoverage(payload.sourceMode);
+  const coverage = dataCoverage(payload.forecastSourceMode ?? payload.sourceMode);
   const globalWeights = effectiveModelWeights(payload);
   const selectedSet = new Set(selected);
   const visible = payload.currencies.filter((item) => selectedSet.has(item.code));
@@ -224,7 +224,7 @@ export function buildPairForecast(
   const quoteCurrency = payload.currencies.find((currency) => currency.code === quote);
   if (!baseCurrency || !quoteCurrency || base === quote) return [];
 
-  const coverage = dataCoverage(payload.sourceMode);
+  const coverage = dataCoverage(payload.forecastSourceMode ?? payload.sourceMode);
   return forecastHorizons.map((horizon) => {
     const weights = effectiveModelWeights(payload, horizon);
     const probabilities = Array.from({ length: 48 }, (_, sample) => {

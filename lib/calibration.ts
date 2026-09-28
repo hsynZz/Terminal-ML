@@ -28,7 +28,7 @@ export function resolveOutcomes(forecasts: ArchivedForecast[], closes: AuditClos
   const seen = new Set<string>();
   for (const row of [...forecasts].sort((a, b) => a.observedAt.localeCompare(b.observedAt))) {
     const [base, quote] = row.pair.split("/");
-    if (row.sourceMode !== "live" && row.sourceMode !== "partial-live") { excluded.baseline++; continue; }
+    if (row.sourceMode !== "live" && row.sourceMode !== "full-live" && row.sourceMode !== "partial-live") { excluded.baseline++; continue; }
     if (!validDate(day(row.observedAt)) || !auditHorizons.includes(row.horizon as 10) ||
       !Number.isFinite(row.probability) || row.probability < 0 || row.probability > 1 ||
       quote !== "USD" || !base || base === quote) { excluded.invalid++; continue; }

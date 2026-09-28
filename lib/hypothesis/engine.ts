@@ -77,7 +77,7 @@ export function signalFor(h: Hypothesis, frame: Frame, history: Frame[], currenc
   return Number.isFinite(s) ? clamp(s) : null;
 }
 export function makeFrame(payload: TerminalPayload, now: string, dataVersion: string, hypotheses: Hypothesis[], history: Frame[], baselines: Record<string, number>): Frame {
-  if (!["live", "partial-live"].includes(payload.sourceMode) || !Number.isFinite(Date.parse(payload.asOf)) || Date.parse(payload.asOf) > Date.parse(now) || Date.parse(now)-Date.parse(payload.asOf) > 48*3600000) throw new Error("NO_FRESH_LIVE_SNAPSHOT");
+  if (!["live", "full-live", "partial-live"].includes(payload.sourceMode) || !Number.isFinite(Date.parse(payload.asOf)) || Date.parse(payload.asOf) > Date.parse(now) || Date.parse(now)-Date.parse(payload.asOf) > 48*3600000) throw new Error("NO_FRESH_LIVE_SNAPSHOT");
   const frame: Frame = { issuedAt: now, recordedAt:now, origin:"PROSPECTIVE_CAPTURE", snapshotAsOf: payload.asOf, dataVersion, sourceMode: payload.sourceMode,
     factors: Object.fromEntries(payload.currencies.map(c => [c.code, { ...c.factors }])), regime: payload.regime.label, signals: [],
     // Existing snapshots lack per-input publication/vintage and fallback lineage. Never invent it.
