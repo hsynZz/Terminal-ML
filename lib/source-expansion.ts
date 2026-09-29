@@ -67,6 +67,39 @@ export function calendarDate(value:string){
   const date=new Date(Date.UTC(year,month-1,day));
   return date.getUTCFullYear()===year&&date.getUTCMonth()===month-1&&date.getUTCDate()===day?date.toISOString().slice(0,10):'';
 }
+/** BoE's documented CSV export, not the zero-coupon/forward-curve workbooks. */
+export function britishYieldUrl(now:string){
+  const date=new Date(Date.parse(now)-45*dayMs);
+  if(!Number.isFinite(date.getTime()))throw new Error('INVALID_RESPONSE');
+  const from=`${String(date.getUTCDate()).padStart(2,'0')}/${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][date.getUTCMonth()]}/${date.getUTCFullYear()}`;
+  const params=new URLSearchParams({'csv.x':'yes',Datefrom:from,Dateto:'now',SeriesCodes:'IUDMNPY',CSVF:'TN',UsingCodes:'Y',VPD:'Y',VFD:'N'});
+  return `https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?${params}`;
+}
+export function parseBritishTenYearYield(text:string,now:string):Observation[]{
+  const rows=csvRecords(text.replace(/^\uFEFF/,''));
+  // Exact series identity fixes currency, nominal par convention, maturity and daily frequency.
+  // IUDMNZC is zero-coupon; IUMMNPY is monthly. Neither is an acceptable substitute.
+  if(!rows.length||Object.keys(rows[0]).sort().join(',')!=='DATE,IUDMNPY')throw new Error('INVALID_RESPONSE');
+  const points=new Map<string,number>();
+  for(const row of rows){
+    const period=calendarDate(row.DATE.trim().replace(/^(\d{1,2}) ([A-Za-z]{3}) (\d{4})$/,'$1-$2-$3')),raw=row.IUDMNPY.trim();
+    if(!period||!/^[-+]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(raw))continue;
+    const value=Number(raw);
+    if(observationQuality('yield10y',value,period,now)!=='VALID')continue;
+    if(points.has(period)&&points.get(period)!==value)throw new Error('INVALID_RESPONSE');
+    points.set(period,value);
+  }
+  const latest=[...points].sort(([a],[b])=>b.localeCompare(a))[0];if(!latest)return [];
+  const [period,value]=latest;
+  return [{...observed('GBP','yield10y',value,period,now,'Bank of England nominal par yield',britishYieldUrl(now),'IUDMNPY: daily 10-year nominal UK government par yield fitted with the BoE VRP model. Not a zero-coupon, forward, real or monthly-average yield. GBP 2Y remains separately unavailable. Revisions are archived as received; CSV does not identify original publication time.','percent per annum'),featureVersion:'boe-par10y-v1',lineage:['BoE:IUDMNPY'],rawInputs:[{series:'IUDMNPY',period,value}]}];
+}
+export async function collectBritishTenYearYield(checks:SourceCheck[]):Promise<Observation[]>{
+  const url=britishYieldUrl(new Date().toISOString());
+  return await sourceAttempt(checks,'Bank of England nominal par yield',url,'GBP',['yield10y'],async()=>{
+    const rows=parseBritishTenYearYield(await (await sourceFetch(url,'text/csv')).text(),new Date().toISOString());
+    return rows.length?rows:null;
+  })??[];
+}
 function rbaRows(text:string){const start=text.indexOf('Series ID,');if(start<0)throw new Error('INVALID_RESPONSE');return csvRecords(text.slice(start));}
 export function parseAustralianYields(text:string,now:string){
   const rows=rbaRows(text);
@@ -149,6 +182,7 @@ export function parseSeasonality(xml:string,now:string):Observation[]{
 }
 
 export async function collectExpansion(checks:SourceCheck[]):Promise<Observation[]>{
+  const british=collectBritishTenYearYield(checks);
   const jobs=[
     ['Bank of Canada benchmark yields',expansionUrls.cad,'CAD',['yield2y','yield10y','alt.rates.curve.v1'],async()=>parseCanadianYields(await (await sourceFetch(expansionUrls.cad)).json(),new Date().toISOString())],
     ['Japan Ministry of Finance yields',expansionUrls.jpy,'JPY',['yield2y','yield10y','alt.rates.curve.v1'],async()=>parseJapaneseYields(await (await sourceFetch(expansionUrls.jpy,'text/csv')).text(),new Date().toISOString())],
@@ -162,5 +196,5 @@ export async function collectExpansion(checks:SourceCheck[]):Promise<Observation
   const results=await Promise.all(jobs.map(([source,url,currency,metrics,read])=>sourceAttempt(checks,source,url,currency,metrics,async()=>{const rows=await read();return rows.length?rows:null;})));
   // Per-currency failures/staleness are explicit, even if the shared provider request succeeded.
   annualResearch.forEach((spec,index)=>{const rows=results[index+5]??[];for(const currency of currencies)if(!rows.some(r=>r.currency===currency&&r.metric===spec.metric&&r.quality==='VALID'))checks.push({at:new Date().toISOString(),source:spec.source,url:annualResearchUrl(spec.id),currency,metrics:[spec.metric],status:'MISSING',cause:rows.some(r=>r.currency===currency)?'STALE_OR_INSUFFICIENT_HISTORY':'NO_VALID_OBSERVATIONS',fallback:'No research contribution',latencyMs:0});});
-  return results.flatMap(r=>r??[]);
+  return [...results.flatMap(r=>r??[]),...await british];
 }

@@ -1,0 +1,4035 @@
+{
+  "auditAt": "2026-09-29T20:05:25.682Z",
+  "scope": "Read-only production inspection; no test data inserted. Public adapter probe is NOT a production run.",
+  "productionSiteVersion": 21,
+  "baselineGithubCommit": "a7c5200170381e52ead31a70de6cc8413ea5b84b",
+  "lastSuccessfulGenuineDaily": {
+    "id": "6f5e161d-86fe-4714-980f-d6c906238294",
+    "timestamp": "2026-09-29T15:16:09.746Z",
+    "completedAt": "2026-09-29T15:16:54.327Z",
+    "type": "DAILY_REFRESH",
+    "source": "CLOUDFLARE_CRON",
+    "status": "SUCCESS",
+    "message": "Refresh returned snapshot",
+    "httpStatus": 200,
+    "scheduledTime": "2026-09-29T15:15:53.000Z",
+    "cron": "15,30,45 15,16,17 * * *",
+    "period": "2026-09-29",
+    "snapshotBefore": "2026-09-28T15:16:25.174Z",
+    "snapshotAfter": "2026-09-29T15:16:31.216Z",
+    "snapshotAdvanced": true,
+    "trainedAtBefore": null,
+    "trainedAtAfter": null,
+    "trainingSamples": 0,
+    "modelStateChanged": false
+  },
+  "lastGenuineWeeklyAttemptWithHttpResponse": {
+    "id": "c63f46a9-b082-4e58-a236-3dc6f4d2313b",
+    "timestamp": "2026-09-26T20:01:07.169Z",
+    "completedAt": "2026-09-26T20:01:10.777Z",
+    "type": "WEEKLY_RETRAIN",
+    "source": "CLOUDFLARE_CRON",
+    "status": "WAITING",
+    "message": "Training deferred: WAITING_FOR_DATA; samples=0",
+    "httpStatus": 200,
+    "scheduledTime": "2026-09-26T20:00:53.000Z",
+    "cron": "0,15,30,45 20,21 * * 6",
+    "period": "2026-09-26",
+    "snapshotBefore": "2026-09-26T15:16:21.806Z",
+    "snapshotAfter": "2026-09-26T15:16:21.806Z",
+    "snapshotAdvanced": false,
+    "trainedAtBefore": null,
+    "trainedAtAfter": null,
+    "trainingSamples": 0,
+    "modelStateChanged": false
+  },
+  "status": {
+    "status": "SHADOW",
+    "mlVersion": "DETERMINISTIC_CORE",
+    "hypothesisCount": 88,
+    "active": 0,
+    "shadow": 0,
+    "testing": 88,
+    "rejected": 0,
+    "resolved": 104,
+    "trainingExamples": 0,
+    "lastRetrain": "2026-09-26T20:01:07.695Z",
+    "rollbackCount": 0,
+    "mlInfluence": 0,
+    "hypothesisInfluence": 0,
+    "snapshotCount": 43,
+    "observationCountBeforeRefreshUpsert": 208,
+    "immutableVintages": 1540,
+    "coverage": {
+      "factors": 80,
+      "fresh": 38,
+      "carried": 25,
+      "partial": 17,
+      "ratio": 0.475,
+      "critical": {
+        "total": 60,
+        "fresh": 24,
+        "ratio": 0.4,
+        "missing": [
+          "USD.inflation",
+          "USD.growth",
+          "USD.yields",
+          "USD.risk",
+          "EUR.inflation",
+          "EUR.growth",
+          "EUR.yields",
+          "EUR.risk",
+          "GBP.inflation",
+          "GBP.growth",
+          "GBP.yields",
+          "GBP.risk",
+          "JPY.inflation",
+          "JPY.growth",
+          "JPY.yields",
+          "JPY.commodities",
+          "JPY.risk",
+          "CHF.inflation",
+          "CHF.growth",
+          "CHF.yields",
+          "CHF.risk",
+          "CAD.inflation",
+          "CAD.growth",
+          "CAD.yields",
+          "CAD.commodities",
+          "CAD.risk",
+          "AUD.inflation",
+          "AUD.growth",
+          "AUD.yields",
+          "AUD.commodities",
+          "AUD.risk",
+          "NZD.inflation",
+          "NZD.growth",
+          "NZD.yields",
+          "NZD.commodities",
+          "NZD.risk"
+        ]
+      },
+      "stale": 0,
+      "failed": 27,
+      "unavailable": 27,
+      "categoryGaps": [
+        "inflation",
+        "growth",
+        "yields",
+        "commodities",
+        "risk"
+      ],
+      "version": "critical-core-v1"
+    }
+  },
+  "currentObservationRows": 230,
+  "currentSnapshotRows": 43,
+  "currentFactorMatrix": [
+    {
+      "currency": "USD",
+      "factor": "policy",
+      "requirements": [
+        "rate"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "FRED",
+      "inputs": [
+        {
+          "metric": "rate",
+          "value": 3.88,
+          "period": "2026-09-25",
+          "receivedAt": "2026-09-29T15:16:25.711Z",
+          "source": "FRED"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "FRED",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "USD",
+      "factor": "yields",
+      "requirements": [
+        "yield2y",
+        "yield10y"
+      ],
+      "status": "PARTIAL_CROSS_SECTION",
+      "availability": "CARRIED INPUT",
+      "source": "FRED",
+      "inputs": [
+        {
+          "metric": "yield10y",
+          "value": 5.17,
+          "period": "2026-09-25",
+          "receivedAt": "2026-09-29T15:16:25.940Z",
+          "source": "FRED"
+        },
+        {
+          "metric": "yield2y",
+          "value": 4.81,
+          "period": "2026-09-25",
+          "receivedAt": "2026-09-29T15:16:25.813Z",
+          "source": "FRED"
+        }
+      ],
+      "why": "Both own tenors valid, but GBP/CHF/NZD cross-section incomplete.",
+      "category": "A / C / D cross-section",
+      "free": "Own pair yes; peers unresolved",
+      "technical": "Own pair complete",
+      "premium": "No for own inputs",
+      "best": "FRED",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "GBP 2Y/10Y, CHF 2Y/10Y, NZD 2Y/10Y in current snapshot",
+      "next": "Keep own adapter; close peer dependencies"
+    },
+    {
+      "currency": "USD",
+      "factor": "inflation",
+      "requirements": [
+        "rate",
+        "inflation"
+      ],
+      "status": "PARTIAL_CROSS_SECTION",
+      "availability": "CARRIED INPUT",
+      "source": "FRED + World Bank Open Data",
+      "inputs": [
+        {
+          "metric": "rate",
+          "value": 3.88,
+          "period": "2026-09-25",
+          "receivedAt": "2026-09-29T15:16:25.711Z",
+          "source": "FRED"
+        },
+        {
+          "metric": "inflation",
+          "value": 2.94952520485207,
+          "period": "2024",
+          "receivedAt": "2026-09-29T15:16:11.196Z",
+          "source": "World Bank Open Data"
+        }
+      ],
+      "why": "Own CPI/rate present; other six CPI receipts missing in ranked cross-section.",
+      "category": "A",
+      "free": "Yes",
+      "technical": "Batch fix tested; needs genuine Cron",
+      "premium": "No",
+      "best": "World Bank WDI annual CPI + existing BIS/FRED policy",
+      "integrated": "Yes; WDI transport repaired in this patch",
+      "missing": "Six other currencies’ annual CPI receipts",
+      "next": "Next regular Cron; preserve annual definition"
+    },
+    {
+      "currency": "USD",
+      "factor": "growth",
+      "requirements": [
+        "growth",
+        "unemployment"
+      ],
+      "status": "PARTIAL_CROSS_SECTION",
+      "availability": "CARRIED INPUT",
+      "source": "World Bank Open Data",
+      "inputs": [
+        {
+          "metric": "unemployment",
+          "value": 4.198,
+          "period": "2025",
+          "receivedAt": "2026-09-29T15:16:11.472Z",
+          "source": "World Bank Open Data"
+        },
+        {
+          "metric": "growth",
+          "value": 2.16138195623856,
+          "period": "2025",
+          "receivedAt": "2026-09-29T15:16:11.198Z",
+          "source": "World Bank Open Data"
+        }
+      ],
+      "why": "Own GDP/unemployment present; six other country pairs failed.",
+      "category": "A",
+      "free": "Yes",
+      "technical": "Batch fix tested; needs genuine Cron",
+      "premium": "No",
+      "best": "World Bank WDI GDP growth + modeled ILO unemployment",
+      "integrated": "Yes; WDI transport repaired in this patch",
+      "missing": "GDP/unemployment of six other currencies",
+      "next": "Next regular Cron; no quarterly substitution"
+    },
+    {
+      "currency": "USD",
+      "factor": "cot",
+      "requirements": [
+        "cot"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "CFTC Legacy futures only",
+      "inputs": [
+        {
+          "metric": "cot",
+          "value": 0.611487653255051,
+          "period": "2026-09-22",
+          "receivedAt": "2026-09-29T15:16:25.530Z",
+          "source": "CFTC Legacy futures only"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "CFTC Legacy futures only",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "USD",
+      "factor": "risk",
+      "requirements": [
+        "currentAccount",
+        "debt",
+        "50% baseline anchor"
+      ],
+      "status": "PARTIAL_ANCHORED",
+      "availability": "FALLBACK",
+      "source": "World Bank Open Data",
+      "inputs": [],
+      "why": "Existing fixed 50% anchor cannot be observed; current macro requests also failed.",
+      "category": "B",
+      "free": "Partial raw inputs yes; no source can certify fixed anchor",
+      "technical": "Requires explicit model-definition decision beyond source patch",
+      "premium": "No demonstrated requirement; premium cannot remove anchor",
+      "best": "Existing World Bank current account + central-government debt",
+      "integrated": "Existing adapter, batched; unchanged 50% anchor",
+      "missing": "Current account/debt receipts + observable anchor",
+      "next": "Cron restores available macro rows; separately specify anchor"
+    },
+    {
+      "currency": "USD",
+      "factor": "momentum",
+      "requirements": [
+        "momentum"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "ECB reference fixing",
+      "inputs": [
+        {
+          "metric": "momentum",
+          "value": 0.5737567860354157,
+          "period": "2026-09-29",
+          "receivedAt": "2026-09-29T15:16:26.776Z",
+          "source": "ECB reference fixing"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "ECB reference fixing",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "EUR",
+      "factor": "policy",
+      "requirements": [
+        "rate"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "BIS policy rates",
+      "inputs": [
+        {
+          "metric": "rate",
+          "value": 2.5,
+          "period": "2026-09-22",
+          "receivedAt": "2026-09-29T15:16:23.955Z",
+          "source": "BIS policy rates"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "BIS policy rates",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "EUR",
+      "factor": "yields",
+      "requirements": [
+        "yield2y",
+        "yield10y"
+      ],
+      "status": "PARTIAL_CROSS_SECTION",
+      "availability": "CARRIED INPUT",
+      "source": "ECB AAA sovereign par yields",
+      "inputs": [
+        {
+          "metric": "yield2y",
+          "value": 3.2279436038,
+          "period": "2026-09-28",
+          "receivedAt": "2026-09-29T15:16:26.967Z",
+          "source": "ECB AAA sovereign par yields"
+        },
+        {
+          "metric": "yield10y",
+          "value": 3.6001438679,
+          "period": "2026-09-28",
+          "receivedAt": "2026-09-29T15:16:26.967Z",
+          "source": "ECB AAA sovereign par yields"
+        }
+      ],
+      "why": "Both own tenors valid, but GBP/CHF/NZD cross-section incomplete.",
+      "category": "A / C / D cross-section",
+      "free": "Own pair yes; peers unresolved",
+      "technical": "Own pair complete",
+      "premium": "No for own inputs",
+      "best": "ECB AAA sovereign par yields",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "GBP 2Y/10Y, CHF 2Y/10Y, NZD 2Y/10Y in current snapshot",
+      "next": "Keep own adapter; close peer dependencies"
+    },
+    {
+      "currency": "EUR",
+      "factor": "inflation",
+      "requirements": [
+        "rate",
+        "inflation"
+      ],
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "FALLBACK",
+      "source": "BIS policy rates + World Bank Open Data",
+      "inputs": [
+        {
+          "metric": "rate",
+          "value": 2.5,
+          "period": "2026-09-22",
+          "receivedAt": "2026-09-29T15:16:23.955Z",
+          "source": "BIS policy rates"
+        }
+      ],
+      "why": "Own CPI fetch failed; complete eight-currency CPI/rate cross-section required.",
+      "category": "A",
+      "free": "Yes",
+      "technical": "Batch fix tested; needs genuine Cron",
+      "premium": "No",
+      "best": "World Bank WDI annual CPI + existing BIS/FRED policy",
+      "integrated": "Yes; WDI transport repaired in this patch",
+      "missing": "Annual CPI receipt + full cross-section",
+      "next": "Next regular Cron; preserve annual definition"
+    },
+    {
+      "currency": "EUR",
+      "factor": "growth",
+      "requirements": [
+        "growth",
+        "unemployment"
+      ],
+      "status": "PARTIAL_CROSS_SECTION",
+      "availability": "CARRIED INPUT",
+      "source": "World Bank Open Data",
+      "inputs": [
+        {
+          "metric": "unemployment",
+          "value": 6.28355946264135,
+          "period": "2025",
+          "receivedAt": "2026-09-29T15:16:11.423Z",
+          "source": "World Bank Open Data"
+        },
+        {
+          "metric": "growth",
+          "value": 1.41107242318353,
+          "period": "2025",
+          "receivedAt": "2026-09-29T15:16:11.213Z",
+          "source": "World Bank Open Data"
+        }
+      ],
+      "why": "Own GDP/unemployment present; six other country pairs failed.",
+      "category": "A",
+      "free": "Yes",
+      "technical": "Batch fix tested; needs genuine Cron",
+      "premium": "No",
+      "best": "World Bank WDI GDP growth + modeled ILO unemployment",
+      "integrated": "Yes; WDI transport repaired in this patch",
+      "missing": "GDP/unemployment of six other currencies",
+      "next": "Next regular Cron; no quarterly substitution"
+    },
+    {
+      "currency": "EUR",
+      "factor": "cot",
+      "requirements": [
+        "cot"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "CFTC Legacy futures only",
+      "inputs": [
+        {
+          "metric": "cot",
+          "value": 0.46815461810977144,
+          "period": "2026-09-22",
+          "receivedAt": "2026-09-29T15:16:25.530Z",
+          "source": "CFTC Legacy futures only"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "CFTC Legacy futures only",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "EUR",
+      "factor": "risk",
+      "requirements": [
+        "currentAccount",
+        "debt",
+        "50% baseline anchor"
+      ],
+      "status": "PARTIAL_ANCHORED",
+      "availability": "FALLBACK",
+      "source": "Preserved baseline/carried factor",
+      "inputs": [],
+      "why": "Existing fixed 50% anchor cannot be observed; current macro requests also failed.",
+      "category": "B / D",
+      "free": "Partial raw inputs yes; no source can certify fixed anchor",
+      "technical": "Requires explicit model-definition decision beyond source patch",
+      "premium": "No demonstrated requirement; premium cannot remove anchor",
+      "best": "WDI EMU; Eurostat/ECB alternatives need exact annual aggregate match",
+      "integrated": "Existing adapter, batched; unchanged 50% anchor",
+      "missing": "Current account + comparable central-government debt + observable anchor",
+      "next": "Resolve exact aggregate meaning; separately specify anchor"
+    },
+    {
+      "currency": "EUR",
+      "factor": "momentum",
+      "requirements": [
+        "momentum"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "ECB reference fixing",
+      "inputs": [
+        {
+          "metric": "momentum",
+          "value": 0.4030082444688018,
+          "period": "2026-09-29",
+          "receivedAt": "2026-09-29T15:16:26.776Z",
+          "source": "ECB reference fixing"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "ECB reference fixing",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "GBP",
+      "factor": "policy",
+      "requirements": [
+        "rate"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "BIS policy rates",
+      "inputs": [
+        {
+          "metric": "rate",
+          "value": 3.75,
+          "period": "2026-09-21",
+          "receivedAt": "2026-09-29T15:16:23.955Z",
+          "source": "BIS policy rates"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "BIS policy rates",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "GBP",
+      "factor": "yields",
+      "requirements": [
+        "yield2y",
+        "yield10y"
+      ],
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "inputs": [],
+      "why": "Comparable daily nominal pair incomplete.",
+      "category": "A (10Y), C (2Y)",
+      "free": "10Y yes; equivalent 2Y not verified",
+      "technical": "10Y implemented; 2Y adapter still needed",
+      "premium": "Recommended; not proven unavoidable",
+      "best": "BoE IUDMNPY 10Y; no verified equivalent 2Y",
+      "integrated": "10Y implemented; WAITING FOR REAL CRON",
+      "missing": "2Y + production receipt of new 10Y + peers",
+      "next": "Compatible free/licensed 2Y and real 10Y Cron"
+    },
+    {
+      "currency": "GBP",
+      "factor": "inflation",
+      "requirements": [
+        "rate",
+        "inflation"
+      ],
+      "status": "PARTIAL_CROSS_SECTION",
+      "availability": "CARRIED INPUT",
+      "source": "BIS policy rates + World Bank Open Data",
+      "inputs": [
+        {
+          "metric": "rate",
+          "value": 3.75,
+          "period": "2026-09-21",
+          "receivedAt": "2026-09-29T15:16:23.955Z",
+          "source": "BIS policy rates"
+        },
+        {
+          "metric": "inflation",
+          "value": 3.88306881626,
+          "period": "2025",
+          "receivedAt": "2026-09-29T15:16:11.496Z",
+          "source": "World Bank Open Data"
+        }
+      ],
+      "why": "Own CPI/rate present; other six CPI receipts missing in ranked cross-section.",
+      "category": "A",
+      "free": "Yes",
+      "technical": "Batch fix tested; needs genuine Cron",
+      "premium": "No",
+      "best": "World Bank WDI annual CPI + existing BIS/FRED policy",
+      "integrated": "Yes; WDI transport repaired in this patch",
+      "missing": "Six other currencies’ annual CPI receipts",
+      "next": "Next regular Cron; preserve annual definition"
+    },
+    {
+      "currency": "GBP",
+      "factor": "growth",
+      "requirements": [
+        "growth",
+        "unemployment"
+      ],
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "FALLBACK",
+      "source": "World Bank Open Data",
+      "inputs": [],
+      "why": "Own annual GDP/unemployment requests failed.",
+      "category": "A",
+      "free": "Yes",
+      "technical": "Batch fix tested; needs genuine Cron",
+      "premium": "No",
+      "best": "World Bank WDI GDP growth + modeled ILO unemployment",
+      "integrated": "Yes; WDI transport repaired in this patch",
+      "missing": "Annual GDP + unemployment receipt + full cross-section",
+      "next": "Next regular Cron; no quarterly substitution"
+    },
+    {
+      "currency": "GBP",
+      "factor": "cot",
+      "requirements": [
+        "cot"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "CFTC Legacy futures only",
+      "inputs": [
+        {
+          "metric": "cot",
+          "value": 0.3314422782484434,
+          "period": "2026-09-22",
+          "receivedAt": "2026-09-29T15:16:25.530Z",
+          "source": "CFTC Legacy futures only"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "CFTC Legacy futures only",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "GBP",
+      "factor": "risk",
+      "requirements": [
+        "currentAccount",
+        "debt",
+        "50% baseline anchor"
+      ],
+      "status": "PARTIAL_ANCHORED",
+      "availability": "FALLBACK",
+      "source": "World Bank Open Data",
+      "inputs": [],
+      "why": "Existing fixed 50% anchor cannot be observed; current macro requests also failed.",
+      "category": "B",
+      "free": "Partial raw inputs yes; no source can certify fixed anchor",
+      "technical": "Requires explicit model-definition decision beyond source patch",
+      "premium": "No demonstrated requirement; premium cannot remove anchor",
+      "best": "Existing World Bank current account + central-government debt",
+      "integrated": "Existing adapter, batched; unchanged 50% anchor",
+      "missing": "Current account/debt receipts + observable anchor",
+      "next": "Cron restores available macro rows; separately specify anchor"
+    },
+    {
+      "currency": "GBP",
+      "factor": "momentum",
+      "requirements": [
+        "momentum"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "ECB reference fixing",
+      "inputs": [
+        {
+          "metric": "momentum",
+          "value": 0.4037054636085519,
+          "period": "2026-09-29",
+          "receivedAt": "2026-09-29T15:16:26.776Z",
+          "source": "ECB reference fixing"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "ECB reference fixing",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "JPY",
+      "factor": "policy",
+      "requirements": [
+        "rate"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "BIS policy rates",
+      "inputs": [
+        {
+          "metric": "rate",
+          "value": 1,
+          "period": "2026-09-22",
+          "receivedAt": "2026-09-29T15:16:23.955Z",
+          "source": "BIS policy rates"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "BIS policy rates",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "JPY",
+      "factor": "yields",
+      "requirements": [
+        "yield2y",
+        "yield10y"
+      ],
+      "status": "PARTIAL_CROSS_SECTION",
+      "availability": "CARRIED INPUT",
+      "source": "Japan Ministry of Finance yields",
+      "inputs": [
+        {
+          "metric": "yield2y",
+          "value": 1.981,
+          "period": "2026-09-28",
+          "receivedAt": "2026-09-29T15:16:23.180Z",
+          "source": "Japan Ministry of Finance yields"
+        },
+        {
+          "metric": "yield10y",
+          "value": 3.082,
+          "period": "2026-09-28",
+          "receivedAt": "2026-09-29T15:16:23.180Z",
+          "source": "Japan Ministry of Finance yields"
+        }
+      ],
+      "why": "Both own tenors valid, but GBP/CHF/NZD cross-section incomplete.",
+      "category": "A / C / D cross-section",
+      "free": "Own pair yes; peers unresolved",
+      "technical": "Own pair complete",
+      "premium": "No for own inputs",
+      "best": "Japan Ministry of Finance yields",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "GBP 2Y/10Y, CHF 2Y/10Y, NZD 2Y/10Y in current snapshot",
+      "next": "Keep own adapter; close peer dependencies"
+    },
+    {
+      "currency": "JPY",
+      "factor": "inflation",
+      "requirements": [
+        "rate",
+        "inflation"
+      ],
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "FALLBACK",
+      "source": "BIS policy rates + World Bank Open Data",
+      "inputs": null,
+      "why": "Own CPI fetch failed; complete eight-currency CPI/rate cross-section required.",
+      "category": "A",
+      "free": "Yes",
+      "technical": "Batch fix tested; needs genuine Cron",
+      "premium": "No",
+      "best": "World Bank WDI annual CPI + existing BIS/FRED policy",
+      "integrated": "Yes; WDI transport repaired in this patch",
+      "missing": "Annual CPI receipt + full cross-section",
+      "next": "Next regular Cron; preserve annual definition"
+    },
+    {
+      "currency": "JPY",
+      "factor": "growth",
+      "requirements": [
+        "growth",
+        "unemployment"
+      ],
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "FALLBACK",
+      "source": "World Bank Open Data",
+      "inputs": [],
+      "why": "Own annual GDP/unemployment requests failed.",
+      "category": "A",
+      "free": "Yes",
+      "technical": "Batch fix tested; needs genuine Cron",
+      "premium": "No",
+      "best": "World Bank WDI GDP growth + modeled ILO unemployment",
+      "integrated": "Yes; WDI transport repaired in this patch",
+      "missing": "Annual GDP + unemployment receipt + full cross-section",
+      "next": "Next regular Cron; no quarterly substitution"
+    },
+    {
+      "currency": "JPY",
+      "factor": "cot",
+      "requirements": [
+        "cot"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "CFTC Legacy futures only",
+      "inputs": [
+        {
+          "metric": "cot",
+          "value": 0.5950380379243784,
+          "period": "2026-09-22",
+          "receivedAt": "2026-09-29T15:16:25.530Z",
+          "source": "CFTC Legacy futures only"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "CFTC Legacy futures only",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "JPY",
+      "factor": "risk",
+      "requirements": [
+        "currentAccount",
+        "debt",
+        "50% baseline anchor"
+      ],
+      "status": "PARTIAL_ANCHORED",
+      "availability": "FALLBACK",
+      "source": "Preserved baseline/carried factor",
+      "inputs": [],
+      "why": "Existing fixed 50% anchor cannot be observed; current macro requests also failed.",
+      "category": "B / E (unconfirmed publication)",
+      "free": "Partial raw inputs yes; no source can certify fixed anchor",
+      "technical": "Requires explicit model-definition decision beyond source patch",
+      "premium": "No demonstrated requirement; premium cannot remove anchor",
+      "best": "World Bank / IMF GFS; FRED mirror is old or missing",
+      "integrated": "Existing adapter, batched; unchanged 50% anchor",
+      "missing": "Current account receipt + current debt + observable anchor",
+      "next": "Qualifying debt release (date unknown); separately specify anchor"
+    },
+    {
+      "currency": "JPY",
+      "factor": "momentum",
+      "requirements": [
+        "momentum"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "ECB reference fixing",
+      "inputs": [
+        {
+          "metric": "momentum",
+          "value": 0.6442377898110887,
+          "period": "2026-09-29",
+          "receivedAt": "2026-09-29T15:16:26.776Z",
+          "source": "ECB reference fixing"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "ECB reference fixing",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "JPY",
+      "factor": "commodities",
+      "requirements": [
+        "official exposure basket",
+        "specified Core score mapping"
+      ],
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "inputs": [],
+      "why": "Only carried normalized factor; no approved basket-to-Core transformation.",
+      "category": "B",
+      "free": "Official baskets exist, but mapping is undefined",
+      "technical": "Requires explicit Core specification, not arbitrary coding",
+      "premium": "No",
+      "best": "BoJ import-price energy components and official weights",
+      "integrated": "No Commodity Core conversion",
+      "missing": "Explicit currency exposure, FX sign, lag and normalization mapping",
+      "next": "Specify compatible Core mapping without invented weights"
+    },
+    {
+      "currency": "CHF",
+      "factor": "policy",
+      "requirements": [
+        "rate"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "BIS policy rates",
+      "inputs": [
+        {
+          "metric": "rate",
+          "value": 0,
+          "period": "2026-09-22",
+          "receivedAt": "2026-09-29T15:16:23.955Z",
+          "source": "BIS policy rates"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "BIS policy rates",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "CHF",
+      "factor": "yields",
+      "requirements": [
+        "yield2y",
+        "yield10y"
+      ],
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "inputs": [],
+      "why": "Comparable daily nominal pair incomplete.",
+      "category": "C",
+      "free": "Audited alternatives are spot/monthly",
+      "technical": "Comparable paired feed needed",
+      "premium": "Recommended; not proven unavoidable",
+      "best": "SNB spot curves / OECD monthly (not equivalent)",
+      "integrated": "No",
+      "missing": "2Y + 10Y + complete peer cross-section",
+      "next": "Agree compatible nominal paired feed"
+    },
+    {
+      "currency": "CHF",
+      "factor": "inflation",
+      "requirements": [
+        "rate",
+        "inflation"
+      ],
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "FALLBACK",
+      "source": "BIS policy rates + World Bank Open Data",
+      "inputs": [
+        {
+          "metric": "rate",
+          "value": 0,
+          "period": "2026-09-22",
+          "receivedAt": "2026-09-29T15:16:23.955Z",
+          "source": "BIS policy rates"
+        }
+      ],
+      "why": "Own CPI fetch failed; complete eight-currency CPI/rate cross-section required.",
+      "category": "A",
+      "free": "Yes",
+      "technical": "Batch fix tested; needs genuine Cron",
+      "premium": "No",
+      "best": "World Bank WDI annual CPI + existing BIS/FRED policy",
+      "integrated": "Yes; WDI transport repaired in this patch",
+      "missing": "Annual CPI receipt + full cross-section",
+      "next": "Next regular Cron; preserve annual definition"
+    },
+    {
+      "currency": "CHF",
+      "factor": "growth",
+      "requirements": [
+        "growth",
+        "unemployment"
+      ],
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "FALLBACK",
+      "source": "World Bank Open Data",
+      "inputs": [],
+      "why": "Own annual GDP/unemployment requests failed.",
+      "category": "A",
+      "free": "Yes",
+      "technical": "Batch fix tested; needs genuine Cron",
+      "premium": "No",
+      "best": "World Bank WDI GDP growth + modeled ILO unemployment",
+      "integrated": "Yes; WDI transport repaired in this patch",
+      "missing": "Annual GDP + unemployment receipt + full cross-section",
+      "next": "Next regular Cron; no quarterly substitution"
+    },
+    {
+      "currency": "CHF",
+      "factor": "cot",
+      "requirements": [
+        "cot"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "CFTC Legacy futures only",
+      "inputs": [
+        {
+          "metric": "cot",
+          "value": 0.3998014906925353,
+          "period": "2026-09-22",
+          "receivedAt": "2026-09-29T15:16:25.530Z",
+          "source": "CFTC Legacy futures only"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "CFTC Legacy futures only",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "CHF",
+      "factor": "risk",
+      "requirements": [
+        "currentAccount",
+        "debt",
+        "50% baseline anchor"
+      ],
+      "status": "PARTIAL_ANCHORED",
+      "availability": "FALLBACK",
+      "source": "World Bank Open Data",
+      "inputs": [],
+      "why": "Existing fixed 50% anchor cannot be observed; current macro requests also failed.",
+      "category": "B",
+      "free": "Partial raw inputs yes; no source can certify fixed anchor",
+      "technical": "Requires explicit model-definition decision beyond source patch",
+      "premium": "No demonstrated requirement; premium cannot remove anchor",
+      "best": "Existing World Bank current account + central-government debt",
+      "integrated": "Existing adapter, batched; unchanged 50% anchor",
+      "missing": "Current account/debt receipts + observable anchor",
+      "next": "Cron restores available macro rows; separately specify anchor"
+    },
+    {
+      "currency": "CHF",
+      "factor": "momentum",
+      "requirements": [
+        "momentum"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "ECB reference fixing",
+      "inputs": [
+        {
+          "metric": "momentum",
+          "value": 0.3290856455468124,
+          "period": "2026-09-29",
+          "receivedAt": "2026-09-29T15:16:26.776Z",
+          "source": "ECB reference fixing"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "ECB reference fixing",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "CAD",
+      "factor": "policy",
+      "requirements": [
+        "rate"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "BIS policy rates",
+      "inputs": [
+        {
+          "metric": "rate",
+          "value": 2.25,
+          "period": "2026-09-21",
+          "receivedAt": "2026-09-29T15:16:23.955Z",
+          "source": "BIS policy rates"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "BIS policy rates",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "CAD",
+      "factor": "yields",
+      "requirements": [
+        "yield2y",
+        "yield10y"
+      ],
+      "status": "PARTIAL_CROSS_SECTION",
+      "availability": "CARRIED INPUT",
+      "source": "Bank of Canada benchmark yields",
+      "inputs": [
+        {
+          "metric": "yield2y",
+          "value": 3.37,
+          "period": "2026-09-28",
+          "receivedAt": "2026-09-29T15:16:23.952Z",
+          "source": "Bank of Canada benchmark yields"
+        },
+        {
+          "metric": "yield10y",
+          "value": 3.96,
+          "period": "2026-09-28",
+          "receivedAt": "2026-09-29T15:16:23.952Z",
+          "source": "Bank of Canada benchmark yields"
+        }
+      ],
+      "why": "Both own tenors valid, but GBP/CHF/NZD cross-section incomplete.",
+      "category": "A / C / D cross-section",
+      "free": "Own pair yes; peers unresolved",
+      "technical": "Own pair complete",
+      "premium": "No for own inputs",
+      "best": "Bank of Canada benchmark yields",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "GBP 2Y/10Y, CHF 2Y/10Y, NZD 2Y/10Y in current snapshot",
+      "next": "Keep own adapter; close peer dependencies"
+    },
+    {
+      "currency": "CAD",
+      "factor": "inflation",
+      "requirements": [
+        "rate",
+        "inflation"
+      ],
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "FALLBACK",
+      "source": "BIS policy rates + World Bank Open Data",
+      "inputs": [
+        {
+          "metric": "rate",
+          "value": 2.25,
+          "period": "2026-09-21",
+          "receivedAt": "2026-09-29T15:16:23.955Z",
+          "source": "BIS policy rates"
+        }
+      ],
+      "why": "Own CPI fetch failed; complete eight-currency CPI/rate cross-section required.",
+      "category": "A",
+      "free": "Yes",
+      "technical": "Batch fix tested; needs genuine Cron",
+      "premium": "No",
+      "best": "World Bank WDI annual CPI + existing BIS/FRED policy",
+      "integrated": "Yes; WDI transport repaired in this patch",
+      "missing": "Annual CPI receipt + full cross-section",
+      "next": "Next regular Cron; preserve annual definition"
+    },
+    {
+      "currency": "CAD",
+      "factor": "growth",
+      "requirements": [
+        "growth",
+        "unemployment"
+      ],
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "FALLBACK",
+      "source": "World Bank Open Data",
+      "inputs": [],
+      "why": "Own annual GDP/unemployment requests failed.",
+      "category": "A",
+      "free": "Yes",
+      "technical": "Batch fix tested; needs genuine Cron",
+      "premium": "No",
+      "best": "World Bank WDI GDP growth + modeled ILO unemployment",
+      "integrated": "Yes; WDI transport repaired in this patch",
+      "missing": "Annual GDP + unemployment receipt + full cross-section",
+      "next": "Next regular Cron; no quarterly substitution"
+    },
+    {
+      "currency": "CAD",
+      "factor": "cot",
+      "requirements": [
+        "cot"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "CFTC Legacy futures only",
+      "inputs": [
+        {
+          "metric": "cot",
+          "value": 0.4144767507272932,
+          "period": "2026-09-22",
+          "receivedAt": "2026-09-29T15:16:25.530Z",
+          "source": "CFTC Legacy futures only"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "CFTC Legacy futures only",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "CAD",
+      "factor": "risk",
+      "requirements": [
+        "currentAccount",
+        "debt",
+        "50% baseline anchor"
+      ],
+      "status": "PARTIAL_ANCHORED",
+      "availability": "FALLBACK",
+      "source": "World Bank Open Data",
+      "inputs": [],
+      "why": "Existing fixed 50% anchor cannot be observed; current macro requests also failed.",
+      "category": "B",
+      "free": "Partial raw inputs yes; no source can certify fixed anchor",
+      "technical": "Requires explicit model-definition decision beyond source patch",
+      "premium": "No demonstrated requirement; premium cannot remove anchor",
+      "best": "Existing World Bank current account + central-government debt",
+      "integrated": "Existing adapter, batched; unchanged 50% anchor",
+      "missing": "Current account/debt receipts + observable anchor",
+      "next": "Cron restores available macro rows; separately specify anchor"
+    },
+    {
+      "currency": "CAD",
+      "factor": "momentum",
+      "requirements": [
+        "momentum"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "ECB reference fixing",
+      "inputs": [
+        {
+          "metric": "momentum",
+          "value": 0.41909763787622695,
+          "period": "2026-09-29",
+          "receivedAt": "2026-09-29T15:16:26.776Z",
+          "source": "ECB reference fixing"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "ECB reference fixing",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "CAD",
+      "factor": "commodities",
+      "requirements": [
+        "official exposure basket",
+        "specified Core score mapping"
+      ],
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "inputs": [],
+      "why": "Only carried normalized factor; no approved basket-to-Core transformation.",
+      "category": "B",
+      "free": "Official baskets exist, but mapping is undefined",
+      "technical": "Requires explicit Core specification, not arbitrary coding",
+      "premium": "No",
+      "best": "BoC BCPI official Canadian commodity weights",
+      "integrated": "No Commodity Core conversion",
+      "missing": "Explicit currency exposure, FX sign, lag and normalization mapping",
+      "next": "Specify compatible Core mapping without invented weights"
+    },
+    {
+      "currency": "AUD",
+      "factor": "policy",
+      "requirements": [
+        "rate"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "BIS policy rates",
+      "inputs": [
+        {
+          "metric": "rate",
+          "value": 4.35,
+          "period": "2026-09-17",
+          "receivedAt": "2026-09-29T15:16:23.955Z",
+          "source": "BIS policy rates"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "BIS policy rates",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "AUD",
+      "factor": "yields",
+      "requirements": [
+        "yield2y",
+        "yield10y"
+      ],
+      "status": "PARTIAL_CROSS_SECTION",
+      "availability": "CARRIED INPUT",
+      "source": "RBA government bond yields",
+      "inputs": [
+        {
+          "metric": "yield2y",
+          "value": 4.947,
+          "period": "2026-09-23",
+          "receivedAt": "2026-09-29T15:16:24.747Z",
+          "source": "RBA government bond yields"
+        },
+        {
+          "metric": "yield10y",
+          "value": 5.245,
+          "period": "2026-09-23",
+          "receivedAt": "2026-09-29T15:16:24.747Z",
+          "source": "RBA government bond yields"
+        }
+      ],
+      "why": "Both own tenors valid, but GBP/CHF/NZD cross-section incomplete.",
+      "category": "A / C / D cross-section",
+      "free": "Own pair yes; peers unresolved",
+      "technical": "Own pair complete",
+      "premium": "No for own inputs",
+      "best": "RBA government bond yields",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "GBP 2Y/10Y, CHF 2Y/10Y, NZD 2Y/10Y in current snapshot",
+      "next": "Keep own adapter; close peer dependencies"
+    },
+    {
+      "currency": "AUD",
+      "factor": "inflation",
+      "requirements": [
+        "rate",
+        "inflation"
+      ],
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "FALLBACK",
+      "source": "BIS policy rates + World Bank Open Data",
+      "inputs": [
+        {
+          "metric": "rate",
+          "value": 4.35,
+          "period": "2026-09-17",
+          "receivedAt": "2026-09-29T15:16:23.955Z",
+          "source": "BIS policy rates"
+        }
+      ],
+      "why": "Own CPI fetch failed; complete eight-currency CPI/rate cross-section required.",
+      "category": "A",
+      "free": "Yes",
+      "technical": "Batch fix tested; needs genuine Cron",
+      "premium": "No",
+      "best": "World Bank WDI annual CPI + existing BIS/FRED policy",
+      "integrated": "Yes; WDI transport repaired in this patch",
+      "missing": "Annual CPI receipt + full cross-section",
+      "next": "Next regular Cron; preserve annual definition"
+    },
+    {
+      "currency": "AUD",
+      "factor": "growth",
+      "requirements": [
+        "growth",
+        "unemployment"
+      ],
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "FALLBACK",
+      "source": "World Bank Open Data",
+      "inputs": [],
+      "why": "Own annual GDP/unemployment requests failed.",
+      "category": "A",
+      "free": "Yes",
+      "technical": "Batch fix tested; needs genuine Cron",
+      "premium": "No",
+      "best": "World Bank WDI GDP growth + modeled ILO unemployment",
+      "integrated": "Yes; WDI transport repaired in this patch",
+      "missing": "Annual GDP + unemployment receipt + full cross-section",
+      "next": "Next regular Cron; no quarterly substitution"
+    },
+    {
+      "currency": "AUD",
+      "factor": "cot",
+      "requirements": [
+        "cot"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "CFTC Legacy futures only",
+      "inputs": [
+        {
+          "metric": "cot",
+          "value": 0.42362833128866384,
+          "period": "2026-09-22",
+          "receivedAt": "2026-09-29T15:16:25.530Z",
+          "source": "CFTC Legacy futures only"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "CFTC Legacy futures only",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "AUD",
+      "factor": "risk",
+      "requirements": [
+        "currentAccount",
+        "debt",
+        "50% baseline anchor"
+      ],
+      "status": "PARTIAL_ANCHORED",
+      "availability": "FALLBACK",
+      "source": "Preserved baseline/carried factor",
+      "inputs": [],
+      "why": "Existing fixed 50% anchor cannot be observed; current macro requests also failed.",
+      "category": "B / E (unconfirmed publication)",
+      "free": "Partial raw inputs yes; no source can certify fixed anchor",
+      "technical": "Requires explicit model-definition decision beyond source patch",
+      "premium": "No demonstrated requirement; premium cannot remove anchor",
+      "best": "World Bank / IMF GFS; FRED mirror is old or missing",
+      "integrated": "Existing adapter, batched; unchanged 50% anchor",
+      "missing": "Current account receipt + current debt + observable anchor",
+      "next": "Qualifying debt release (date unknown); separately specify anchor"
+    },
+    {
+      "currency": "AUD",
+      "factor": "momentum",
+      "requirements": [
+        "momentum"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "ECB reference fixing",
+      "inputs": [
+        {
+          "metric": "momentum",
+          "value": 0.43468065568276887,
+          "period": "2026-09-29",
+          "receivedAt": "2026-09-29T15:16:26.776Z",
+          "source": "ECB reference fixing"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "ECB reference fixing",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "AUD",
+      "factor": "commodities",
+      "requirements": [
+        "official exposure basket",
+        "specified Core score mapping"
+      ],
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "inputs": [],
+      "why": "Only carried normalized factor; no approved basket-to-Core transformation.",
+      "category": "B",
+      "free": "Official baskets exist, but mapping is undefined",
+      "technical": "Requires explicit Core specification, not arbitrary coding",
+      "premium": "No",
+      "best": "RBA export-weighted commodity index (already Research)",
+      "integrated": "Research only; not Commodity Core",
+      "missing": "Explicit currency exposure, FX sign, lag and normalization mapping",
+      "next": "Specify compatible Core mapping without invented weights"
+    },
+    {
+      "currency": "NZD",
+      "factor": "policy",
+      "requirements": [
+        "rate"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "BIS policy rates",
+      "inputs": [
+        {
+          "metric": "rate",
+          "value": 2.75,
+          "period": "2026-09-18",
+          "receivedAt": "2026-09-29T15:16:23.955Z",
+          "source": "BIS policy rates"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "BIS policy rates",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "NZD",
+      "factor": "yields",
+      "requirements": [
+        "yield2y",
+        "yield10y"
+      ],
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "inputs": [],
+      "why": "Comparable daily nominal pair incomplete.",
+      "category": "D",
+      "free": "Suitable official data; download HTTP 403",
+      "technical": "Authorized source access needed",
+      "premium": "Not established",
+      "best": "RBNZ B2 daily secondary-market sovereign yields",
+      "integrated": "No",
+      "missing": "2Y + 10Y + complete peer cross-section",
+      "next": "Resolve authorized RBNZ file access; validate adapter"
+    },
+    {
+      "currency": "NZD",
+      "factor": "inflation",
+      "requirements": [
+        "rate",
+        "inflation"
+      ],
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "FALLBACK",
+      "source": "BIS policy rates + World Bank Open Data",
+      "inputs": [
+        {
+          "metric": "rate",
+          "value": 2.75,
+          "period": "2026-09-18",
+          "receivedAt": "2026-09-29T15:16:23.955Z",
+          "source": "BIS policy rates"
+        }
+      ],
+      "why": "Own CPI fetch failed; complete eight-currency CPI/rate cross-section required.",
+      "category": "A",
+      "free": "Yes",
+      "technical": "Batch fix tested; needs genuine Cron",
+      "premium": "No",
+      "best": "World Bank WDI annual CPI + existing BIS/FRED policy",
+      "integrated": "Yes; WDI transport repaired in this patch",
+      "missing": "Annual CPI receipt + full cross-section",
+      "next": "Next regular Cron; preserve annual definition"
+    },
+    {
+      "currency": "NZD",
+      "factor": "growth",
+      "requirements": [
+        "growth",
+        "unemployment"
+      ],
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "FALLBACK",
+      "source": "World Bank Open Data",
+      "inputs": [],
+      "why": "Own annual GDP/unemployment requests failed.",
+      "category": "A",
+      "free": "Yes",
+      "technical": "Batch fix tested; needs genuine Cron",
+      "premium": "No",
+      "best": "World Bank WDI GDP growth + modeled ILO unemployment",
+      "integrated": "Yes; WDI transport repaired in this patch",
+      "missing": "Annual GDP + unemployment receipt + full cross-section",
+      "next": "Next regular Cron; no quarterly substitution"
+    },
+    {
+      "currency": "NZD",
+      "factor": "cot",
+      "requirements": [
+        "cot"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "CFTC Legacy futures only",
+      "inputs": [
+        {
+          "metric": "cot",
+          "value": 0.4438728705722205,
+          "period": "2026-09-22",
+          "receivedAt": "2026-09-29T15:16:25.530Z",
+          "source": "CFTC Legacy futures only"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "CFTC Legacy futures only",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "NZD",
+      "factor": "risk",
+      "requirements": [
+        "currentAccount",
+        "debt",
+        "50% baseline anchor"
+      ],
+      "status": "PARTIAL_ANCHORED",
+      "availability": "FALLBACK",
+      "source": "World Bank Open Data",
+      "inputs": [],
+      "why": "Existing fixed 50% anchor cannot be observed; current macro requests also failed.",
+      "category": "B",
+      "free": "Partial raw inputs yes; no source can certify fixed anchor",
+      "technical": "Requires explicit model-definition decision beyond source patch",
+      "premium": "No demonstrated requirement; premium cannot remove anchor",
+      "best": "Existing World Bank current account + central-government debt",
+      "integrated": "Existing adapter, batched; unchanged 50% anchor",
+      "missing": "Current account/debt receipts + observable anchor",
+      "next": "Cron restores available macro rows; separately specify anchor"
+    },
+    {
+      "currency": "NZD",
+      "factor": "momentum",
+      "requirements": [
+        "momentum"
+      ],
+      "status": "OBSERVED",
+      "availability": "FRESH",
+      "source": "ECB reference fixing",
+      "inputs": [
+        {
+          "metric": "momentum",
+          "value": 0.34988706075783976,
+          "period": "2026-09-29",
+          "receivedAt": "2026-09-29T15:16:26.776Z",
+          "source": "ECB reference fixing"
+        }
+      ],
+      "why": "Required current inputs certified by the existing coverage rules.",
+      "category": "A",
+      "free": "Yes, already live",
+      "technical": "Complete",
+      "premium": "No",
+      "best": "ECB reference fixing",
+      "integrated": "Yes / v21 genuine Cron",
+      "missing": "None",
+      "next": "Keep regular Cron running"
+    },
+    {
+      "currency": "NZD",
+      "factor": "commodities",
+      "requirements": [
+        "official exposure basket",
+        "specified Core score mapping"
+      ],
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "inputs": [],
+      "why": "Only carried normalized factor; no approved basket-to-Core transformation.",
+      "category": "B",
+      "free": "Official baskets exist, but mapping is undefined",
+      "technical": "Requires explicit Core specification, not arbitrary coding",
+      "premium": "No",
+      "best": "Stats NZ export prices / terms of trade",
+      "integrated": "No Commodity Core conversion",
+      "missing": "Explicit currency exposure, FX sign, lag and normalization mapping",
+      "next": "Specify compatible Core mapping without invented weights"
+    }
+  ],
+  "sourceChecks": [
+    {
+      "at": "2026-09-29T15:16:11.196Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/USA/indicator/FP.CPI.TOTL.ZG",
+      "currency": "USD",
+      "metrics": [
+        "inflation"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 51
+    },
+    {
+      "at": "2026-09-29T15:16:11.198Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/USA/indicator/NY.GDP.MKTP.KD.ZG",
+      "currency": "USD",
+      "metrics": [
+        "growth"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 53
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/EMU/indicator/GC.DOD.TOTL.GD.ZS",
+      "currency": "EUR",
+      "metrics": [
+        "debt"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/GBR/indicator/NY.GDP.MKTP.KD.ZG",
+      "currency": "GBP",
+      "metrics": [
+        "growth"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/GBR/indicator/SL.UEM.TOTL.ZS",
+      "currency": "GBP",
+      "metrics": [
+        "unemployment"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/GBR/indicator/BN.CAB.XOKA.GD.ZS",
+      "currency": "GBP",
+      "metrics": [
+        "currentAccount"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/GBR/indicator/GC.DOD.TOTL.GD.ZS",
+      "currency": "GBP",
+      "metrics": [
+        "debt"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/JPN/indicator/FP.CPI.TOTL.ZG",
+      "currency": "JPY",
+      "metrics": [
+        "inflation"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/JPN/indicator/NY.GDP.MKTP.KD.ZG",
+      "currency": "JPY",
+      "metrics": [
+        "growth"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/JPN/indicator/SL.UEM.TOTL.ZS",
+      "currency": "JPY",
+      "metrics": [
+        "unemployment"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/JPN/indicator/BN.CAB.XOKA.GD.ZS",
+      "currency": "JPY",
+      "metrics": [
+        "currentAccount"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/JPN/indicator/GC.DOD.TOTL.GD.ZS",
+      "currency": "JPY",
+      "metrics": [
+        "debt"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:11.213Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/EMU/indicator/NY.GDP.MKTP.KD.ZG",
+      "currency": "EUR",
+      "metrics": [
+        "growth"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 68
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/CHE/indicator/FP.CPI.TOTL.ZG",
+      "currency": "CHF",
+      "metrics": [
+        "inflation"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/CHE/indicator/NY.GDP.MKTP.KD.ZG",
+      "currency": "CHF",
+      "metrics": [
+        "growth"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/CHE/indicator/SL.UEM.TOTL.ZS",
+      "currency": "CHF",
+      "metrics": [
+        "unemployment"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/CHE/indicator/BN.CAB.XOKA.GD.ZS",
+      "currency": "CHF",
+      "metrics": [
+        "currentAccount"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/CHE/indicator/GC.DOD.TOTL.GD.ZS",
+      "currency": "CHF",
+      "metrics": [
+        "debt"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/CAN/indicator/FP.CPI.TOTL.ZG",
+      "currency": "CAD",
+      "metrics": [
+        "inflation"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/CAN/indicator/NY.GDP.MKTP.KD.ZG",
+      "currency": "CAD",
+      "metrics": [
+        "growth"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/CAN/indicator/SL.UEM.TOTL.ZS",
+      "currency": "CAD",
+      "metrics": [
+        "unemployment"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/CAN/indicator/BN.CAB.XOKA.GD.ZS",
+      "currency": "CAD",
+      "metrics": [
+        "currentAccount"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/CAN/indicator/GC.DOD.TOTL.GD.ZS",
+      "currency": "CAD",
+      "metrics": [
+        "debt"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:11.423Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/EMU/indicator/SL.UEM.TOTL.ZS",
+      "currency": "EUR",
+      "metrics": [
+        "unemployment"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 278
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/AUS/indicator/FP.CPI.TOTL.ZG",
+      "currency": "AUD",
+      "metrics": [
+        "inflation"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/AUS/indicator/NY.GDP.MKTP.KD.ZG",
+      "currency": "AUD",
+      "metrics": [
+        "growth"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/AUS/indicator/SL.UEM.TOTL.ZS",
+      "currency": "AUD",
+      "metrics": [
+        "unemployment"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/AUS/indicator/BN.CAB.XOKA.GD.ZS",
+      "currency": "AUD",
+      "metrics": [
+        "currentAccount"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/AUS/indicator/GC.DOD.TOTL.GD.ZS",
+      "currency": "AUD",
+      "metrics": [
+        "debt"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/NZL/indicator/FP.CPI.TOTL.ZG",
+      "currency": "NZD",
+      "metrics": [
+        "inflation"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/NZL/indicator/NY.GDP.MKTP.KD.ZG",
+      "currency": "NZD",
+      "metrics": [
+        "growth"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/NZL/indicator/SL.UEM.TOTL.ZS",
+      "currency": "NZD",
+      "metrics": [
+        "unemployment"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/NZL/indicator/BN.CAB.XOKA.GD.ZS",
+      "currency": "NZD",
+      "metrics": [
+        "currentAccount"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:23.148Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/NZL/indicator/GC.DOD.TOTL.GD.ZS",
+      "currency": "NZD",
+      "metrics": [
+        "debt"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12003
+    },
+    {
+      "at": "2026-09-29T15:16:11.472Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/USA/indicator/SL.UEM.TOTL.ZS",
+      "currency": "USD",
+      "metrics": [
+        "unemployment"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 327
+    },
+    {
+      "at": "2026-09-29T15:16:23.180Z",
+      "source": "Japan Ministry of Finance yields",
+      "url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/jgbcme.csv",
+      "currency": "JPY",
+      "metrics": [
+        "yield2y",
+        "yield10y",
+        "alt.rates.curve.v1"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 32
+    },
+    {
+      "at": "2026-09-29T15:16:23.641Z",
+      "source": "New York Fed GSCPI",
+      "url": "https://www.newyorkfed.org/medialibrary/research/interactives/data/gscpi/gscpi_interactive_data.csv",
+      "currency": "GLOBAL",
+      "metrics": [
+        "alt.global.supply.pressure.v1"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 493
+    },
+    {
+      "at": "2026-09-29T15:16:23.943Z",
+      "source": "ECB historical calendar context",
+      "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml",
+      "currency": "ALL",
+      "metrics": [
+        "seasonality"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 795
+    },
+    {
+      "at": "2026-09-29T15:16:23.952Z",
+      "source": "Bank of Canada benchmark yields",
+      "url": "https://www.bankofcanada.ca/valet/observations/BD.CDN.2YR.DQ.YLD,BD.CDN.10YR.DQ.YLD/json?recent=30",
+      "currency": "CAD",
+      "metrics": [
+        "yield2y",
+        "yield10y",
+        "alt.rates.curve.v1"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 804
+    },
+    {
+      "at": "2026-09-29T15:16:23.955Z",
+      "source": "BIS policy rates",
+      "url": "https://stats.bis.org/api/v2/data/dataflow/BIS/WS_CBPOL/1.0/D.XM+GB+JP+CH+CA+AU+NZ?startPeriod=2026-08-15&format=csv",
+      "currency": "ALL",
+      "metrics": [
+        "rate"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 807
+    },
+    {
+      "at": "2026-09-29T15:16:24.171Z",
+      "source": "World Bank energy statistics",
+      "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/EG.USE.ELEC.KH.PC?source=2&format=json&per_page=120&mrv=5",
+      "currency": "ALL",
+      "metrics": [
+        "alt.activity.electricity.change.v1"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 1023
+    },
+    {
+      "at": "2026-09-29T15:16:24.509Z",
+      "source": "RBA export commodity baskets",
+      "url": "https://www.rba.gov.au/statistics/tables/csv/i2-data.csv",
+      "currency": "AUD",
+      "metrics": [
+        "alt.commodity.basket.all.v1",
+        "alt.commodity.basket.rural.v1",
+        "alt.commodity.basket.metals.v1",
+        "alt.commodity.basket.bulk.v1"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 1361
+    },
+    {
+      "at": "2026-09-29T15:16:24.646Z",
+      "source": "FRED alternative proxies",
+      "url": "https://fred.stlouisfed.org/series/DCOILWTICO",
+      "currency": "GLOBAL",
+      "metrics": [
+        "alt.global.energy.wti.v1"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 1498
+    },
+    {
+      "at": "2026-09-29T15:16:24.650Z",
+      "source": "FRED alternative proxies",
+      "url": "https://fred.stlouisfed.org/series/DCOILBRENTEU",
+      "currency": "GLOBAL",
+      "metrics": [
+        "alt.global.energy.brent.v1"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 1502
+    },
+    {
+      "at": "2026-09-29T15:16:24.747Z",
+      "source": "RBA government bond yields",
+      "url": "https://www.rba.gov.au/statistics/tables/csv/f2-data.csv",
+      "currency": "AUD",
+      "metrics": [
+        "yield2y",
+        "yield10y",
+        "alt.rates.curve.v1"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 1599
+    },
+    {
+      "at": "2026-09-29T15:16:11.496Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/GBR/indicator/FP.CPI.TOTL.ZG",
+      "currency": "GBP",
+      "metrics": [
+        "inflation"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 351
+    },
+    {
+      "at": "2026-09-29T15:16:24.884Z",
+      "source": "FRED alternative proxies",
+      "url": "https://fred.stlouisfed.org/series/STLFSI4",
+      "currency": "GLOBAL",
+      "metrics": [
+        "alt.global.funding.stress.v1"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 1736
+    },
+    {
+      "at": "2026-09-29T15:16:24.920Z",
+      "source": "FRED alternative proxies",
+      "url": "https://fred.stlouisfed.org/series/ICSA",
+      "currency": "USD",
+      "metrics": [
+        "alt.us.labor.claims.v1"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 1772
+    },
+    {
+      "at": "2026-09-29T15:16:25.425Z",
+      "source": "FRED alternative proxies",
+      "url": "https://fred.stlouisfed.org/series/NFCI",
+      "currency": "GLOBAL",
+      "metrics": [
+        "alt.global.funding.conditions.v1"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 2277
+    },
+    {
+      "at": "2026-09-29T15:16:25.480Z",
+      "source": "FRED alternative proxies",
+      "url": "https://fred.stlouisfed.org/series/RSAFS",
+      "currency": "USD",
+      "metrics": [
+        "alt.us.consumption.retail.v1"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 2332
+    },
+    {
+      "at": "2026-09-29T15:16:25.530Z",
+      "source": "CFTC Legacy futures only",
+      "url": "https://publicreporting.cftc.gov/resource/6dca-aqww.json?%24select=market_and_exchange_names%2Ccftc_contract_market_code%2Creport_date_as_yyyy_mm_dd%2Copen_interest_all%2Cnoncomm_positions_long_all%2Cnoncomm_positions_short_all&%24where=cftc_contract_market_code+in%28%27112741%27%2C%27232741%27%2C%27099741%27%2C%27096742%27%2C%27097741%27%2C%27092741%27%2C%27090741%27%2C%27098662%27%29&%24order=report_date_as_yyyy_mm_dd+DESC&%24limit=40",
+      "currency": "ALL",
+      "metrics": [
+        "cot",
+        "alt.cot.net.v1",
+        "alt.cot.change.v1",
+        "alt.cot.acceleration.v1"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 2382
+    },
+    {
+      "at": "2026-09-29T15:16:25.685Z",
+      "source": "FRED alternative proxies",
+      "url": "https://fred.stlouisfed.org/series/DHHNGSP",
+      "currency": "GLOBAL",
+      "metrics": [
+        "alt.global.energy.gas.v1"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 2537
+    },
+    {
+      "at": "2026-09-29T15:16:25.711Z",
+      "source": "FRED",
+      "url": "https://fred.stlouisfed.org/series/DFF",
+      "currency": "USD",
+      "metrics": [
+        "rate"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 2563
+    },
+    {
+      "at": "2026-09-29T15:16:25.813Z",
+      "source": "FRED",
+      "url": "https://fred.stlouisfed.org/series/DGS2",
+      "currency": "USD",
+      "metrics": [
+        "yield2y"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 2665
+    },
+    {
+      "at": "2026-09-29T15:16:25.940Z",
+      "source": "FRED",
+      "url": "https://fred.stlouisfed.org/series/DGS10",
+      "currency": "USD",
+      "metrics": [
+        "yield10y"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 2792
+    },
+    {
+      "at": "2026-09-29T15:16:26.172Z",
+      "source": "FRED",
+      "url": "https://fred.stlouisfed.org/series/VIXCLS",
+      "currency": "GLOBAL",
+      "metrics": [
+        "vix"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 232
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/USA/indicator/BN.CAB.XOKA.GD.ZS",
+      "currency": "USD",
+      "metrics": [
+        "currentAccount"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:26.347Z",
+      "source": "Alpha Vantage",
+      "url": "https://www.alphavantage.co/documentation/#fx-daily",
+      "currency": "EUR",
+      "metrics": [
+        "momentum",
+        "fxCloseUsd"
+      ],
+      "status": "FAILED",
+      "cause": "PREMIUM_REQUIRED",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 175
+    },
+    {
+      "at": "2026-09-29T15:16:26.347Z",
+      "source": "Alpha Vantage",
+      "url": "https://www.alphavantage.co/documentation/#fx-daily",
+      "currency": "GBP",
+      "metrics": [
+        "momentum",
+        "fxCloseUsd"
+      ],
+      "status": "FAILED",
+      "cause": "PREMIUM_REQUIRED",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 175
+    },
+    {
+      "at": "2026-09-29T15:16:26.348Z",
+      "source": "Alpha Vantage",
+      "url": "https://www.alphavantage.co/documentation/#fx-daily",
+      "currency": "JPY",
+      "metrics": [
+        "momentum",
+        "fxCloseUsd"
+      ],
+      "status": "FAILED",
+      "cause": "PREMIUM_REQUIRED",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 176
+    },
+    {
+      "at": "2026-09-29T15:16:26.517Z",
+      "source": "Alpha Vantage",
+      "url": "https://www.alphavantage.co/documentation/#fx-daily",
+      "currency": "CAD",
+      "metrics": [
+        "momentum",
+        "fxCloseUsd"
+      ],
+      "status": "FAILED",
+      "cause": "PREMIUM_REQUIRED",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 345
+    },
+    {
+      "at": "2026-09-29T15:16:26.518Z",
+      "source": "Alpha Vantage",
+      "url": "https://www.alphavantage.co/documentation/#fx-daily",
+      "currency": "AUD",
+      "metrics": [
+        "momentum",
+        "fxCloseUsd"
+      ],
+      "status": "FAILED",
+      "cause": "PREMIUM_REQUIRED",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 346
+    },
+    {
+      "at": "2026-09-29T15:16:26.518Z",
+      "source": "Alpha Vantage",
+      "url": "https://www.alphavantage.co/documentation/#fx-daily",
+      "currency": "CHF",
+      "metrics": [
+        "momentum",
+        "fxCloseUsd"
+      ],
+      "status": "FAILED",
+      "cause": "PREMIUM_REQUIRED",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 346
+    },
+    {
+      "at": "2026-09-29T15:16:26.686Z",
+      "source": "Alpha Vantage",
+      "url": "https://www.alphavantage.co/documentation/#fx-daily",
+      "currency": "NZD",
+      "metrics": [
+        "momentum",
+        "fxCloseUsd"
+      ],
+      "status": "FAILED",
+      "cause": "PREMIUM_REQUIRED",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 514
+    },
+    {
+      "at": "2026-09-29T15:16:26.776Z",
+      "source": "ECB reference fixing",
+      "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml",
+      "currency": "ALL",
+      "metrics": [
+        "fxReferenceUsd",
+        "momentum"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 90
+    },
+    {
+      "at": "2026-09-29T15:16:26.794Z",
+      "source": "Federal Reserve · Speeches",
+      "url": "https://www.federalreserve.gov/feeds/speeches.xml",
+      "currency": "USD",
+      "metrics": [
+        "nlpSentiment"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 18
+    },
+    {
+      "at": "2026-09-29T15:16:26.864Z",
+      "source": "European Central Bank",
+      "url": "https://www.ecb.europa.eu/rss/press.html",
+      "currency": "EUR",
+      "metrics": [
+        "nlpSentiment"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 88
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/USA/indicator/GC.DOD.TOTL.GD.ZS",
+      "currency": "USD",
+      "metrics": [
+        "debt"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:26.967Z",
+      "source": "ECB AAA sovereign par yields",
+      "url": "https://data-api.ecb.europa.eu/service/data/YC/B.U2.EUR.4F.G_N_A.SV_C_YM.PY_2Y+PY_10Y?lastNObservations=30&format=csvdata",
+      "currency": "EUR",
+      "metrics": [
+        "yield2y",
+        "yield10y",
+        "alt.rates.curve.v1"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 3819
+    },
+    {
+      "at": "2026-09-29T15:16:26.972Z",
+      "source": "Federal Reserve · Monetary Policy",
+      "url": "https://www.federalreserve.gov/feeds/press_monetary.xml",
+      "currency": "USD",
+      "metrics": [
+        "nlpSentiment"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 196
+    },
+    {
+      "at": "2026-09-29T15:16:26.992Z",
+      "source": "Reserve Bank of Australia · Releases",
+      "url": "https://www.rba.gov.au/rss/rss-cb-media-releases.xml",
+      "currency": "AUD",
+      "metrics": [
+        "nlpSentiment"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 216
+    },
+    {
+      "at": "2026-09-29T15:16:26.996Z",
+      "source": "Reserve Bank of Australia · Speeches",
+      "url": "https://www.rba.gov.au/rss/rss-cb-speeches.xml",
+      "currency": "AUD",
+      "metrics": [
+        "nlpSentiment"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 220
+    },
+    {
+      "at": "2026-09-29T15:16:27.343Z",
+      "source": "Bank of England",
+      "url": "https://www.bankofengland.co.uk/rss/speeches",
+      "currency": "GBP",
+      "metrics": [
+        "nlpSentiment"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 567
+    },
+    {
+      "at": "2026-09-29T15:16:28.232Z",
+      "source": "Bank of Canada · Speeches",
+      "url": "https://www.bankofcanada.ca/content_type/speeches/feed/",
+      "currency": "CAD",
+      "metrics": [
+        "nlpSentiment"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 1456
+    },
+    {
+      "at": "2026-09-29T15:16:29.107Z",
+      "source": "Swiss National Bank · Speeches",
+      "url": "https://www.snb.ch/public/rss/en/speeches",
+      "currency": "CHF",
+      "metrics": [
+        "nlpSentiment"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 2331
+    },
+    {
+      "at": "2026-09-29T15:16:29.713Z",
+      "source": "UNCTAD via World Bank",
+      "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/IS.SHP.GOOD.TU?source=2&format=json&per_page=120&mrv=5",
+      "currency": "ALL",
+      "metrics": [
+        "alt.supply.container.change.v1"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 6565
+    },
+    {
+      "at": "2026-09-29T15:16:29.715Z",
+      "source": "UNODC via World Bank",
+      "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/VC.IHR.PSRC.P5?source=2&format=json&per_page=120&mrv=5",
+      "currency": "ALL",
+      "metrics": [
+        "alt.safety.homicide.change.v1"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 6567
+    },
+    {
+      "at": "2026-09-29T15:16:29.715Z",
+      "source": "UNODC via World Bank",
+      "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/VC.IHR.PSRC.P5?source=2&format=json&per_page=120&mrv=5",
+      "currency": "EUR",
+      "metrics": [
+        "alt.safety.homicide.change.v1"
+      ],
+      "status": "MISSING",
+      "cause": "NO_VALID_OBSERVATIONS",
+      "fallback": "No research contribution",
+      "latencyMs": 0
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/EMU/indicator/FP.CPI.TOTL.ZG",
+      "currency": "EUR",
+      "metrics": [
+        "inflation"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    },
+    {
+      "at": "2026-09-29T15:16:29.715Z",
+      "source": "UNODC via World Bank",
+      "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/VC.IHR.PSRC.P5?source=2&format=json&per_page=120&mrv=5",
+      "currency": "GBP",
+      "metrics": [
+        "alt.safety.homicide.change.v1"
+      ],
+      "status": "MISSING",
+      "cause": "STALE_OR_INSUFFICIENT_HISTORY",
+      "fallback": "No research contribution",
+      "latencyMs": 0
+    },
+    {
+      "at": "2026-09-29T15:16:29.715Z",
+      "source": "UNODC via World Bank",
+      "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/VC.IHR.PSRC.P5?source=2&format=json&per_page=120&mrv=5",
+      "currency": "NZD",
+      "metrics": [
+        "alt.safety.homicide.change.v1"
+      ],
+      "status": "MISSING",
+      "cause": "STALE_OR_INSUFFICIENT_HISTORY",
+      "fallback": "No research contribution",
+      "latencyMs": 0
+    },
+    {
+      "at": "2026-09-29T15:16:29.715Z",
+      "source": "UNCTAD via World Bank",
+      "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/IS.SHP.GOOD.TU?source=2&format=json&per_page=120&mrv=5",
+      "currency": "CHF",
+      "metrics": [
+        "alt.supply.container.change.v1"
+      ],
+      "status": "MISSING",
+      "cause": "STALE_OR_INSUFFICIENT_HISTORY",
+      "fallback": "No research contribution",
+      "latencyMs": 0
+    },
+    {
+      "at": "2026-09-29T15:16:30.068Z",
+      "source": "World Bank metadata",
+      "url": "https://api.worldbank.org/v2/indicator?source=2&format=json&per_page=100&page=9",
+      "currency": "ALL",
+      "metrics": [
+        "proxy.catalog"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 234
+    },
+    {
+      "at": "2026-09-29T15:16:30.988Z",
+      "source": "World Bank proxies",
+      "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;CHE;CAN;AUS;NZL;JPN/indicator/SE.LPV.PRIM.SD?source=2&format=json&per_page=200&mrv=3",
+      "currency": "ALL",
+      "metrics": [
+        "alt.proxy.SE.LPV.PRIM.SD.cd6d50e70d04bb5b"
+      ],
+      "status": "FAILED",
+      "cause": "NO_VALID_OBSERVATIONS",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 628
+    },
+    {
+      "at": "2026-09-29T15:16:31.000Z",
+      "source": "World Bank proxies",
+      "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;CHE;CAN;AUS;NZL;JPN/indicator/NY.ADJ.NNTY.KD.ZG?source=2&format=json&per_page=200&mrv=3",
+      "currency": "ALL",
+      "metrics": [
+        "alt.proxy.NY.ADJ.NNTY.KD.ZG.b7224c7166a0676c"
+      ],
+      "status": "FAILED",
+      "cause": "NO_VALID_OBSERVATIONS",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 645
+    },
+    {
+      "at": "2026-09-29T15:16:31.035Z",
+      "source": "World Bank proxies",
+      "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;CHE;CAN;AUS;NZL;JPN/indicator/NE.CON.TOTL.KD.ZG?source=2&format=json&per_page=200&mrv=3",
+      "currency": "ALL",
+      "metrics": [
+        "proxy.NE.CON.TOTL.KD.ZG.f0fe82dfd8660ec3"
+      ],
+      "status": "FAILED",
+      "cause": "NO_VALID_OBSERVATIONS",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 674
+    },
+    {
+      "at": "2026-09-29T15:16:23.145Z",
+      "source": "World Bank Open Data",
+      "url": "https://api.worldbank.org/v2/country/EMU/indicator/BN.CAB.XOKA.GD.ZS",
+      "currency": "EUR",
+      "metrics": [
+        "currentAccount"
+      ],
+      "status": "FAILED",
+      "cause": "SOURCE_NETWORK_OR_FORMAT_ERROR",
+      "fallback": "last archived input; adaptive use disabled for unavailable input",
+      "latencyMs": 12000
+    }
+  ],
+  "publicAdapterProbe": {
+    "at": "2026-09-29T20:05:25.682Z",
+    "classification": "READ_ONLY_SOURCE_PROBE_NOT_PRODUCTION",
+    "validRows": [
+      {
+        "currency": "USD",
+        "metric": "inflation",
+        "value": 2.94952520485207,
+        "period": "2024",
+        "receivedAt": "2026-09-29T20:05:25.678Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/USA/indicator/FP.CPI.TOTL.ZG",
+        "unit": "annual percent",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Consumer price inflation, annual percent; not monthly CPI or a latest-month YoY observation.",
+        "lineage": [
+          "WorldBank:FP.CPI.TOTL.ZG:USA"
+        ]
+      },
+      {
+        "currency": "EUR",
+        "metric": "inflation",
+        "value": 2.46705543774613,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.678Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/EMU/indicator/FP.CPI.TOTL.ZG",
+        "unit": "annual percent",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Consumer price inflation, annual percent; not monthly CPI or a latest-month YoY observation.",
+        "lineage": [
+          "WorldBank:FP.CPI.TOTL.ZG:EMU"
+        ]
+      },
+      {
+        "currency": "GBP",
+        "metric": "inflation",
+        "value": 3.88306881626,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.678Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/GBR/indicator/FP.CPI.TOTL.ZG",
+        "unit": "annual percent",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Consumer price inflation, annual percent; not monthly CPI or a latest-month YoY observation.",
+        "lineage": [
+          "WorldBank:FP.CPI.TOTL.ZG:GBR"
+        ]
+      },
+      {
+        "currency": "JPY",
+        "metric": "inflation",
+        "value": 3.17253034260248,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.678Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/JPN/indicator/FP.CPI.TOTL.ZG",
+        "unit": "annual percent",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Consumer price inflation, annual percent; not monthly CPI or a latest-month YoY observation.",
+        "lineage": [
+          "WorldBank:FP.CPI.TOTL.ZG:JPN"
+        ]
+      },
+      {
+        "currency": "CHF",
+        "metric": "inflation",
+        "value": 0.154376978290185,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.678Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/CHE/indicator/FP.CPI.TOTL.ZG",
+        "unit": "annual percent",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Consumer price inflation, annual percent; not monthly CPI or a latest-month YoY observation.",
+        "lineage": [
+          "WorldBank:FP.CPI.TOTL.ZG:CHE"
+        ]
+      },
+      {
+        "currency": "CAD",
+        "metric": "inflation",
+        "value": 2.07232411149103,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.678Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/CAN/indicator/FP.CPI.TOTL.ZG",
+        "unit": "annual percent",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Consumer price inflation, annual percent; not monthly CPI or a latest-month YoY observation.",
+        "lineage": [
+          "WorldBank:FP.CPI.TOTL.ZG:CAN"
+        ]
+      },
+      {
+        "currency": "AUD",
+        "metric": "inflation",
+        "value": 2.87403791660173,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.678Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/AUS/indicator/FP.CPI.TOTL.ZG",
+        "unit": "annual percent",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Consumer price inflation, annual percent; not monthly CPI or a latest-month YoY observation.",
+        "lineage": [
+          "WorldBank:FP.CPI.TOTL.ZG:AUS"
+        ]
+      },
+      {
+        "currency": "NZD",
+        "metric": "inflation",
+        "value": 2.8397963180572,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.678Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/NZL/indicator/FP.CPI.TOTL.ZG",
+        "unit": "annual percent",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Consumer price inflation, annual percent; not monthly CPI or a latest-month YoY observation.",
+        "lineage": [
+          "WorldBank:FP.CPI.TOTL.ZG:NZL"
+        ]
+      },
+      {
+        "currency": "USD",
+        "metric": "growth",
+        "value": 2.16138195623856,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.679Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/USA/indicator/NY.GDP.MKTP.KD.ZG",
+        "unit": "annual percent",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "GDP growth, annual percent, constant-price national accounts; not quarterly annualized GDP.",
+        "lineage": [
+          "WorldBank:NY.GDP.MKTP.KD.ZG:USA"
+        ]
+      },
+      {
+        "currency": "EUR",
+        "metric": "growth",
+        "value": 1.41107242318353,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.679Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/EMU/indicator/NY.GDP.MKTP.KD.ZG",
+        "unit": "annual percent",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "GDP growth, annual percent, constant-price national accounts; not quarterly annualized GDP.",
+        "lineage": [
+          "WorldBank:NY.GDP.MKTP.KD.ZG:EMU"
+        ]
+      },
+      {
+        "currency": "GBP",
+        "metric": "growth",
+        "value": 1.38844207858726,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.679Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/GBR/indicator/NY.GDP.MKTP.KD.ZG",
+        "unit": "annual percent",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "GDP growth, annual percent, constant-price national accounts; not quarterly annualized GDP.",
+        "lineage": [
+          "WorldBank:NY.GDP.MKTP.KD.ZG:GBR"
+        ]
+      },
+      {
+        "currency": "JPY",
+        "metric": "growth",
+        "value": 1.19311288444599,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.679Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/JPN/indicator/NY.GDP.MKTP.KD.ZG",
+        "unit": "annual percent",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "GDP growth, annual percent, constant-price national accounts; not quarterly annualized GDP.",
+        "lineage": [
+          "WorldBank:NY.GDP.MKTP.KD.ZG:JPN"
+        ]
+      },
+      {
+        "currency": "CHF",
+        "metric": "growth",
+        "value": 1.30007790958307,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.679Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/CHE/indicator/NY.GDP.MKTP.KD.ZG",
+        "unit": "annual percent",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "GDP growth, annual percent, constant-price national accounts; not quarterly annualized GDP.",
+        "lineage": [
+          "WorldBank:NY.GDP.MKTP.KD.ZG:CHE"
+        ]
+      },
+      {
+        "currency": "CAD",
+        "metric": "growth",
+        "value": 1.74268536175708,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.679Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/CAN/indicator/NY.GDP.MKTP.KD.ZG",
+        "unit": "annual percent",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "GDP growth, annual percent, constant-price national accounts; not quarterly annualized GDP.",
+        "lineage": [
+          "WorldBank:NY.GDP.MKTP.KD.ZG:CAN"
+        ]
+      },
+      {
+        "currency": "AUD",
+        "metric": "growth",
+        "value": 1.35039785076631,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.679Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/AUS/indicator/NY.GDP.MKTP.KD.ZG",
+        "unit": "annual percent",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "GDP growth, annual percent, constant-price national accounts; not quarterly annualized GDP.",
+        "lineage": [
+          "WorldBank:NY.GDP.MKTP.KD.ZG:AUS"
+        ]
+      },
+      {
+        "currency": "NZD",
+        "metric": "growth",
+        "value": 0.462871830681081,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.679Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/NZL/indicator/NY.GDP.MKTP.KD.ZG",
+        "unit": "annual percent",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "GDP growth, annual percent, constant-price national accounts; not quarterly annualized GDP.",
+        "lineage": [
+          "WorldBank:NY.GDP.MKTP.KD.ZG:NZL"
+        ]
+      },
+      {
+        "currency": "USD",
+        "metric": "unemployment",
+        "value": 4.198,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.681Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/USA/indicator/SL.UEM.TOTL.ZS",
+        "unit": "percent of total labor force",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Unemployment as percent of total labor force, annual modeled ILO estimate.",
+        "lineage": [
+          "WorldBank:SL.UEM.TOTL.ZS:USA"
+        ]
+      },
+      {
+        "currency": "EUR",
+        "metric": "unemployment",
+        "value": 6.28355946264135,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.681Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/EMU/indicator/SL.UEM.TOTL.ZS",
+        "unit": "percent of total labor force",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Unemployment as percent of total labor force, annual modeled ILO estimate.",
+        "lineage": [
+          "WorldBank:SL.UEM.TOTL.ZS:EMU"
+        ]
+      },
+      {
+        "currency": "GBP",
+        "metric": "unemployment",
+        "value": 4.746,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.681Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/GBR/indicator/SL.UEM.TOTL.ZS",
+        "unit": "percent of total labor force",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Unemployment as percent of total labor force, annual modeled ILO estimate.",
+        "lineage": [
+          "WorldBank:SL.UEM.TOTL.ZS:GBR"
+        ]
+      },
+      {
+        "currency": "JPY",
+        "metric": "unemployment",
+        "value": 2.451,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.681Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/JPN/indicator/SL.UEM.TOTL.ZS",
+        "unit": "percent of total labor force",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Unemployment as percent of total labor force, annual modeled ILO estimate.",
+        "lineage": [
+          "WorldBank:SL.UEM.TOTL.ZS:JPN"
+        ]
+      },
+      {
+        "currency": "CHF",
+        "metric": "unemployment",
+        "value": 4.873,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.681Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/CHE/indicator/SL.UEM.TOTL.ZS",
+        "unit": "percent of total labor force",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Unemployment as percent of total labor force, annual modeled ILO estimate.",
+        "lineage": [
+          "WorldBank:SL.UEM.TOTL.ZS:CHE"
+        ]
+      },
+      {
+        "currency": "CAD",
+        "metric": "unemployment",
+        "value": 6.907,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.681Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/CAN/indicator/SL.UEM.TOTL.ZS",
+        "unit": "percent of total labor force",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Unemployment as percent of total labor force, annual modeled ILO estimate.",
+        "lineage": [
+          "WorldBank:SL.UEM.TOTL.ZS:CAN"
+        ]
+      },
+      {
+        "currency": "AUD",
+        "metric": "unemployment",
+        "value": 4.09,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.681Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/AUS/indicator/SL.UEM.TOTL.ZS",
+        "unit": "percent of total labor force",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Unemployment as percent of total labor force, annual modeled ILO estimate.",
+        "lineage": [
+          "WorldBank:SL.UEM.TOTL.ZS:AUS"
+        ]
+      },
+      {
+        "currency": "NZD",
+        "metric": "unemployment",
+        "value": 5.076,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.681Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/NZL/indicator/SL.UEM.TOTL.ZS",
+        "unit": "percent of total labor force",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Unemployment as percent of total labor force, annual modeled ILO estimate.",
+        "lineage": [
+          "WorldBank:SL.UEM.TOTL.ZS:NZL"
+        ]
+      },
+      {
+        "currency": "USD",
+        "metric": "currentAccount",
+        "value": -3.62698693844919,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.659Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/USA/indicator/BN.CAB.XOKA.GD.ZS",
+        "unit": "percent of GDP",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Current account balance as percent of GDP, annual; World Bank country/EMU definition.",
+        "lineage": [
+          "WorldBank:BN.CAB.XOKA.GD.ZS:USA"
+        ]
+      },
+      {
+        "currency": "GBP",
+        "metric": "currentAccount",
+        "value": -2.42693271936225,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.659Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/GBR/indicator/BN.CAB.XOKA.GD.ZS",
+        "unit": "percent of GDP",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Current account balance as percent of GDP, annual; World Bank country/EMU definition.",
+        "lineage": [
+          "WorldBank:BN.CAB.XOKA.GD.ZS:GBR"
+        ]
+      },
+      {
+        "currency": "JPY",
+        "metric": "currentAccount",
+        "value": 4.86496093471918,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.659Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/JPN/indicator/BN.CAB.XOKA.GD.ZS",
+        "unit": "percent of GDP",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Current account balance as percent of GDP, annual; World Bank country/EMU definition.",
+        "lineage": [
+          "WorldBank:BN.CAB.XOKA.GD.ZS:JPN"
+        ]
+      },
+      {
+        "currency": "CHF",
+        "metric": "currentAccount",
+        "value": 6.98382706222827,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.659Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/CHE/indicator/BN.CAB.XOKA.GD.ZS",
+        "unit": "percent of GDP",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Current account balance as percent of GDP, annual; World Bank country/EMU definition.",
+        "lineage": [
+          "WorldBank:BN.CAB.XOKA.GD.ZS:CHE"
+        ]
+      },
+      {
+        "currency": "CAD",
+        "metric": "currentAccount",
+        "value": -0.948637766653122,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.659Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/CAN/indicator/BN.CAB.XOKA.GD.ZS",
+        "unit": "percent of GDP",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Current account balance as percent of GDP, annual; World Bank country/EMU definition.",
+        "lineage": [
+          "WorldBank:BN.CAB.XOKA.GD.ZS:CAN"
+        ]
+      },
+      {
+        "currency": "AUD",
+        "metric": "currentAccount",
+        "value": -2.68119524894682,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.659Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/AUS/indicator/BN.CAB.XOKA.GD.ZS",
+        "unit": "percent of GDP",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Current account balance as percent of GDP, annual; World Bank country/EMU definition.",
+        "lineage": [
+          "WorldBank:BN.CAB.XOKA.GD.ZS:AUS"
+        ]
+      },
+      {
+        "currency": "NZD",
+        "metric": "currentAccount",
+        "value": -3.61936128781643,
+        "period": "2025",
+        "receivedAt": "2026-09-29T20:05:25.659Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/NZL/indicator/BN.CAB.XOKA.GD.ZS",
+        "unit": "percent of GDP",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Current account balance as percent of GDP, annual; World Bank country/EMU definition.",
+        "lineage": [
+          "WorldBank:BN.CAB.XOKA.GD.ZS:NZL"
+        ]
+      },
+      {
+        "currency": "USD",
+        "metric": "debt",
+        "value": 115.768352618316,
+        "period": "2024",
+        "receivedAt": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/USA/indicator/GC.DOD.TOTL.GD.ZS",
+        "unit": "percent of GDP",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Central government total debt as percent of GDP, annual; not general-government gross debt.",
+        "lineage": [
+          "WorldBank:GC.DOD.TOTL.GD.ZS:USA"
+        ]
+      },
+      {
+        "currency": "GBP",
+        "metric": "debt",
+        "value": 130.735888365813,
+        "period": "2024",
+        "receivedAt": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/GBR/indicator/GC.DOD.TOTL.GD.ZS",
+        "unit": "percent of GDP",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Central government total debt as percent of GDP, annual; not general-government gross debt.",
+        "lineage": [
+          "WorldBank:GC.DOD.TOTL.GD.ZS:GBR"
+        ]
+      },
+      {
+        "currency": "CHF",
+        "metric": "debt",
+        "value": 22.2786942016816,
+        "period": "2024",
+        "receivedAt": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/CHE/indicator/GC.DOD.TOTL.GD.ZS",
+        "unit": "percent of GDP",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Central government total debt as percent of GDP, annual; not general-government gross debt.",
+        "lineage": [
+          "WorldBank:GC.DOD.TOTL.GD.ZS:CHE"
+        ]
+      },
+      {
+        "currency": "CAD",
+        "metric": "debt",
+        "value": 64.1314232901439,
+        "period": "2024",
+        "receivedAt": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/CAN/indicator/GC.DOD.TOTL.GD.ZS",
+        "unit": "percent of GDP",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Central government total debt as percent of GDP, annual; not general-government gross debt.",
+        "lineage": [
+          "WorldBank:GC.DOD.TOTL.GD.ZS:CAN"
+        ]
+      },
+      {
+        "currency": "NZD",
+        "metric": "debt",
+        "value": 51.9851333336419,
+        "period": "2024",
+        "receivedAt": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "sourceUrl": "https://api.worldbank.org/v2/country/NZL/indicator/GC.DOD.TOTL.GD.ZS",
+        "unit": "percent of GDP",
+        "frequency": "annual",
+        "releaseDate": null,
+        "quality": "VALID",
+        "definition": "Central government total debt as percent of GDP, annual; not general-government gross debt.",
+        "lineage": [
+          "WorldBank:GC.DOD.TOTL.GD.ZS:NZL"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "at": "2026-09-29T20:05:25.664Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/BN.CAB.XOKA.GD.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "USD",
+        "metrics": [
+          "currentAccount"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11670
+      },
+      {
+        "at": "2026-09-29T20:05:25.664Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/BN.CAB.XOKA.GD.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "EUR",
+        "metrics": [
+          "currentAccount"
+        ],
+        "status": "FAILED",
+        "cause": "NO_VALID_OBSERVATIONS",
+        "fallback": "last archived input; adaptive use disabled for unavailable input",
+        "latencyMs": 11670
+      },
+      {
+        "at": "2026-09-29T20:05:25.664Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/BN.CAB.XOKA.GD.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "GBP",
+        "metrics": [
+          "currentAccount"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11670
+      },
+      {
+        "at": "2026-09-29T20:05:25.664Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/BN.CAB.XOKA.GD.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "JPY",
+        "metrics": [
+          "currentAccount"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11670
+      },
+      {
+        "at": "2026-09-29T20:05:25.664Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/BN.CAB.XOKA.GD.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "CHF",
+        "metrics": [
+          "currentAccount"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11670
+      },
+      {
+        "at": "2026-09-29T20:05:25.664Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/BN.CAB.XOKA.GD.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "CAD",
+        "metrics": [
+          "currentAccount"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11670
+      },
+      {
+        "at": "2026-09-29T20:05:25.664Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/BN.CAB.XOKA.GD.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "AUD",
+        "metrics": [
+          "currentAccount"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11670
+      },
+      {
+        "at": "2026-09-29T20:05:25.664Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/BN.CAB.XOKA.GD.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "NZD",
+        "metrics": [
+          "currentAccount"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11670
+      },
+      {
+        "at": "2026-09-29T20:05:25.678Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/FP.CPI.TOTL.ZG?format=json&source=2&mrv=8&per_page=100",
+        "currency": "USD",
+        "metrics": [
+          "inflation"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11687
+      },
+      {
+        "at": "2026-09-29T20:05:25.678Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/FP.CPI.TOTL.ZG?format=json&source=2&mrv=8&per_page=100",
+        "currency": "EUR",
+        "metrics": [
+          "inflation"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11687
+      },
+      {
+        "at": "2026-09-29T20:05:25.678Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/FP.CPI.TOTL.ZG?format=json&source=2&mrv=8&per_page=100",
+        "currency": "GBP",
+        "metrics": [
+          "inflation"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11687
+      },
+      {
+        "at": "2026-09-29T20:05:25.678Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/FP.CPI.TOTL.ZG?format=json&source=2&mrv=8&per_page=100",
+        "currency": "JPY",
+        "metrics": [
+          "inflation"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11687
+      },
+      {
+        "at": "2026-09-29T20:05:25.678Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/FP.CPI.TOTL.ZG?format=json&source=2&mrv=8&per_page=100",
+        "currency": "CHF",
+        "metrics": [
+          "inflation"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11687
+      },
+      {
+        "at": "2026-09-29T20:05:25.678Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/FP.CPI.TOTL.ZG?format=json&source=2&mrv=8&per_page=100",
+        "currency": "CAD",
+        "metrics": [
+          "inflation"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11687
+      },
+      {
+        "at": "2026-09-29T20:05:25.678Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/FP.CPI.TOTL.ZG?format=json&source=2&mrv=8&per_page=100",
+        "currency": "AUD",
+        "metrics": [
+          "inflation"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11687
+      },
+      {
+        "at": "2026-09-29T20:05:25.678Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/FP.CPI.TOTL.ZG?format=json&source=2&mrv=8&per_page=100",
+        "currency": "NZD",
+        "metrics": [
+          "inflation"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11687
+      },
+      {
+        "at": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/NY.GDP.MKTP.KD.ZG?format=json&source=2&mrv=8&per_page=100",
+        "currency": "USD",
+        "metrics": [
+          "growth"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11688
+      },
+      {
+        "at": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/NY.GDP.MKTP.KD.ZG?format=json&source=2&mrv=8&per_page=100",
+        "currency": "EUR",
+        "metrics": [
+          "growth"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11687
+      },
+      {
+        "at": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/NY.GDP.MKTP.KD.ZG?format=json&source=2&mrv=8&per_page=100",
+        "currency": "GBP",
+        "metrics": [
+          "growth"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11687
+      },
+      {
+        "at": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/NY.GDP.MKTP.KD.ZG?format=json&source=2&mrv=8&per_page=100",
+        "currency": "JPY",
+        "metrics": [
+          "growth"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11687
+      },
+      {
+        "at": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/NY.GDP.MKTP.KD.ZG?format=json&source=2&mrv=8&per_page=100",
+        "currency": "CHF",
+        "metrics": [
+          "growth"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11687
+      },
+      {
+        "at": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/NY.GDP.MKTP.KD.ZG?format=json&source=2&mrv=8&per_page=100",
+        "currency": "CAD",
+        "metrics": [
+          "growth"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11687
+      },
+      {
+        "at": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/NY.GDP.MKTP.KD.ZG?format=json&source=2&mrv=8&per_page=100",
+        "currency": "AUD",
+        "metrics": [
+          "growth"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11687
+      },
+      {
+        "at": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/NY.GDP.MKTP.KD.ZG?format=json&source=2&mrv=8&per_page=100",
+        "currency": "NZD",
+        "metrics": [
+          "growth"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11687
+      },
+      {
+        "at": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/GC.DOD.TOTL.GD.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "USD",
+        "metrics": [
+          "debt"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11683
+      },
+      {
+        "at": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/GC.DOD.TOTL.GD.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "EUR",
+        "metrics": [
+          "debt"
+        ],
+        "status": "FAILED",
+        "cause": "NO_VALID_OBSERVATIONS",
+        "fallback": "last archived input; adaptive use disabled for unavailable input",
+        "latencyMs": 11683
+      },
+      {
+        "at": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/GC.DOD.TOTL.GD.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "GBP",
+        "metrics": [
+          "debt"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11683
+      },
+      {
+        "at": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/GC.DOD.TOTL.GD.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "JPY",
+        "metrics": [
+          "debt"
+        ],
+        "status": "FAILED",
+        "cause": "NO_VALID_OBSERVATIONS",
+        "fallback": "last archived input; adaptive use disabled for unavailable input",
+        "latencyMs": 11683
+      },
+      {
+        "at": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/GC.DOD.TOTL.GD.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "CHF",
+        "metrics": [
+          "debt"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11683
+      },
+      {
+        "at": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/GC.DOD.TOTL.GD.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "CAD",
+        "metrics": [
+          "debt"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11683
+      },
+      {
+        "at": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/GC.DOD.TOTL.GD.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "AUD",
+        "metrics": [
+          "debt"
+        ],
+        "status": "FAILED",
+        "cause": "INVALID_RESPONSE",
+        "fallback": "last archived input; adaptive use disabled for unavailable input",
+        "latencyMs": 11683
+      },
+      {
+        "at": "2026-09-29T20:05:25.680Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/GC.DOD.TOTL.GD.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "NZD",
+        "metrics": [
+          "debt"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11683
+      },
+      {
+        "at": "2026-09-29T20:05:25.681Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/SL.UEM.TOTL.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "USD",
+        "metrics": [
+          "unemployment"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11688
+      },
+      {
+        "at": "2026-09-29T20:05:25.681Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/SL.UEM.TOTL.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "EUR",
+        "metrics": [
+          "unemployment"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11688
+      },
+      {
+        "at": "2026-09-29T20:05:25.681Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/SL.UEM.TOTL.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "GBP",
+        "metrics": [
+          "unemployment"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11688
+      },
+      {
+        "at": "2026-09-29T20:05:25.681Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/SL.UEM.TOTL.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "JPY",
+        "metrics": [
+          "unemployment"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11688
+      },
+      {
+        "at": "2026-09-29T20:05:25.681Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/SL.UEM.TOTL.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "CHF",
+        "metrics": [
+          "unemployment"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11688
+      },
+      {
+        "at": "2026-09-29T20:05:25.681Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/SL.UEM.TOTL.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "CAD",
+        "metrics": [
+          "unemployment"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11688
+      },
+      {
+        "at": "2026-09-29T20:05:25.681Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/SL.UEM.TOTL.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "AUD",
+        "metrics": [
+          "unemployment"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11688
+      },
+      {
+        "at": "2026-09-29T20:05:25.681Z",
+        "source": "World Bank Open Data",
+        "url": "https://api.worldbank.org/v2/country/USA;EMU;GBR;JPN;CHE;CAN;AUS;NZL/indicator/SL.UEM.TOTL.ZS?format=json&source=2&mrv=8&per_page=100",
+        "currency": "NZD",
+        "metrics": [
+          "unemployment"
+        ],
+        "status": "SUCCESS",
+        "cause": null,
+        "fallback": "none",
+        "latencyMs": 11688
+      }
+    ]
+  }
+}

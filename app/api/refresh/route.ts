@@ -15,34 +15,14 @@ import { collectProxies } from '@/worker/proxy-discovery';
 import { collectOfficialInputs, collectMacroProxies } from '@/lib/observed-sources';
 import { collectExpansion, relativeYieldFeatures } from '@/lib/source-expansion';
 import { narrativeObservations } from '@/lib/narrative-features';
+import { collectWorldBankCore } from '@/lib/world-bank-core';
 import { captureProvenance, type ProvenancePayload, type Receipt } from "@/lib/hypothesis/provenance";
-
-const countryMap: Record<CurrencyCode, string> = {
-  USD: "USA", EUR: "EMU", GBP: "GBR", JPY: "JPN", CHF: "CHE", CAD: "CAN", AUD: "AUS", NZD: "NZL",
-};
-
-const indicatorMap = {
-  inflation: "FP.CPI.TOTL.ZG",
-  growth: "NY.GDP.MKTP.KD.ZG",
-  unemployment: "SL.UEM.TOTL.ZS",
-  currentAccount: "BN.CAB.XOKA.GD.ZS",
-  debt: "GC.DOD.TOTL.GD.ZS",
-} as const;
 
 const fredSeries = {
   rate: "DFF",
   yield2y: "DGS2",
   yield10y: "DGS10",
 } as const;
-
-async function latestWorldBank(country: string, indicator: string) {
-  const url = `https://api.worldbank.org/v2/country/${country}/indicator/${indicator}?format=json&per_page=8`;
-  const response = await sourceFetch(url);
-  if (!response.ok) return null;
-  const body = await response.json() as [unknown, { value: number | null; date: string }[]];
-  const row = body?.[1]?.find((item) => typeof item.value === "number" && Number.isFinite(item.value) && item.date<=new Date().toISOString().slice(0,4));
-  return row ? { value: row.value as number, period: row.date, receivedAt: new Date().toISOString(),sourceUrl:`https://api.worldbank.org/v2/country/${country}/indicator/${indicator}` } : null;
-}
 
 async function latestFred(apiKey: string, seriesId: string) {
   const params = new URLSearchParams({
@@ -162,19 +142,14 @@ export async function POST(request: Request) {
     // Use the stable default blend when settings storage is unavailable.
   }
 
-  await Promise.all(payload.currencies.map(async (currency) => {
-    const entries = await Promise.all(Object.entries(indicatorMap).map(async ([metric, indicator]) => {
-      const result = await sourceAttempt(sourceChecks,"World Bank Open Data",`https://api.worldbank.org/v2/country/${countryMap[currency.code]}/indicator/${indicator}`,currency.code,[metric],async()=>validateInput(metric,await latestWorldBank(countryMap[currency.code], indicator)));
-      return [metric, result] as const;
-    }));
-    for (const [metric, result] of entries) {
-      if (!result || observationQuality(metric,result.value,result.period,result.receivedAt)==='INVALID') continue;
-      (currency as unknown as Record<string, unknown>)[metric] = result.value;
-      liveValues += 1;
-      receipts.push({currency:currency.code,metric,value:result.value,period:result.period,source:"World Bank Open Data",sourceUrl:result.sourceUrl,receivedAt:result.receivedAt});
-      observations.push({ currency: currency.code, metric, value: result.value, period: result.period, source: "World Bank Open Data", observedAt: new Date().toISOString() });
-    }
-  }));
+  for (const result of await collectWorldBankCore(sourceChecks)) {
+    const currency = payload.currencies.find(c => c.code === result.currency);
+    if (!currency) continue;
+    (currency as unknown as Record<string, unknown>)[result.metric] = result.value;
+    liveValues += 1;
+    receipts.push(result);
+    observations.push({ currency: currency.code, metric: result.metric, value: result.value, period: result.period, source: result.source, observedAt: result.receivedAt });
+  }
 
   const fredApiKey = (env as unknown as { FRED_API_KEY?: string }).FRED_API_KEY;
   const officialInputs=collectOfficialInputs(sourceChecks,new Date().toISOString());
