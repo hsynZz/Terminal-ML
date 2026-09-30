@@ -1,0 +1,3813 @@
+{
+  "source": "Production D1 read-only; 104 genuine resolved directional outcomes read 2026-09-30; first daily entity/date cluster only; no writes or generated labels",
+  "outcomes": [
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "AUD",
+      "horizon": 1,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-23",
+      "resolvedAt": "2026-09-24T15:15:53.640Z",
+      "label": 0,
+      "forwardReturn": -0.0017432861647277559,
+      "mfe": 0,
+      "mae": -0.0017432861647277559,
+      "volatilityAdjustedReturn": -0.9844035974302177,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.544923648556609,
+      "adaptive": 0.544923648556609,
+      "pricePathDigest": "aaedc422a272e5c910102a6dc418c51a62e0189fa91ef51f0d119e565140c6a0",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.0017432861647277559
+        }
+      ],
+      "digest": "5e848f86b78f87bb9e582c6f69a1f70a073513d658d563ad9cbf3cf5bd51b3c8"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "AUD",
+      "horizon": 1,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-23",
+      "resolvedAt": "2026-09-24T15:15:53.640Z",
+      "label": 0,
+      "forwardReturn": -0.0017432861647277559,
+      "mfe": 0,
+      "mae": -0.0017432861647277559,
+      "volatilityAdjustedReturn": -1.1152994044460611,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5479840119852353,
+      "adaptive": 0.5479840119852353,
+      "pricePathDigest": "aaedc422a272e5c910102a6dc418c51a62e0189fa91ef51f0d119e565140c6a0",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.0017432861647277559
+        }
+      ],
+      "digest": "b8eac87a3d98dc1759e73321e9a2cb987cf1390b846b9ee70a78aacee2c330d4"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "AUD",
+      "horizon": 1,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-24",
+      "resolvedAt": "2026-09-25T15:15:43.959Z",
+      "label": 0,
+      "forwardReturn": -0.002095258000223119,
+      "mfe": 0,
+      "mae": -0.002095258000223119,
+      "volatilityAdjustedReturn": -1.239253873854349,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5403151998382083,
+      "adaptive": 0.5403151998382083,
+      "pricePathDigest": "924dcb4aab65b80fdfce8e5215a7d39c76008343286701b0b803802bb2ce078e",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.002095258000223119
+        }
+      ],
+      "digest": "48422996d6952152e0c5ee7059ab724d2193fbb34f14af8fe4fcb7c094131d37"
+    },
+    {
+      "frameId": "frame:2026-09-23T15:16:03.128Z",
+      "currency": "AUD",
+      "horizon": 1,
+      "asOf": "2026-09-23T15:16:03.128Z",
+      "entryDate": "2026-09-24",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 0,
+      "forwardReturn": -0.0011190652270608675,
+      "mfe": 0,
+      "mae": -0.0011190652270608675,
+      "volatilityAdjustedReturn": -0.6508133168320184,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5511626886275418,
+      "adaptive": 0.5511626886275418,
+      "pricePathDigest": "9f3846b80a19d60c5bef2a35f87db9029a2c2bab529fee83807c2b1cc4fe937e",
+      "pricePath": [
+        {
+          "date": "2026-09-24",
+          "value": 0
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.0011190652270608675
+        }
+      ],
+      "digest": "61c91f09da30f03a546a30d53d00690c85aa4341915909d4009ff7568862c2d8"
+    },
+    {
+      "frameId": "frame:2026-09-24T15:15:53.640Z",
+      "currency": "AUD",
+      "horizon": 1,
+      "asOf": "2026-09-24T15:15:53.640Z",
+      "entryDate": "2026-09-25",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.00046326512566099504,
+      "mfe": 0,
+      "mae": -0.00046326512566099504,
+      "volatilityAdjustedReturn": -0.26596584432508175,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5448917182175828,
+      "adaptive": 0.5448917182175828,
+      "pricePathDigest": "95de1697387e121e1b59a0deaa6e6b7229d10a455f84227d256a9c4e1aae697c",
+      "pricePath": [
+        {
+          "date": "2026-09-25",
+          "value": 0
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.00046326512566099504
+        }
+      ],
+      "digest": "d2d942df0b7b25440028c848570b0964f03ae313debdab46d3deac8ff348597c"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "CAD",
+      "horizon": 1,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-23",
+      "resolvedAt": "2026-09-24T15:15:53.640Z",
+      "label": 1,
+      "forwardReturn": 0.0015195951961283556,
+      "mfe": 0.0015195951961283556,
+      "mae": 0,
+      "volatilityAdjustedReturn": 1.0841173645754807,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.41214358166919896,
+      "adaptive": 0.41214358166919896,
+      "pricePathDigest": "e4012aa0aba57dd1af478cea780c2aaef19b833651d82ee2d10e734246e9c126",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": 0.0015195951961283556
+        }
+      ],
+      "digest": "5e53e5f8c92a3907bb5775ce51d42724de907c669108bc979915462ecd64db1e"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "CAD",
+      "horizon": 1,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-23",
+      "resolvedAt": "2026-09-24T15:15:53.640Z",
+      "label": 1,
+      "forwardReturn": 0.0015195951961283556,
+      "mfe": 0.0015195951961283556,
+      "mae": 0,
+      "volatilityAdjustedReturn": 1.029755298660808,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.413475530176022,
+      "adaptive": 0.413475530176022,
+      "pricePathDigest": "e4012aa0aba57dd1af478cea780c2aaef19b833651d82ee2d10e734246e9c126",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": 0.0015195951961283556
+        }
+      ],
+      "digest": "ccf5574685df8b33f3eb45477068c57bb3a00d96936293ca95cf5a128e13c0e8"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "CAD",
+      "horizon": 1,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-24",
+      "resolvedAt": "2026-09-25T15:15:43.959Z",
+      "label": 1,
+      "forwardReturn": 0.0022314875293006366,
+      "mfe": 0.0022314875293006366,
+      "mae": 0,
+      "volatilityAdjustedReturn": 1.6495978445941772,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.409639148881048,
+      "adaptive": 0.409639148881048,
+      "pricePathDigest": "c1f43c290a688918f6fa04645e4f4272528252b28dafdbebbcce5e99dd6dcd5b",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.0022314875293006366
+        }
+      ],
+      "digest": "621a0c81e7041bc01ac7d96418ce1366fb3c4a2d683aa4de61bfcf0f2ba8aa3e"
+    },
+    {
+      "frameId": "frame:2026-09-23T15:16:03.128Z",
+      "currency": "CAD",
+      "horizon": 1,
+      "asOf": "2026-09-23T15:16:03.128Z",
+      "entryDate": "2026-09-24",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 0,
+      "forwardReturn": -0.0037686668744275815,
+      "mfe": 0,
+      "mae": -0.0037686668744275815,
+      "volatilityAdjustedReturn": -3.2002371434649817,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.39485797682318735,
+      "adaptive": 0.39485797682318735,
+      "pricePathDigest": "e85df51be828559d74b2564e9b42d6db4450a389a1b7bdb96b790166379c59fa",
+      "pricePath": [
+        {
+          "date": "2026-09-24",
+          "value": 0
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.0037686668744275815
+        }
+      ],
+      "digest": "fa91e24f71e6f37d119b4ee20424a99e8e16319de6bebeb4739e6c57623235da"
+    },
+    {
+      "frameId": "frame:2026-09-24T15:15:53.640Z",
+      "currency": "CAD",
+      "horizon": 1,
+      "asOf": "2026-09-24T15:15:53.640Z",
+      "entryDate": "2026-09-25",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.001305905872183433,
+      "mfe": 0,
+      "mae": -0.001305905872183433,
+      "volatilityAdjustedReturn": -1.010627895961772,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.3928270161066072,
+      "adaptive": 0.3928270161066072,
+      "pricePathDigest": "a55e1ec9fa4daecad41d65beea7c757146cc1c2b4fd52cbbcdc29ddd452fb217",
+      "pricePath": [
+        {
+          "date": "2026-09-25",
+          "value": 0
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.001305905872183433
+        }
+      ],
+      "digest": "b0484784779353306032fd7148143daeb4bdd1dc70917439121b515c90963243"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "CHF",
+      "horizon": 1,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-23",
+      "resolvedAt": "2026-09-24T15:15:53.640Z",
+      "label": 1,
+      "forwardReturn": 0.00032183372512538735,
+      "mfe": 0.00032183372512538735,
+      "mae": 0,
+      "volatilityAdjustedReturn": 0.19382503269699583,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5254750949020228,
+      "adaptive": 0.5254750949020228,
+      "pricePathDigest": "1b531f981995d224529708972e90fcdea3954b22e74905d0273ba9caf9ca5e31",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": 0.00032183372512538735
+        }
+      ],
+      "digest": "2445eba7d04ec449b397c7b5e5bad937d32e1a8aaa434ef0fa4033a21b9c4239"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "CHF",
+      "horizon": 1,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-23",
+      "resolvedAt": "2026-09-24T15:15:53.640Z",
+      "label": 1,
+      "forwardReturn": 0.00032183372512538735,
+      "mfe": 0.00032183372512538735,
+      "mae": 0,
+      "volatilityAdjustedReturn": 0.1827643675977397,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5299890231577741,
+      "adaptive": 0.5299890231577741,
+      "pricePathDigest": "1b531f981995d224529708972e90fcdea3954b22e74905d0273ba9caf9ca5e31",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": 0.00032183372512538735
+        }
+      ],
+      "digest": "5ba87fbf075ac628a5afb3e7738ad25575a0a9c2ad0747208c8ca7b4e7605aef"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "CHF",
+      "horizon": 1,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-24",
+      "resolvedAt": "2026-09-25T15:15:43.959Z",
+      "label": 0,
+      "forwardReturn": -0.0022132527770504585,
+      "mfe": 0,
+      "mae": -0.0022132527770504585,
+      "volatilityAdjustedReturn": -1.116605183162436,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5332520545936462,
+      "adaptive": 0.5332520545936462,
+      "pricePathDigest": "cf616e4a604a72d88b54faf3090a185ec814890f55dc7ecbf971e8934354ef30",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0022132527770504585
+        }
+      ],
+      "digest": "a0b8dbfd60af52b20937d92caa75b905f9b9f38fa2246f16d292aead6bbab41c"
+    },
+    {
+      "frameId": "frame:2026-09-23T15:16:03.128Z",
+      "currency": "CHF",
+      "horizon": 1,
+      "asOf": "2026-09-23T15:16:03.128Z",
+      "entryDate": "2026-09-24",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 0,
+      "forwardReturn": -0.0024496419003572816,
+      "mfe": 0,
+      "mae": -0.0024496419003572816,
+      "volatilityAdjustedReturn": -1.3220133569986285,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5040006683124244,
+      "adaptive": 0.5040006683124244,
+      "pricePathDigest": "842a6158b1e32c8b7cdda6ed5423bcd3a00d20504d5aebb889fb0c964d28c089",
+      "pricePath": [
+        {
+          "date": "2026-09-24",
+          "value": 0
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.0024496419003572816
+        }
+      ],
+      "digest": "7443eb48a7d014ba13716bf48b3fcf7e01158ca09984288577573808ac0e5d74"
+    },
+    {
+      "frameId": "frame:2026-09-24T15:15:53.640Z",
+      "currency": "CHF",
+      "horizon": 1,
+      "asOf": "2026-09-24T15:15:53.640Z",
+      "entryDate": "2026-09-25",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.004240593664951082,
+      "mfe": 0,
+      "mae": -0.004240593664951082,
+      "volatilityAdjustedReturn": -2.347059595932846,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.49725098187566397,
+      "adaptive": 0.49725098187566397,
+      "pricePathDigest": "ffad8234148d26f6669655b14d6f1781eb3496caca28dd46f53c613523746d78",
+      "pricePath": [
+        {
+          "date": "2026-09-25",
+          "value": 0
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.004240593664951082
+        }
+      ],
+      "digest": "9204ba41d80fd8ad7fa31f032eb83da806adef7d28f27e99adb70d3723f93890"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "EUR",
+      "horizon": 1,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-23",
+      "resolvedAt": "2026-09-24T15:15:53.640Z",
+      "label": 0,
+      "forwardReturn": -0.00004323803739680887,
+      "mfe": 0,
+      "mae": -0.00004323803739680887,
+      "volatilityAdjustedReturn": -0.03344743360068308,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.6109495026319113,
+      "adaptive": 0.6109495026319113,
+      "pricePathDigest": "6a1048638a00ab409b8be2725eb2833b499067d169dd1ba557fb088c98ef0128",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.00004323803739680887
+        }
+      ],
+      "digest": "57a370ab22cc19b2642e4a6575050ce16b7164ae9fc98ec304724ac3cc8a09f2"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "EUR",
+      "horizon": 1,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-23",
+      "resolvedAt": "2026-09-24T15:15:53.640Z",
+      "label": 0,
+      "forwardReturn": -0.00004323803739680887,
+      "mfe": 0,
+      "mae": -0.00004323803739680887,
+      "volatilityAdjustedReturn": -0.03611805924012117,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.6134219599077888,
+      "adaptive": 0.6134219599077888,
+      "pricePathDigest": "6a1048638a00ab409b8be2725eb2833b499067d169dd1ba557fb088c98ef0128",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.00004323803739680887
+        }
+      ],
+      "digest": "77ea70a0b5d031f20f6eb71636afef2a51f81731cac5aed074dfc443a392dbee"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "EUR",
+      "horizon": 1,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-24",
+      "resolvedAt": "2026-09-25T15:15:43.959Z",
+      "label": 1,
+      "forwardReturn": 0.00009690128518622396,
+      "mfe": 0.00009690128518622396,
+      "mae": 0,
+      "volatilityAdjustedReturn": 0.1389742251549747,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.610222905118703,
+      "adaptive": 0.610222905118703,
+      "pricePathDigest": "9f91eb59e877c1d97b970594e9bcdc0720f3eae260856c79fec8a216e7439933",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.00009690128518622396
+        }
+      ],
+      "digest": "2656f9b88bfacd83a2f79d7131dd9c827b55056d02c362d336d9f4f7a07c2b65"
+    },
+    {
+      "frameId": "frame:2026-09-23T15:16:03.128Z",
+      "currency": "EUR",
+      "horizon": 1,
+      "asOf": "2026-09-23T15:16:03.128Z",
+      "entryDate": "2026-09-24",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 1,
+      "forwardReturn": 0.0019147271611789152,
+      "mfe": 0.0019147271611789152,
+      "mae": 0,
+      "volatilityAdjustedReturn": 2.9870480191143387,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5740063408795164,
+      "adaptive": 0.5740063408795164,
+      "pricePathDigest": "b6600fe7da735a508121dcbe32a5acefa015f0e6b9c52d75d421701a68621174",
+      "pricePath": [
+        {
+          "date": "2026-09-24",
+          "value": 0
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.0019147271611789152
+        }
+      ],
+      "digest": "61baa7320758a4bc3f99d93a32d1a0e40030f8ef9af8247dbc06206658eec7e7"
+    },
+    {
+      "frameId": "frame:2026-09-24T15:15:53.640Z",
+      "currency": "EUR",
+      "horizon": 1,
+      "asOf": "2026-09-24T15:15:53.640Z",
+      "entryDate": "2026-09-25",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.001943878553393718,
+      "mfe": 0,
+      "mae": -0.001943878553393718,
+      "volatilityAdjustedReturn": -3.073977733735518,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5809924227234996,
+      "adaptive": 0.5809924227234996,
+      "pricePathDigest": "cb7f89b5de31e4e2b242e224ba5e699198902e642b49cb6baf296211210e7166",
+      "pricePath": [
+        {
+          "date": "2026-09-25",
+          "value": 0
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.001943878553393718
+        }
+      ],
+      "digest": "b4c2ddd79a49f53785385d012ea7aaf4cd51f758555826f67a3378c7f396eb86"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "GBP",
+      "horizon": 1,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-23",
+      "resolvedAt": "2026-09-24T15:15:53.640Z",
+      "label": 0,
+      "forwardReturn": -0.0023059268832527173,
+      "mfe": 0,
+      "mae": -0.0023059268832527173,
+      "volatilityAdjustedReturn": -1.1077408289646833,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5186043851968101,
+      "adaptive": 0.5186043851968101,
+      "pricePathDigest": "21aa82acfffabd0d5583e95bf29109157243a1fa712295e4624aff93a4101edc",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.0023059268832527173
+        }
+      ],
+      "digest": "3e6d9af9a1744959fa749e2f79800d6a3b6c1545f31a3415087a566c8ab2bbd3"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "GBP",
+      "horizon": 1,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-23",
+      "resolvedAt": "2026-09-24T15:15:53.640Z",
+      "label": 0,
+      "forwardReturn": -0.0023059268832527173,
+      "mfe": 0,
+      "mae": -0.0023059268832527173,
+      "volatilityAdjustedReturn": -1.1225713253473073,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.521900255517422,
+      "adaptive": 0.521900255517422,
+      "pricePathDigest": "21aa82acfffabd0d5583e95bf29109157243a1fa712295e4624aff93a4101edc",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.0023059268832527173
+        }
+      ],
+      "digest": "80fd24bad3cecd0b6dec304d9c9fc864e6402baf798031de61c5cb7250ac9228"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "GBP",
+      "horizon": 1,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-24",
+      "resolvedAt": "2026-09-25T15:15:43.959Z",
+      "label": 0,
+      "forwardReturn": -0.00038168211496351,
+      "mfe": 0,
+      "mae": -0.00038168211496351,
+      "volatilityAdjustedReturn": -0.31398521725613615,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5175851014202931,
+      "adaptive": 0.5175851014202931,
+      "pricePathDigest": "cf1d2e19ef220b4c3436e222972761e7602eba0873fb6483a56315aaffbc79da",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.00038168211496351
+        }
+      ],
+      "digest": "f24e60d1e810b98f6255e37ca79a07caa9bd92309202345c1c40243da44a3385"
+    },
+    {
+      "frameId": "frame:2026-09-23T15:16:03.128Z",
+      "currency": "GBP",
+      "horizon": 1,
+      "asOf": "2026-09-23T15:16:03.128Z",
+      "entryDate": "2026-09-24",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 1,
+      "forwardReturn": 0.0011308152607390689,
+      "mfe": 0.0011308152607390689,
+      "mae": 0,
+      "volatilityAdjustedReturn": 0.9255966638905924,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.4780860780463594,
+      "adaptive": 0.4780860780463594,
+      "pricePathDigest": "b24f7ee7bbf30f524a28272b8b1d036b119b3b1a82f8d1823653469c715b4a0e",
+      "pricePath": [
+        {
+          "date": "2026-09-24",
+          "value": 0
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.0011308152607390689
+        }
+      ],
+      "digest": "685f9c4457a98d431be7f8ddaa01f7b3d34ef546f5ca25faf34da596cff72625"
+    },
+    {
+      "frameId": "frame:2026-09-24T15:15:53.640Z",
+      "currency": "GBP",
+      "horizon": 1,
+      "asOf": "2026-09-24T15:15:53.640Z",
+      "entryDate": "2026-09-25",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.001514691939732062,
+      "mfe": 0.001514691939732062,
+      "mae": 0,
+      "volatilityAdjustedReturn": 1.29263861941029,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.4742742362799013,
+      "adaptive": 0.4742742362799013,
+      "pricePathDigest": "578356da0b624066cec922838e1b1e954660c5c8cb5fd3ef21b175638081877d",
+      "pricePath": [
+        {
+          "date": "2026-09-25",
+          "value": 0
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.001514691939732062
+        }
+      ],
+      "digest": "f9ef374cb5a05f211c9dbc8a0d02b972d8726beb278eaf64f507238a43f58b18"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "JPY",
+      "horizon": 1,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-23",
+      "resolvedAt": "2026-09-24T15:15:53.640Z",
+      "label": 0,
+      "forwardReturn": -0.0002335186621152249,
+      "mfe": 0,
+      "mae": -0.0002335186621152249,
+      "volatilityAdjustedReturn": -0.04060709979215683,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5299750258971724,
+      "adaptive": 0.5299750258971724,
+      "pricePathDigest": "774093d0cfbab8a813faaa048ca707eabcafb39c364e04efac9650988c831801",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.0002335186621152249
+        }
+      ],
+      "digest": "2969f2b77c625363420bb42aa96926fd18611a80c2431826e2a6ed036455d2fd"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "JPY",
+      "horizon": 1,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-23",
+      "resolvedAt": "2026-09-24T15:15:53.640Z",
+      "label": 0,
+      "forwardReturn": -0.0002335186621152249,
+      "mfe": 0,
+      "mae": -0.0002335186621152249,
+      "volatilityAdjustedReturn": -0.04172382894781849,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5344624572899936,
+      "adaptive": 0.5344624572899936,
+      "pricePathDigest": "774093d0cfbab8a813faaa048ca707eabcafb39c364e04efac9650988c831801",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.0002335186621152249
+        }
+      ],
+      "digest": "56b15cca26be2ab8955c6c07844bdf7e4d9f4997eb2fc5f682f6cbd7d6e63411"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "JPY",
+      "horizon": 1,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-24",
+      "resolvedAt": "2026-09-25T15:15:43.959Z",
+      "label": 0,
+      "forwardReturn": -0.0022472919188727,
+      "mfe": 0,
+      "mae": -0.0022472919188727,
+      "volatilityAdjustedReturn": -0.5653787619004828,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5343050812572586,
+      "adaptive": 0.5343050812572586,
+      "pricePathDigest": "53bf40ea30e6d637ac871c5f22c866b2fd0ac2d2dc19f18c6ecd0bc86d4c49e7",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0022472919188727
+        }
+      ],
+      "digest": "305b20a94b97e62b4206454da0bf9bc8c8e331db27d2ebdb2b7b7655c413fb00"
+    },
+    {
+      "frameId": "frame:2026-09-23T15:16:03.128Z",
+      "currency": "JPY",
+      "horizon": 1,
+      "asOf": "2026-09-23T15:16:03.128Z",
+      "entryDate": "2026-09-24",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 1,
+      "forwardReturn": 0.007434407662065674,
+      "mfe": 0.007434407662065674,
+      "mae": 0,
+      "volatilityAdjustedReturn": 2.350289645224666,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5483815747874239,
+      "adaptive": 0.5483815747874239,
+      "pricePathDigest": "c594b2970804c9e1b33b8dad20c0f8349536a55c9db34587cf827a0caa1a3315",
+      "pricePath": [
+        {
+          "date": "2026-09-24",
+          "value": 0
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.007434407662065674
+        }
+      ],
+      "digest": "93dfd4fc5c06758f2d44e9de5fbd51f04dd5fca4cb8bd9854b28449627936fb0"
+    },
+    {
+      "frameId": "frame:2026-09-24T15:15:53.640Z",
+      "currency": "JPY",
+      "horizon": 1,
+      "asOf": "2026-09-24T15:15:53.640Z",
+      "entryDate": "2026-09-25",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.0057134843835430025,
+      "mfe": 0.0057134843835430025,
+      "mae": 0,
+      "volatilityAdjustedReturn": 1.9128967679477358,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5440368446477707,
+      "adaptive": 0.5440368446477707,
+      "pricePathDigest": "564c58e0d93c7bcbbc0ddc3cd4ee65166499917370078129b683cc6ad54e118c",
+      "pricePath": [
+        {
+          "date": "2026-09-25",
+          "value": 0
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.0057134843835430025
+        }
+      ],
+      "digest": "1a982ac94781ba38492a63ac4e05392a532eae4e8200b8ada164e048d112dd01"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "NZD",
+      "horizon": 1,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-23",
+      "resolvedAt": "2026-09-24T15:15:53.640Z",
+      "label": 0,
+      "forwardReturn": -0.00266839791388455,
+      "mfe": 0,
+      "mae": -0.00266839791388455,
+      "volatilityAdjustedReturn": -0.9272939089324927,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.42017313333632933,
+      "adaptive": 0.42017313333632933,
+      "pricePathDigest": "2fe9be8ee58050d9ec4a22c76d8da6971ede23476944fed522e049c08733a601",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.00266839791388455
+        }
+      ],
+      "digest": "d1ef5b0b86e6ab24a7c37fea3bd28ffc9130a82f531d055b2186ce3de02b9c3b"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "NZD",
+      "horizon": 1,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-23",
+      "resolvedAt": "2026-09-24T15:15:53.640Z",
+      "label": 0,
+      "forwardReturn": -0.00266839791388455,
+      "mfe": 0,
+      "mae": -0.00266839791388455,
+      "volatilityAdjustedReturn": -1.253503898836428,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.4229057232346485,
+      "adaptive": 0.4229057232346485,
+      "pricePathDigest": "2fe9be8ee58050d9ec4a22c76d8da6971ede23476944fed522e049c08733a601",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.00266839791388455
+        }
+      ],
+      "digest": "a6c6bed7b7704f0b845866a96ef3aeadbe0a412b52c67ae3e696a65d269829e1"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "NZD",
+      "horizon": 1,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-24",
+      "resolvedAt": "2026-09-25T15:15:43.959Z",
+      "label": 1,
+      "forwardReturn": 0.00009690128518622396,
+      "mfe": 0.00009690128518622396,
+      "mae": 0,
+      "volatilityAdjustedReturn": 0.04706796375889742,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.4204106633248942,
+      "adaptive": 0.4204106633248942,
+      "pricePathDigest": "9f91eb59e877c1d97b970594e9bcdc0720f3eae260856c79fec8a216e7439933",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.00009690128518622396
+        }
+      ],
+      "digest": "4ac3d44a17c411177ff05c3366b64550ff0100d814952dd5e69de7b5f37ec2c8"
+    },
+    {
+      "frameId": "frame:2026-09-23T15:16:03.128Z",
+      "currency": "NZD",
+      "horizon": 1,
+      "asOf": "2026-09-23T15:16:03.128Z",
+      "entryDate": "2026-09-24",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 0,
+      "forwardReturn": -0.0014435227054335508,
+      "mfe": 0,
+      "mae": -0.0014435227054335508,
+      "volatilityAdjustedReturn": -0.8525123199157411,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.39365441239707566,
+      "adaptive": 0.39365441239707566,
+      "pricePathDigest": "66e050f0cfcc028a9196989b077856ab02c4909866b335c21684780b161efb47",
+      "pricePath": [
+        {
+          "date": "2026-09-24",
+          "value": 0
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.0014435227054335508
+        }
+      ],
+      "digest": "a3b228c0724d213a9aa4d00d644135d9373a5eeb530984bfce08b7e5dea5fd70"
+    },
+    {
+      "frameId": "frame:2026-09-24T15:15:53.640Z",
+      "currency": "NZD",
+      "horizon": 1,
+      "asOf": "2026-09-24T15:15:53.640Z",
+      "entryDate": "2026-09-25",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.00016098847857542054,
+      "mfe": 0.00016098847857542054,
+      "mae": 0,
+      "volatilityAdjustedReturn": 0.09504574012490812,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.3898911260671961,
+      "adaptive": 0.3898911260671961,
+      "pricePathDigest": "a5aa5f322f54a09bb294525d1a24c858d18150cad99e08b4ac1d5256b92cbb9d",
+      "pricePath": [
+        {
+          "date": "2026-09-25",
+          "value": 0
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.00016098847857542054
+        }
+      ],
+      "digest": "bfb2cffe789a81dea073ee8f0440982055624150c39634f507ba9e9592649915"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "USD",
+      "horizon": 1,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-23",
+      "resolvedAt": "2026-09-24T15:15:53.640Z",
+      "label": 1,
+      "forwardReturn": 0.005152938740123311,
+      "mfe": 0.005152938740123311,
+      "mae": 0,
+      "volatilityAdjustedReturn": 1.7537749842440022,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.6058704104755308,
+      "adaptive": 0.6058704104755308,
+      "pricePathDigest": "a4ca7040c1dbb6bdc6495129eb03ce304ddd9158a5d855a1d9cf1394de734aa1",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": 0.005152938740123311
+        }
+      ],
+      "digest": "9637be39110628e1892f416144b8bb6d09c6ea7ca07602d52dde25bf327991ff"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "USD",
+      "horizon": 1,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-23",
+      "resolvedAt": "2026-09-24T15:15:53.640Z",
+      "label": 1,
+      "forwardReturn": 0.005152938740123311,
+      "mfe": 0.005152938740123311,
+      "mae": 0,
+      "volatilityAdjustedReturn": 1.6737381405799159,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.6027426120356978,
+      "adaptive": 0.6027426120356978,
+      "pricePathDigest": "a4ca7040c1dbb6bdc6495129eb03ce304ddd9158a5d855a1d9cf1394de734aa1",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": 0.005152938740123311
+        }
+      ],
+      "digest": "d07aaa7887bd65668817908453b1597d20fc0b59ae2293add1c15e5838bacf37"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "USD",
+      "horizon": 1,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-24",
+      "resolvedAt": "2026-09-25T15:15:43.959Z",
+      "label": 1,
+      "forwardReturn": 0.004512194711436708,
+      "mfe": 0.004512194711436708,
+      "mae": 0,
+      "volatilityAdjustedReturn": 1.4703111573860475,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.6040412732994525,
+      "adaptive": 0.6040412732994525,
+      "pricePathDigest": "8fbbdaaa1a95799a5158263445d0233095748cf96c8b18ebd558c732a25eecc9",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.004512194711436708
+        }
+      ],
+      "digest": "1f1520ae868e055b1b9555efbb4f27e0d25ddec14b8a75c62f4a4231fce624ce"
+    },
+    {
+      "frameId": "frame:2026-09-23T15:16:03.128Z",
+      "currency": "USD",
+      "horizon": 1,
+      "asOf": "2026-09-23T15:16:03.128Z",
+      "entryDate": "2026-09-24",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 0,
+      "forwardReturn": -0.001699053376704376,
+      "mfe": 0,
+      "mae": -0.001699053376704376,
+      "volatilityAdjustedReturn": -0.528090798083222,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.6061958939624773,
+      "adaptive": 0.6061958939624773,
+      "pricePathDigest": "7360dbf32d9efffbb3377aea1518d58fe03942656408129ef463496cd74dbd37",
+      "pricePath": [
+        {
+          "date": "2026-09-24",
+          "value": 0
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.001699053376704376
+        }
+      ],
+      "digest": "8719e6145c21a847902ff71cfb1ffcecacef5b4207c61438ffb64b18880b2d62"
+    },
+    {
+      "frameId": "frame:2026-09-24T15:15:53.640Z",
+      "currency": "USD",
+      "horizon": 1,
+      "asOf": "2026-09-24T15:15:53.640Z",
+      "entryDate": "2026-09-25",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.0005644784143387439,
+      "mfe": 0.0005644784143387439,
+      "mae": 0,
+      "volatilityAdjustedReturn": 0.17101390177053988,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.6109710361172136,
+      "adaptive": 0.6109710361172136,
+      "pricePathDigest": "fce749868638abac9091837d901e09a3ae2a8b2fd64823aed380587114bc9350",
+      "pricePath": [
+        {
+          "date": "2026-09-25",
+          "value": 0
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.0005644784143387439
+        }
+      ],
+      "digest": "445f08ce7973fa0ba686ee6ef650688c40a1f0b33674d83e6167c057ad1592ed"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "AUD",
+      "horizon": 3,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 0,
+      "forwardReturn": -0.004957609392011724,
+      "mfe": 0,
+      "mae": -0.004957609392011724,
+      "volatilityAdjustedReturn": -1.6162784675525528,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.544923648556609,
+      "adaptive": 0.544923648556609,
+      "pricePathDigest": "7fca957797c7bab4a1951c0c77e15f73ed373d5008200eb8cbdc7c71a2ac9b8c",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.0017432861647277559
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0038385441649508648
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.004957609392011724
+        }
+      ],
+      "digest": "3c0f21ef018c240ca493b2c5f1311e8726bdd9bda129859ce1b26afbfb57c9cb"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "AUD",
+      "horizon": 3,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 0,
+      "forwardReturn": -0.004957609392011724,
+      "mfe": 0,
+      "mae": -0.004957609392011724,
+      "volatilityAdjustedReturn": -1.8311944582345345,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5479840119852353,
+      "adaptive": 0.5479840119852353,
+      "pricePathDigest": "7fca957797c7bab4a1951c0c77e15f73ed373d5008200eb8cbdc7c71a2ac9b8c",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.0017432861647277559
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0038385441649508648
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.004957609392011724
+        }
+      ],
+      "digest": "224a701056006852919e3e55b13bf5dfea533adca1cb18cf17858ded1bb8ecfc"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "AUD",
+      "horizon": 3,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.0036775883529449405,
+      "mfe": 0,
+      "mae": -0.0036775883529449405,
+      "volatilityAdjustedReturn": -1.255813841593202,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5403151998382083,
+      "adaptive": 0.5403151998382083,
+      "pricePathDigest": "360fc1a913fb3f6d4d173a45d3d480b95585eb052aa389451522d0e5f6d6c445",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.002095258000223119
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.0032143232272839758
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.0036775883529449405
+        }
+      ],
+      "digest": "5cda2ab7971e31762cfe74b83efcae14c5b41796357bf316daf786c0863f74b0"
+    },
+    {
+      "frameId": "frame:2026-09-23T15:16:03.128Z",
+      "currency": "AUD",
+      "horizon": 3,
+      "asOf": "2026-09-23T15:16:03.128Z",
+      "entryDate": "2026-09-24",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.0015823303527219207,
+      "mfe": 0,
+      "mae": -0.0015823303527219207,
+      "volatilityAdjustedReturn": -0.5312972418636701,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5511626886275418,
+      "adaptive": 0.5511626886275418,
+      "pricePathDigest": "c55cc3a213441d793713187c350d89104b8f563546cb6614c1acb71a0a1d8e05",
+      "pricePath": [
+        {
+          "date": "2026-09-24",
+          "value": 0
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.0011190652270608675
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.0015823303527219207
+        }
+      ],
+      "digest": "c3597984745f695bfc575ace6155337a7be722550391b9c42408ab7bf6100f71"
+    },
+    {
+      "frameId": "frame:2026-09-24T15:15:53.640Z",
+      "currency": "AUD",
+      "horizon": 3,
+      "asOf": "2026-09-24T15:15:53.640Z",
+      "entryDate": "2026-09-25",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.00046326512566099504,
+      "mfe": 0,
+      "mae": -0.00046326512566099504,
+      "volatilityAdjustedReturn": -0.15355545181633207,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5448917182175828,
+      "adaptive": 0.5448917182175828,
+      "pricePathDigest": "95de1697387e121e1b59a0deaa6e6b7229d10a455f84227d256a9c4e1aae697c",
+      "pricePath": [
+        {
+          "date": "2026-09-25",
+          "value": 0
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.00046326512566099504
+        }
+      ],
+      "digest": "f04edd1ab692340544bce2c1d44715a631b98ff0b882f6a79b37414e5fa6475f"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "CAD",
+      "horizon": 3,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 0,
+      "forwardReturn": -0.000017584148998678155,
+      "mfe": 0.0037510827254289203,
+      "mae": -0.000017584148998678155,
+      "volatilityAdjustedReturn": -0.0072428437529590195,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.41214358166919896,
+      "adaptive": 0.41214358166919896,
+      "pricePathDigest": "3f520933990c02a1e4a62eea0b6fe49a034ab95f85957b433374390a3284e6ba",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": 0.0015195951961283556
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.0037510827254289203
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.000017584148998678155
+        }
+      ],
+      "digest": "bad91ba2b42fde025dd7db74e9cb82ffc29987c9719734cf53145cc749052be5"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "CAD",
+      "horizon": 3,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 0,
+      "forwardReturn": -0.000017584148998678155,
+      "mfe": 0.0037510827254289203,
+      "mae": -0.000017584148998678155,
+      "volatilityAdjustedReturn": -0.006879658029370678,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.413475530176022,
+      "adaptive": 0.413475530176022,
+      "pricePathDigest": "3f520933990c02a1e4a62eea0b6fe49a034ab95f85957b433374390a3284e6ba",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": 0.0015195951961283556
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.0037510827254289203
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.000017584148998678155
+        }
+      ],
+      "digest": "e537efe17f81ac901fb9427cbe5f865a0d5e2b3d890a073e1d07a71e9de6a49f"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "CAD",
+      "horizon": 3,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.0028430852173103077,
+      "mfe": 0.0022314875293006366,
+      "mae": -0.0028430852173103077,
+      "volatilityAdjustedReturn": -1.2134247983383328,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.409639148881048,
+      "adaptive": 0.409639148881048,
+      "pricePathDigest": "dfd04b8214148ff0e21d20f22f296ef8e28749554aea8858d4e43bf6f4185615",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.0022314875293006366
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.0015371793451269032
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.0028430852173103077
+        }
+      ],
+      "digest": "6239f48331fe6850a5e34fb0419320c532f4585ed15bdad5b4d0b456663f5ab7"
+    },
+    {
+      "frameId": "frame:2026-09-23T15:16:03.128Z",
+      "currency": "CAD",
+      "horizon": 3,
+      "asOf": "2026-09-23T15:16:03.128Z",
+      "entryDate": "2026-09-24",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.005074572746611053,
+      "mfe": 0,
+      "mae": -0.005074572746611053,
+      "volatilityAdjustedReturn": -2.487901984663236,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.39485797682318735,
+      "adaptive": 0.39485797682318735,
+      "pricePathDigest": "f4beb3e2f261a2b78aa346be4ec9bb9a9e57c35a9600c859e39bec72d6f89c9b",
+      "pricePath": [
+        {
+          "date": "2026-09-24",
+          "value": 0
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.0037686668744275815
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.005074572746611053
+        }
+      ],
+      "digest": "dd479676bea83fc5eb918db3f9945950dd81823d4edce9b188bfe0bfa3418139"
+    },
+    {
+      "frameId": "frame:2026-09-24T15:15:53.640Z",
+      "currency": "CAD",
+      "horizon": 3,
+      "asOf": "2026-09-24T15:15:53.640Z",
+      "entryDate": "2026-09-25",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.001305905872183433,
+      "mfe": 0,
+      "mae": -0.001305905872183433,
+      "volatilityAdjustedReturn": -0.5834862877840742,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.3928270161066072,
+      "adaptive": 0.3928270161066072,
+      "pricePathDigest": "a55e1ec9fa4daecad41d65beea7c757146cc1c2b4fd52cbbcdc29ddd452fb217",
+      "pricePath": [
+        {
+          "date": "2026-09-25",
+          "value": 0
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.001305905872183433
+        }
+      ],
+      "digest": "6e226228e2a8e7469bdef8805a5ad737b127dbcb157fc84bc280c089e0ac21a1"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "CHF",
+      "horizon": 3,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 0,
+      "forwardReturn": -0.004341060952282427,
+      "mfe": 0.00032183372512538735,
+      "mae": -0.004341060952282427,
+      "volatilityAdjustedReturn": -1.509432060462422,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5254750949020228,
+      "adaptive": 0.5254750949020228,
+      "pricePathDigest": "601e98b33a07d2bfa852ac3ead6533b62460a8e39007233236041c594f28011a",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": 0.00032183372512538735
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0018914190519251032
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.004341060952282427
+        }
+      ],
+      "digest": "10bafcec59c043f2a25b283a5389374ba145eeb1b2672f95b8a30785b783adfc"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "CHF",
+      "horizon": 3,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 0,
+      "forwardReturn": -0.004341060952282427,
+      "mfe": 0.00032183372512538735,
+      "mae": -0.004341060952282427,
+      "volatilityAdjustedReturn": -1.4232960114776938,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5299890231577741,
+      "adaptive": 0.5299890231577741,
+      "pricePathDigest": "601e98b33a07d2bfa852ac3ead6533b62460a8e39007233236041c594f28011a",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": 0.00032183372512538735
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0018914190519251032
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.004341060952282427
+        }
+      ],
+      "digest": "e99bb67002d680a15ce1e72926d57fd9ae26104995db272b16dc7105b509f606"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "CHF",
+      "horizon": 3,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.00890348834235891,
+      "mfe": 0,
+      "mae": -0.00890348834235891,
+      "volatilityAdjustedReturn": -2.593392130626984,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5332520545936462,
+      "adaptive": 0.5332520545936462,
+      "pricePathDigest": "60eb711191e6f898018f52f9e768203bcaaca173adcba3647debc9eb378221de",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0022132527770504585
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.004662894677407804
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.00890348834235891
+        }
+      ],
+      "digest": "0e14875669430cda8fb09345ec0f03440027076f0aa1a4270136e1ff959f2552"
+    },
+    {
+      "frameId": "frame:2026-09-23T15:16:03.128Z",
+      "currency": "CHF",
+      "horizon": 3,
+      "asOf": "2026-09-23T15:16:03.128Z",
+      "entryDate": "2026-09-24",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.006690235565308391,
+      "mfe": 0,
+      "mae": -0.006690235565308391,
+      "volatilityAdjustedReturn": -2.0845581930843284,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5040006683124244,
+      "adaptive": 0.5040006683124244,
+      "pricePathDigest": "a93717b518ef0918778304cbd4956634e6ea6bedac5cdf6a4bcfe49a5222965c",
+      "pricePath": [
+        {
+          "date": "2026-09-24",
+          "value": 0
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.0024496419003572816
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.006690235565308391
+        }
+      ],
+      "digest": "61e732c141f25006a67cbc831bd5531efb2b547e94f3f05eac89fd4939efc28a"
+    },
+    {
+      "frameId": "frame:2026-09-24T15:15:53.640Z",
+      "currency": "CHF",
+      "horizon": 3,
+      "asOf": "2026-09-24T15:15:53.640Z",
+      "entryDate": "2026-09-25",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.004240593664951082,
+      "mfe": 0,
+      "mae": -0.004240593664951082,
+      "volatilityAdjustedReturn": -1.3550754895159232,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.49725098187566397,
+      "adaptive": 0.49725098187566397,
+      "pricePathDigest": "ffad8234148d26f6669655b14d6f1781eb3496caca28dd46f53c613523746d78",
+      "pricePath": [
+        {
+          "date": "2026-09-25",
+          "value": 0
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.004240593664951082
+        }
+      ],
+      "digest": "595229c0526aa3ddc21e0c1c952aa4ea416adcd4b299de986a7a77ef7313adf4"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "EUR",
+      "horizon": 3,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 1,
+      "forwardReturn": 0.0019683904089685842,
+      "mfe": 0.0019683904089685842,
+      "mae": -0.00004323803739680887,
+      "volatilityAdjustedReturn": 0.8791185424654612,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.6109495026319113,
+      "adaptive": 0.6109495026319113,
+      "pricePathDigest": "edda539fddcdb3f774c43c500446e218097873c429c959a3ba3b1b7b2094d1da",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.00004323803739680887
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.000053663247789569046
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.0019683904089685842
+        }
+      ],
+      "digest": "8e51ffc4e984cf92495ab9047bc0a0424239196a7ced5e2d8663b85efb13cb56"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "EUR",
+      "horizon": 3,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 1,
+      "forwardReturn": 0.0019683904089685842,
+      "mfe": 0.0019683904089685842,
+      "mae": -0.00004323803739680887,
+      "volatilityAdjustedReturn": 0.9493121647219012,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.6134219599077888,
+      "adaptive": 0.6134219599077888,
+      "pricePathDigest": "edda539fddcdb3f774c43c500446e218097873c429c959a3ba3b1b7b2094d1da",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.00004323803739680887
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.000053663247789569046
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.0019683904089685842
+        }
+      ],
+      "digest": "6386c74978902f6ce76c2992683b745a09c79f6502d4a931f10938c7b00378f3"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "EUR",
+      "horizon": 3,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.00006774989297154196,
+      "mfe": 0.002011628446365297,
+      "mae": 0,
+      "volatilityAdjustedReturn": 0.05609868877387255,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.610222905118703,
+      "adaptive": 0.610222905118703,
+      "pricePathDigest": "c80d3ec2cd716da321a059578581b89ae9a2a2c468404aa5fb5e458b96973952",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.00009690128518622396
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.002011628446365297
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.00006774989297154196
+        }
+      ],
+      "digest": "c3fccfc14e7f3f029bfd773a5e3a5161c17c27961ab5bfe835fdd9aa5370c5c8"
+    },
+    {
+      "frameId": "frame:2026-09-23T15:16:03.128Z",
+      "currency": "EUR",
+      "horizon": 3,
+      "asOf": "2026-09-23T15:16:03.128Z",
+      "entryDate": "2026-09-24",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.00002915139221462725,
+      "mfe": 0.0019147271611789152,
+      "mae": -0.00002915139221462725,
+      "volatilityAdjustedReturn": -0.026256327429481592,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5740063408795164,
+      "adaptive": 0.5740063408795164,
+      "pricePathDigest": "2da970670cd56aa1c130af60e514ccbb5a3f65d4f77d1bc78c6c729b0aeebb8b",
+      "pricePath": [
+        {
+          "date": "2026-09-24",
+          "value": 0
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.0019147271611789152
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.00002915139221462725
+        }
+      ],
+      "digest": "46b2015fd5163c79a562532fd548128c504b71a270ff332c7dd560bbf48d00e5"
+    },
+    {
+      "frameId": "frame:2026-09-24T15:15:53.640Z",
+      "currency": "EUR",
+      "horizon": 3,
+      "asOf": "2026-09-24T15:15:53.640Z",
+      "entryDate": "2026-09-25",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.001943878553393718,
+      "mfe": 0,
+      "mae": -0.001943878553393718,
+      "volatilityAdjustedReturn": -1.774761872055117,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5809924227234996,
+      "adaptive": 0.5809924227234996,
+      "pricePathDigest": "cb7f89b5de31e4e2b242e224ba5e699198902e642b49cb6baf296211210e7166",
+      "pricePath": [
+        {
+          "date": "2026-09-25",
+          "value": 0
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.001943878553393718
+        }
+      ],
+      "digest": "6805f0a0bcc8b875b643e1f24db8ffdae788dcffd8636cc554fd4fbf0150c6e5"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "GBP",
+      "horizon": 3,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 0,
+      "forwardReturn": -0.0015567937374771886,
+      "mfe": 0,
+      "mae": -0.0026876089982162746,
+      "volatilityAdjustedReturn": -0.431780553996109,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5186043851968101,
+      "adaptive": 0.5186043851968101,
+      "pricePathDigest": "1e1ff3dfdf0c8033415b43956fea3499350fdcaa40978381fbd84b243c15377e",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.0023059268832527173
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0026876089982162746
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.0015567937374771886
+        }
+      ],
+      "digest": "f38a4e926a2536354a3987c6d432f2ac0b90a240bf70e9601fbe0f3966aab8e2"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "GBP",
+      "horizon": 3,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 0,
+      "forwardReturn": -0.0015567937374771886,
+      "mfe": 0,
+      "mae": -0.0026876089982162746,
+      "volatilityAdjustedReturn": -0.43756125628376547,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.521900255517422,
+      "adaptive": 0.521900255517422,
+      "pricePathDigest": "1e1ff3dfdf0c8033415b43956fea3499350fdcaa40978381fbd84b243c15377e",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.0023059268832527173
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0026876089982162746
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.0015567937374771886
+        }
+      ],
+      "digest": "9a478ceac962cf8f19e0acd28e40eae2a729eeb5edd8ff5f5846e4edbc0220d6"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "GBP",
+      "horizon": 3,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.002263825085507722,
+      "mfe": 0.002263825085507722,
+      "mae": -0.00038168211496351,
+      "volatilityAdjustedReturn": 1.0752009319773213,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5175851014202931,
+      "adaptive": 0.5175851014202931,
+      "pricePathDigest": "d266a5a9247b7d66ea074709766c125f0389ee73169615181d45c4370e0c1095",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.00038168211496351
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.0007491331457756497
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.002263825085507722
+        }
+      ],
+      "digest": "37fa7d50a01bca4381603a45820a23b3647e39f1ec35fd0d90bf9af5aa2619b0"
+    },
+    {
+      "frameId": "frame:2026-09-23T15:16:03.128Z",
+      "currency": "GBP",
+      "horizon": 3,
+      "asOf": "2026-09-23T15:16:03.128Z",
+      "entryDate": "2026-09-24",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.0026455072004712534,
+      "mfe": 0.0026455072004712534,
+      "mae": 0,
+      "volatilityAdjustedReturn": 1.2501969653217624,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.4780860780463594,
+      "adaptive": 0.4780860780463594,
+      "pricePathDigest": "2d08c112b4648e1f757b360fba0fec5f046023eb14357ee5d6ca0a11da316482",
+      "pricePath": [
+        {
+          "date": "2026-09-24",
+          "value": 0
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.0011308152607390689
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.0026455072004712534
+        }
+      ],
+      "digest": "4a2cbd7d3769e36a3ba95df38b136a31a4f279c3cf59d33b674e967d1072c197"
+    },
+    {
+      "frameId": "frame:2026-09-24T15:15:53.640Z",
+      "currency": "GBP",
+      "horizon": 3,
+      "asOf": "2026-09-24T15:15:53.640Z",
+      "entryDate": "2026-09-25",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.001514691939732062,
+      "mfe": 0.001514691939732062,
+      "mae": 0,
+      "volatilityAdjustedReturn": 0.7463052548814372,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.4742742362799013,
+      "adaptive": 0.4742742362799013,
+      "pricePathDigest": "578356da0b624066cec922838e1b1e954660c5c8cb5fd3ef21b175638081877d",
+      "pricePath": [
+        {
+          "date": "2026-09-25",
+          "value": 0
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.001514691939732062
+        }
+      ],
+      "digest": "b4c596c0b192409965e746ae2b725c4666ce5bf18d75c9b6b0b53a53fd6ad80a"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "JPY",
+      "horizon": 3,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 1,
+      "forwardReturn": 0.004953597081077744,
+      "mfe": 0.004953597081077744,
+      "mae": -0.002480810580987954,
+      "volatilityAdjustedReturn": 0.4973251592294938,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5299750258971724,
+      "adaptive": 0.5299750258971724,
+      "pricePathDigest": "c8fa93e53883b4d447557a001849fcb062ec7c6b09740e2a3e7cbbc174bf92a9",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.0002335186621152249
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.002480810580987954
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.004953597081077744
+        }
+      ],
+      "digest": "1c5ffb74f1fec306c37b8addf7bd400420dc2e8cd17efda7d83220eeec355bd2"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "JPY",
+      "horizon": 3,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 1,
+      "forwardReturn": 0.004953597081077744,
+      "mfe": 0.004953597081077744,
+      "mae": -0.002480810580987954,
+      "volatilityAdjustedReturn": 0.5110020164293011,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5344624572899936,
+      "adaptive": 0.5344624572899936,
+      "pricePathDigest": "c8fa93e53883b4d447557a001849fcb062ec7c6b09740e2a3e7cbbc174bf92a9",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.0002335186621152249
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.002480810580987954
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.004953597081077744
+        }
+      ],
+      "digest": "85e7f0198cbe21da3ccc9ebf6fbaf0941bbb863c1a165a370b8fb79abb35398b"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "JPY",
+      "horizon": 3,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.010900600126735856,
+      "mfe": 0.010900600126735856,
+      "mae": -0.0022472919188727,
+      "volatilityAdjustedReturn": 1.5833239511738393,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5343050812572586,
+      "adaptive": 0.5343050812572586,
+      "pricePathDigest": "8b4df6aa5ad51e24711ead17c5f772dd0fc03de08091d2775c7fa4b0b3ab25bc",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0022472919188727
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.005187115743192892
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.010900600126735856
+        }
+      ],
+      "digest": "eabd4011364058e74c0b82c326723284f284f0ba532ea9df40164e76edd59866"
+    },
+    {
+      "frameId": "frame:2026-09-23T15:16:03.128Z",
+      "currency": "JPY",
+      "horizon": 3,
+      "asOf": "2026-09-23T15:16:03.128Z",
+      "entryDate": "2026-09-24",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.013147892045608579,
+      "mfe": 0.013147892045608579,
+      "mae": 0,
+      "volatilityAdjustedReturn": 2.399774960958725,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5483815747874239,
+      "adaptive": 0.5483815747874239,
+      "pricePathDigest": "b760f972e3443921c9c8d7561a6208bc2ba7583b8df67956e875052abad4db28",
+      "pricePath": [
+        {
+          "date": "2026-09-24",
+          "value": 0
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.007434407662065674
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.013147892045608579
+        }
+      ],
+      "digest": "59269b065c320293b8ca8b040e8752fe78523ee9d6a02b3270938641d75f47ae"
+    },
+    {
+      "frameId": "frame:2026-09-24T15:15:53.640Z",
+      "currency": "JPY",
+      "horizon": 3,
+      "asOf": "2026-09-24T15:15:53.640Z",
+      "entryDate": "2026-09-25",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.0057134843835430025,
+      "mfe": 0.0057134843835430025,
+      "mae": 0,
+      "volatilityAdjustedReturn": 1.1044114639065905,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5440368446477707,
+      "adaptive": 0.5440368446477707,
+      "pricePathDigest": "564c58e0d93c7bcbbc0ddc3cd4ee65166499917370078129b683cc6ad54e118c",
+      "pricePath": [
+        {
+          "date": "2026-09-25",
+          "value": 0
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.0057134843835430025
+        }
+      ],
+      "digest": "d871d372a842c3b398196b3f51ff5e522df8d73f9552a8e7137039363914a934"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "NZD",
+      "horizon": 3,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 0,
+      "forwardReturn": -0.004015019334131956,
+      "mfe": 0,
+      "mae": -0.004015019334131956,
+      "volatilityAdjustedReturn": -0.8055524599140166,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.42017313333632933,
+      "adaptive": 0.42017313333632933,
+      "pricePathDigest": "1d45327c8be5cbedbf90ee024c3ca01163bb0f09227616d4ab39352c7869e4e0",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.00266839791388455
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0025714966286983117
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.004015019334131956
+        }
+      ],
+      "digest": "36dcec76ad97adc6493bf283cd86073843baa2cd32c27e3579b29b9bdfc6346e"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "NZD",
+      "horizon": 3,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 0,
+      "forwardReturn": -0.004015019334131956,
+      "mfe": 0,
+      "mae": -0.004015019334131956,
+      "volatilityAdjustedReturn": -1.088935384447787,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.4229057232346485,
+      "adaptive": 0.4229057232346485,
+      "pricePathDigest": "1d45327c8be5cbedbf90ee024c3ca01163bb0f09227616d4ab39352c7869e4e0",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.00266839791388455
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0025714966286983117
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.004015019334131956
+        }
+      ],
+      "digest": "619bf6b4464e11043e4a6038ac12141554427d3d6f8a870cc05c70579ff0117a"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "NZD",
+      "horizon": 3,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.0011856329416720219,
+      "mfe": 0.00009690128518622396,
+      "mae": -0.0013466214202474758,
+      "volatilityAdjustedReturn": -0.33249529427403524,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.4204106633248942,
+      "adaptive": 0.4204106633248942,
+      "pricePathDigest": "ac54788d918fe21e488d00efb8af0d57ede1ab50e40bef9e35f6c1acf7e6eada",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.00009690128518622396
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.0013466214202474758
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.0011856329416720219
+        }
+      ],
+      "digest": "1311c75b2c54bdcf416ca216dc9da0dad00b73f5b852fdc5620812a1ab729474"
+    },
+    {
+      "frameId": "frame:2026-09-23T15:16:03.128Z",
+      "currency": "NZD",
+      "horizon": 3,
+      "asOf": "2026-09-23T15:16:03.128Z",
+      "entryDate": "2026-09-24",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.0012825342268581621,
+      "mfe": 0,
+      "mae": -0.0014435227054335508,
+      "volatilityAdjustedReturn": -0.4373059445661533,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.39365441239707566,
+      "adaptive": 0.39365441239707566,
+      "pricePathDigest": "716a1b6e31c20f595a4e14ce40a7ab6f77e444b066027c2a7120464181c5a6cd",
+      "pricePath": [
+        {
+          "date": "2026-09-24",
+          "value": 0
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.0014435227054335508
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.0012825342268581621
+        }
+      ],
+      "digest": "d15c415cfdf1896ae005f0ab867bb6d47f4f1a2f02898baf99324f50e67fed63"
+    },
+    {
+      "frameId": "frame:2026-09-24T15:15:53.640Z",
+      "currency": "NZD",
+      "horizon": 3,
+      "asOf": "2026-09-24T15:15:53.640Z",
+      "entryDate": "2026-09-25",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.00016098847857542054,
+      "mfe": 0.00016098847857542054,
+      "mae": 0,
+      "volatilityAdjustedReturn": 0.05487468364644292,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.3898911260671961,
+      "adaptive": 0.3898911260671961,
+      "pricePathDigest": "a5aa5f322f54a09bb294525d1a24c858d18150cad99e08b4ac1d5256b92cbb9d",
+      "pricePath": [
+        {
+          "date": "2026-09-25",
+          "value": 0
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.00016098847857542054
+        }
+      ],
+      "digest": "8ecf51e0ab0be502ab747db66fe846dcf62b0c64998af8123a82a8f337af9cfa"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "USD",
+      "horizon": 3,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 1,
+      "forwardReturn": 0.00796608007485564,
+      "mfe": 0.009665133451560018,
+      "mae": 0,
+      "volatilityAdjustedReturn": 1.565319270493431,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.6058704104755308,
+      "adaptive": 0.6058704104755308,
+      "pricePathDigest": "3f66cff903d1d7409a2b7b950e8a7f54ae802fece239ec152d23da207b46b555",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": 0.005152938740123311
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.009665133451560018
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.00796608007485564
+        }
+      ],
+      "digest": "a262cb6f219c5852b8eb1128437fe6e31e3aca5be4e63f26f47459a0aa337759"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "USD",
+      "horizon": 3,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-25",
+      "resolvedAt": "2026-09-26T15:16:21.806Z",
+      "label": 1,
+      "forwardReturn": 0.00796608007485564,
+      "mfe": 0.009665133451560018,
+      "mae": 0,
+      "volatilityAdjustedReturn": 1.4938829603268389,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.6027426120356978,
+      "adaptive": 0.6027426120356978,
+      "pricePathDigest": "3f66cff903d1d7409a2b7b950e8a7f54ae802fece239ec152d23da207b46b555",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": 0.005152938740123311
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.009665133451560018
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.00796608007485564
+        }
+      ],
+      "digest": "9d3b428644545016e7d46803c4e5dcf56181b17775c2daa58b327d79f11eb069"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "USD",
+      "horizon": 3,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.0033776197490710614,
+      "mfe": 0.004512194711436708,
+      "mae": 0,
+      "volatilityAdjustedReturn": 0.6354356092376564,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.6040412732994525,
+      "adaptive": 0.6040412732994525,
+      "pricePathDigest": "eb04025d14613fbc55097f8d5d3ccb7f3a33a2ee60ed6d5a1f8d16667d1fde3d",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.004512194711436708
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.0028131413347323203
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.0033776197490710614
+        }
+      ],
+      "digest": "07a0ecf1a91ebab708dd6889dd4d9ac69751ab429c76f54d7891800d3035a9c8"
+    },
+    {
+      "frameId": "frame:2026-09-23T15:16:03.128Z",
+      "currency": "USD",
+      "horizon": 3,
+      "asOf": "2026-09-23T15:16:03.128Z",
+      "entryDate": "2026-09-24",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.0011345749623656789,
+      "mfe": 0,
+      "mae": -0.001699053376704376,
+      "volatilityAdjustedReturn": -0.20359829903907825,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.6061958939624773,
+      "adaptive": 0.6061958939624773,
+      "pricePathDigest": "81a0015bb031eb7bb291d9abd1479cdfba0c60272c114c6bc6373663003021d0",
+      "pricePath": [
+        {
+          "date": "2026-09-24",
+          "value": 0
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.001699053376704376
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.0011345749623656789
+        }
+      ],
+      "digest": "736b7c028e486ae8d0f140fa99e29d7e410963fbf9a6190f564498437b3c7803"
+    },
+    {
+      "frameId": "frame:2026-09-24T15:15:53.640Z",
+      "currency": "USD",
+      "horizon": 3,
+      "asOf": "2026-09-24T15:15:53.640Z",
+      "entryDate": "2026-09-25",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.0005644784143387439,
+      "mfe": 0.0005644784143387439,
+      "mae": 0,
+      "volatilityAdjustedReturn": 0.09873492222238942,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.6109710361172136,
+      "adaptive": 0.6109710361172136,
+      "pricePathDigest": "fce749868638abac9091837d901e09a3ae2a8b2fd64823aed380587114bc9350",
+      "pricePath": [
+        {
+          "date": "2026-09-25",
+          "value": 0
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.0005644784143387439
+        }
+      ],
+      "digest": "3c859cf37d0c81f90797a99a7e8391dcb9121b66f1b1d5686903b7029abc804e"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "AUD",
+      "horizon": 5,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.005420874517672682,
+      "mfe": 0,
+      "mae": -0.005420874517672682,
+      "volatilityAdjustedReturn": -1.3689540181474442,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.544923648556609,
+      "adaptive": 0.544923648556609,
+      "pricePathDigest": "361afd60000e8f325826785c46b11317680d41b13b0c9e9c1968f1a64d526878",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.0017432861647277559
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0038385441649508648
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.004957609392011724
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.005420874517672682
+        }
+      ],
+      "digest": "15dd2ab200278fc4b0015eff3dc89e5b50830e3db25bc71518d8ce97bef7c3c2"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "AUD",
+      "horizon": 5,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.005420874517672682,
+      "mfe": 0,
+      "mae": -0.005420874517672682,
+      "volatilityAdjustedReturn": -1.5509833620474123,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5479840119852353,
+      "adaptive": 0.5479840119852353,
+      "pricePathDigest": "361afd60000e8f325826785c46b11317680d41b13b0c9e9c1968f1a64d526878",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.0017432861647277559
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0038385441649508648
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.004957609392011724
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.005420874517672682
+        }
+      ],
+      "digest": "8c3a390be9893fda494c9fe7543b373e489d77df3bcee58edc1a03fac293c01d"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "AUD",
+      "horizon": 5,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.0036775883529449405,
+      "mfe": 0,
+      "mae": -0.0036775883529449405,
+      "volatilityAdjustedReturn": -0.9727492188854461,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5403151998382083,
+      "adaptive": 0.5403151998382083,
+      "pricePathDigest": "360fc1a913fb3f6d4d173a45d3d480b95585eb052aa389451522d0e5f6d6c445",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.002095258000223119
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.0032143232272839758
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.0036775883529449405
+        }
+      ],
+      "digest": "9eeb454a216a8b4395c56b07e0ff67329cacd8eeecb808ec78ca659bfcc7421e"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "CAD",
+      "horizon": 5,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.0013234900211820015,
+      "mfe": 0.0037510827254289203,
+      "mae": -0.0013234900211820015,
+      "volatilityAdjustedReturn": -0.42226400036262574,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.41214358166919896,
+      "adaptive": 0.41214358166919896,
+      "pricePathDigest": "8535fe891cef98278730b7fe6fc1ca9b03af2be3f9f191ea8b93ddeb6f89b1bf",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": 0.0015195951961283556
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.0037510827254289203
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.000017584148998678155
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.0013234900211820015
+        }
+      ],
+      "digest": "e274964e0e7b2237f9b2ec87b32155ba0374c6f162b45eeebf179272781d8686"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "CAD",
+      "horizon": 5,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.0013234900211820015,
+      "mfe": 0.0037510827254289203,
+      "mae": -0.0013234900211820015,
+      "volatilityAdjustedReturn": -0.4010899613045066,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.413475530176022,
+      "adaptive": 0.413475530176022,
+      "pricePathDigest": "8535fe891cef98278730b7fe6fc1ca9b03af2be3f9f191ea8b93ddeb6f89b1bf",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": 0.0015195951961283556
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.0037510827254289203
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.000017584148998678155
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.0013234900211820015
+        }
+      ],
+      "digest": "98445c918ad9944cab8c4cb36c84fe860aabbcbd5b6de44b16b32a86d0a2aa8d"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "CAD",
+      "horizon": 5,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.0028430852173103077,
+      "mfe": 0.0022314875293006366,
+      "mae": -0.0028430852173103077,
+      "volatilityAdjustedReturn": -0.9399148071678912,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.409639148881048,
+      "adaptive": 0.409639148881048,
+      "pricePathDigest": "dfd04b8214148ff0e21d20f22f296ef8e28749554aea8858d4e43bf6f4185615",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.0022314875293006366
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.0015371793451269032
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.0028430852173103077
+        }
+      ],
+      "digest": "bf98fc29570e13c1a5260983c329f0bd2d3bb5c0e5e8095732ed688548032e13"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "CHF",
+      "horizon": 5,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.00858165461723356,
+      "mfe": 0.00032183372512538735,
+      "mae": -0.00858165461723356,
+      "volatilityAdjustedReturn": -2.3113427038448364,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5254750949020228,
+      "adaptive": 0.5254750949020228,
+      "pricePathDigest": "5e2a687888d603bd5b4b8e8f7933fb377c217cdd3791e52e0cd1240a184b3b0b",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": 0.00032183372512538735
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0018914190519251032
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.004341060952282427
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.00858165461723356
+        }
+      ],
+      "digest": "f93566ed557a80a256d467766be9f9b8dff9c91c2ec7b580ab3f45dcbd8724e7"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "CHF",
+      "horizon": 5,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.00858165461723356,
+      "mfe": 0.00032183372512538735,
+      "mae": -0.00858165461723356,
+      "volatilityAdjustedReturn": -2.179445460123989,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5299890231577741,
+      "adaptive": 0.5299890231577741,
+      "pricePathDigest": "5e2a687888d603bd5b4b8e8f7933fb377c217cdd3791e52e0cd1240a184b3b0b",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": 0.00032183372512538735
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0018914190519251032
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.004341060952282427
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.00858165461723356
+        }
+      ],
+      "digest": "b11659c5d50e24ddc87ff6f53f257cbb1e9c5eace668a6f06cb6b510c32fba19"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "CHF",
+      "horizon": 5,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.00890348834235891,
+      "mfe": 0,
+      "mae": -0.00890348834235891,
+      "volatilityAdjustedReturn": -2.0088329064207358,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5332520545936462,
+      "adaptive": 0.5332520545936462,
+      "pricePathDigest": "60eb711191e6f898018f52f9e768203bcaaca173adcba3647debc9eb378221de",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0022132527770504585
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.004662894677407804
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.00890348834235891
+        }
+      ],
+      "digest": "242d4810c316ca02cfdc7aa4512feab31cf48556c4ee12ae6e26eed9f83561a0"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "EUR",
+      "horizon": 5,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.000024511855574818088,
+      "mfe": 0.0019683904089685842,
+      "mae": -0.00004323803739680887,
+      "volatilityAdjustedReturn": 0.008479846958970165,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.6109495026319113,
+      "adaptive": 0.6109495026319113,
+      "pricePathDigest": "e3df2d7f97d4d5bb4ca6496820785d5c155b76c286664765f61d7ca17e6b1f91",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.00004323803739680887
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.000053663247789569046
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.0019683904089685842
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.000024511855574818088
+        }
+      ],
+      "digest": "841a7b4acad427cd0c660008cff9d09ee18a1b07540110d5a5c1f982dfb7ca6d"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "EUR",
+      "horizon": 5,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.000024511855574818088,
+      "mfe": 0.0019683904089685842,
+      "mae": -0.00004323803739680887,
+      "volatilityAdjustedReturn": 0.009156924219291698,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.6134219599077888,
+      "adaptive": 0.6134219599077888,
+      "pricePathDigest": "e3df2d7f97d4d5bb4ca6496820785d5c155b76c286664765f61d7ca17e6b1f91",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.00004323803739680887
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.000053663247789569046
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.0019683904089685842
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.000024511855574818088
+        }
+      ],
+      "digest": "019d071afcae0ad3a23dc0b33e3320782980448732867ec1a67376bfd71c75f6"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "EUR",
+      "horizon": 5,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.00006774989297154196,
+      "mfe": 0.002011628446365297,
+      "mae": 0,
+      "volatilityAdjustedReturn": 0.04345385747305627,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.610222905118703,
+      "adaptive": 0.610222905118703,
+      "pricePathDigest": "c80d3ec2cd716da321a059578581b89ae9a2a2c468404aa5fb5e458b96973952",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.00009690128518622396
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.002011628446365297
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.00006774989297154196
+        }
+      ],
+      "digest": "ebd575b378e414b25ebe980889dbb4f4c33a699e9e64b59d9e200c02f359eae1"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "GBP",
+      "horizon": 5,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.00004210179774504115,
+      "mfe": 0,
+      "mae": -0.0026876089982162746,
+      "volatilityAdjustedReturn": -0.009044993708425495,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5186043851968101,
+      "adaptive": 0.5186043851968101,
+      "pricePathDigest": "dff332ea332252a0cc2ccebbc495531649b61bf63567fa2edd52204d2f8432dd",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.0023059268832527173
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0026876089982162746
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.0015567937374771886
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.00004210179774504115
+        }
+      ],
+      "digest": "b4ea7a31630a6756484db769f185b7bdc2509b68b37cdd43ef20c6233bade84f"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "GBP",
+      "horizon": 5,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.00004210179774504115,
+      "mfe": 0,
+      "mae": -0.0026876089982162746,
+      "volatilityAdjustedReturn": -0.009166088591782853,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.521900255517422,
+      "adaptive": 0.521900255517422,
+      "pricePathDigest": "dff332ea332252a0cc2ccebbc495531649b61bf63567fa2edd52204d2f8432dd",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.0023059268832527173
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0026876089982162746
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.0015567937374771886
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.00004210179774504115
+        }
+      ],
+      "digest": "5fc85dc094c94989596ab54e5c76978a85700386639f52eeb2d604146da2e1df"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "GBP",
+      "horizon": 5,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.002263825085507722,
+      "mfe": 0.002263825085507722,
+      "mae": -0.00038168211496351,
+      "volatilityAdjustedReturn": 0.8328470606749717,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5175851014202931,
+      "adaptive": 0.5175851014202931,
+      "pricePathDigest": "d266a5a9247b7d66ea074709766c125f0389ee73169615181d45c4370e0c1095",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.00038168211496351
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.0007491331457756497
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.002263825085507722
+        }
+      ],
+      "digest": "16794edc16bd1d50ae4c30932cdeb299b61f14de5df6aafc1efac9f2c6c065da"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "JPY",
+      "horizon": 5,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.010667081464620578,
+      "mfe": 0.010667081464620578,
+      "mae": -0.002480810580987954,
+      "volatilityAdjustedReturn": 0.8295469838329542,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5299750258971724,
+      "adaptive": 0.5299750258971724,
+      "pricePathDigest": "397b6d3859be418ceeda632b52bde5af3c26bd7a8d3b8036aef06ebfee4fc2a0",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.0002335186621152249
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.002480810580987954
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.004953597081077744
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.010667081464620578
+        }
+      ],
+      "digest": "81cee4b33c94c65580529a87bde20f48da1dd1ada593d1d3fa533430d8e8bf01"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "JPY",
+      "horizon": 5,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.010667081464620578,
+      "mfe": 0.010667081464620578,
+      "mae": -0.002480810580987954,
+      "volatilityAdjustedReturn": 0.8523602186509793,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5344624572899936,
+      "adaptive": 0.5344624572899936,
+      "pricePathDigest": "397b6d3859be418ceeda632b52bde5af3c26bd7a8d3b8036aef06ebfee4fc2a0",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.0002335186621152249
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.002480810580987954
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.004953597081077744
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.010667081464620578
+        }
+      ],
+      "digest": "76d8b42ab5d0593dc2caebb41205de456110e8c3897e62c5e2df2e8de78da97d"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "JPY",
+      "horizon": 5,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.010900600126735856,
+      "mfe": 0.010900600126735856,
+      "mae": -0.0022472919188727,
+      "volatilityAdjustedReturn": 1.2264374589095208,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.5343050812572586,
+      "adaptive": 0.5343050812572586,
+      "pricePathDigest": "8b4df6aa5ad51e24711ead17c5f772dd0fc03de08091d2775c7fa4b0b3ab25bc",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0022472919188727
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.005187115743192892
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.010900600126735856
+        }
+      ],
+      "digest": "d58a2e0282e3caff6c2721368ee3bc459e2dd2b3701a94b4a236f5b5f47fed13"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "NZD",
+      "horizon": 5,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.0038540308555564855,
+      "mfe": 0,
+      "mae": -0.004015019334131956,
+      "volatilityAdjustedReturn": -0.5989588685923349,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.42017313333632933,
+      "adaptive": 0.42017313333632933,
+      "pricePathDigest": "8cda38327c2726309e20740912e1ffd51e3fd6cd90a9fbe93bacae285b4243a2",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.00266839791388455
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0025714966286983117
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.004015019334131956
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.0038540308555564855
+        }
+      ],
+      "digest": "b568555817043fb326f3d48f03e2b1aacdcf6dd40040ccfae818bb84d3fcb946"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "NZD",
+      "horizon": 5,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.0038540308555564855,
+      "mfe": 0,
+      "mae": -0.004015019334131956,
+      "volatilityAdjustedReturn": -0.8096648428193287,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.4229057232346485,
+      "adaptive": 0.4229057232346485,
+      "pricePathDigest": "8cda38327c2726309e20740912e1ffd51e3fd6cd90a9fbe93bacae285b4243a2",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": -0.00266839791388455
+        },
+        {
+          "date": "2026-09-24",
+          "value": -0.0025714966286983117
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.004015019334131956
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.0038540308555564855
+        }
+      ],
+      "digest": "460672dca70d63fdffdc193b6fedd49c0271b7eaa6fb6975d5a5ee6e12a8d22f"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "NZD",
+      "horizon": 5,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 0,
+      "forwardReturn": -0.0011856329416720219,
+      "mfe": 0.00009690128518622396,
+      "mae": -0.0013466214202474758,
+      "volatilityAdjustedReturn": -0.25754974748313453,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.4204106633248942,
+      "adaptive": 0.4204106633248942,
+      "pricePathDigest": "ac54788d918fe21e488d00efb8af0d57ede1ab50e40bef9e35f6c1acf7e6eada",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.00009690128518622396
+        },
+        {
+          "date": "2026-09-25",
+          "value": -0.0013466214202474758
+        },
+        {
+          "date": "2026-09-28",
+          "value": -0.0011856329416720219
+        }
+      ],
+      "digest": "ed6f8d0ca1de07824a9792bc8d4911ab9be64c1c49a5b1d68ecdb46b992aa9a4"
+    },
+    {
+      "frameId": "frame:2026-09-21T09:20:24.006Z",
+      "currency": "USD",
+      "horizon": 5,
+      "asOf": "2026-09-21T09:20:24.006Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.008530558489194371,
+      "mfe": 0.009665133451560018,
+      "mae": 0,
+      "volatilityAdjustedReturn": 1.2984085134945882,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.6058704104755308,
+      "adaptive": 0.6058704104755308,
+      "pricePathDigest": "e3e0ae1918f34ae520309cbe297a393243f28c274fa4e9c1328e10ecb375c542",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": 0.005152938740123311
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.009665133451560018
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.00796608007485564
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.008530558489194371
+        }
+      ],
+      "digest": "bd8964c4103173ea3764a9da13e4231c908965b3d6e3f93a9f280aa4ddacba5a"
+    },
+    {
+      "frameId": "frame:2026-09-21T15:15:58.477Z",
+      "currency": "USD",
+      "horizon": 5,
+      "asOf": "2026-09-21T15:15:58.477Z",
+      "entryDate": "2026-09-22",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.008530558489194371,
+      "mfe": 0.009665133451560018,
+      "mae": 0,
+      "volatilityAdjustedReturn": 1.2391531813451895,
+      "volatilityExpansion": true,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.6027426120356978,
+      "adaptive": 0.6027426120356978,
+      "pricePathDigest": "e3e0ae1918f34ae520309cbe297a393243f28c274fa4e9c1328e10ecb375c542",
+      "pricePath": [
+        {
+          "date": "2026-09-22",
+          "value": 0
+        },
+        {
+          "date": "2026-09-23",
+          "value": 0.005152938740123311
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.009665133451560018
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.00796608007485564
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.008530558489194371
+        }
+      ],
+      "digest": "0aa0e3a9be37a13e385c380b3a85f42bd19ed44a6158382103eb988ef2b6c854"
+    },
+    {
+      "frameId": "frame:2026-09-22T15:15:44.440Z",
+      "currency": "USD",
+      "horizon": 5,
+      "asOf": "2026-09-22T15:15:44.440Z",
+      "entryDate": "2026-09-23",
+      "labelEnd": "2026-09-28",
+      "resolvedAt": "2026-09-29T15:16:31.216Z",
+      "label": 1,
+      "forwardReturn": 0.0033776197490710614,
+      "mfe": 0.004512194711436708,
+      "mae": 0,
+      "volatilityAdjustedReturn": 0.49220630643292135,
+      "volatilityExpansion": false,
+      "targetVersion": "currency-vs-equal-basket-fixing-v1",
+      "source": "ECB reference fixing; MFE/MAE measured only at daily fixes",
+      "regime": "risk-on",
+      "core": 0.6040412732994525,
+      "adaptive": 0.6040412732994525,
+      "pricePathDigest": "eb04025d14613fbc55097f8d5d3ccb7f3a33a2ee60ed6d5a1f8d16667d1fde3d",
+      "pricePath": [
+        {
+          "date": "2026-09-23",
+          "value": 0
+        },
+        {
+          "date": "2026-09-24",
+          "value": 0.004512194711436708
+        },
+        {
+          "date": "2026-09-25",
+          "value": 0.0028131413347323203
+        },
+        {
+          "date": "2026-09-28",
+          "value": 0.0033776197490710614
+        }
+      ],
+      "digest": "71f4e5443a287122b3b44fdaf42a41e146469dba9bdb76604fc43d6e920801bc"
+    }
+  ]
+}

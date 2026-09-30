@@ -5,7 +5,7 @@ import type { Receipt } from './hypothesis/provenance';
 import { coreEvidence, evidenceShift } from './adaptive-evidence';
 
 export const DATA_VERSION = 'observed-core-v2';
-export type Observation = Receipt & { sourceUrl:string; unit:string; releaseDate:string|null; normalizedValue?:number|null; quality:'VALID'|'STALE'|'INVALID'; frequency:string; definition?:string; featureVersion?:string; economicCause?:string; lineage?:string[]; rawInputs?:unknown[] };
+export type Observation = Receipt & { sourceUrl:string; unit:string; releaseDate:string|null; publicationDate?:string|null;scheduledPublicationAt?:string|null;publicationTimeKnown?:boolean;revision?:string;researchExposures?:{currency:string;reason:string}[]; normalizedValue?:number|null; quality:'VALID'|'STALE'|'INVALID'; frequency:string; definition?:string; featureVersion?:string; economicCause?:string; lineage?:string[]; rawInputs?:unknown[] };
 export type SourceCheck = {at:string;source:string;url:string;currency:string;metrics:string[];status:'SUCCESS'|'FAILED'|'MISSING';cause:string|null;fallback:string;latencyMs:number};
 export type FactorOrigin={status:string;source:string;period:string|null;availableAt:string|null;availability?:string;sourceUrls?:string[];qualityStatus?:string;releaseDate?:string|null;failure?:string|null;fallback?:string;frequency?:string;definition?:string;inputs?:{metric:string;value:number;period:string;receivedAt:string;source:string}[]};
 export type ProductionPayload = TerminalPayload & { researchCoverage?:ReturnType<typeof researchCoverage>; calculationVersion?:string; sourceChecks?:SourceCheck[]; observationSummary?:{count:number;changed:number;failedSources:string[]}; historyStatus?:string; coreFactors?:Record<string,Record<string,FactorOrigin>>; sourceCoverage?:{factors:number;fresh:number;carried:number;partial:number;ratio:number;critical?:{total:number;fresh:number;ratio:number;missing:string[]};stale?:number;failed?:number;unavailable?:number;categoryGaps?:string[];version?:string} };
@@ -121,6 +121,6 @@ export function observationQuality(metric:string,value:number,period:string,at:s
   const range=metric==='cot'?[0,1]:bounds[metric];if(range&&(value<range[0]||value>range[1]))return 'INVALID';
   if(metric.startsWith('fx')&&(value<=0||value>1000))return 'INVALID';
   const annual=period.length===4,age=(Date.parse(at)-Date.parse(period+(annual?'-12-31':'')))/dayMs;
-  const maxAge=annual?1095:metric==='rate'||metric==='cot'||metric.startsWith('alt.cot.')?14:metric.includes('funding.')||metric.includes('labor.')?21:metric.includes('consumption.')||metric.includes('supply.')||metric.includes('commodity.basket.')?75:metric==='nlpSentiment'?28:10;
+  const maxAge=annual?1095:metric.includes('agri.price.')||metric.includes('agri.weather.')?75:metric.includes('agri.estimate.wheat.')?400:metric.includes('agri.estimate.')?120:metric.includes('agri.acreage.')?400:metric.includes('agri.stocks.')?150:metric.includes('agri.')?21:metric==='rate'||metric==='cot'||metric.startsWith('alt.cot.')?14:metric.includes('funding.')||metric.includes('labor.')?21:metric.includes('consumption.')||metric.includes('supply.')||metric.includes('commodity.basket.')?75:metric==='nlpSentiment'?28:10;
   return age>maxAge?'STALE':'VALID';
 }

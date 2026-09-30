@@ -14,6 +14,8 @@ export const sourceGaps=[
   {name:'Cross-currency basis / implied rate paths',scope:'RESEARCH',status:'PREMIUM SOURCE RECOMMENDED',reason:'Funding indices and policy rates cannot reproduce executable basis or market-implied OIS paths.',history:'5–10 years',frequency:'daily synchronized curve snapshots',pointInTime:'As-of quotes, tenor and collateral conventions, corrected quote vintages',integration:'Pair-specific basis and OIS curve adapters; preserve observation and receipt times'},
   {name:'Freight spot prices / port and vessel activity',scope:'RESEARCH',status:'PREMIUM SOURCE RECOMMENDED',reason:'GSCPI and annual container throughput are partial proxies, not container spot rates or a real-time global port panel.',history:'At least 5 years',frequency:'daily/weekly',pointInTime:'As-published route/container definitions; vessel aggregation and revisions',integration:'Licensed aggregate route/port panel; currency trade exposure; no vessel/person tracking UI'},
   {name:'Forecast / expectation dispersion',scope:'RESEARCH',status:'PREMIUM SOURCE RECOMMENDED',reason:'Requires timestamped independent forecast vintages; model point-cloud dispersion is not economist disagreement.',history:'5 years of individual forecast vintages',frequency:'each forecast release',pointInTime:'Pre-release consensus, contributor changes and exact cutoff',integration:'Dispersion from frozen survey panels; no revised-history backfill'},
+  {name:'Daily grain futures / crop-region weather',scope:'RESEARCH',status:'NOT YET CONNECTED',reason:'Connected grain prices are monthly IMF benchmarks; NOAA weather is monthly CONUS. No licensed daily futures, intraday heat stress or crop-weighted weather panel is claimed.'},
+  {name:'WASDE / crush / agricultural forecast surprises',scope:'RESEARCH',status:'NOT YET CONNECTED',reason:'USDA NASS and inspection releases are separate from WASDE balance sheets, soybean crush and a timestamped pre-release consensus. No fabricated surprise or composite weights.'},
   ...['Google Trends','Social media','YouTube activity','Retail positioning','Broad news acceleration / novelty'].map(name=>({name,scope:'RESEARCH',status:'NOT YET CONNECTED',reason:'No configured stable authorized point-in-time feed. Existing official central-bank narratives remain separately available.'})),
 ];
 const families=[
@@ -28,14 +30,20 @@ const families=[
   {name:'Aggregate public-safety statistics',prefixes:['alt.safety.']},
   {name:'Electricity / real activity',prefixes:['alt.activity.']},
   {name:'Metadata-discovered economic proxies',prefixes:['alt.proxy.','proxy.']},
+  {name:'Agricultural monthly price proxies',prefixes:['alt.agri.price.']},
+  {name:'US crop progress / condition / moisture',prefixes:['alt.agri.crop.']},
+  {name:'US agricultural estimates / acreage / stocks',prefixes:['alt.agri.estimate.','alt.agri.acreage.','alt.agri.stocks.']},
+  {name:'US drought / monthly weather',prefixes:['alt.agri.drought.','alt.agri.weather.']},
+  {name:'US ethanol production / inventories',prefixes:['alt.agri.ethanol.']},
+  {name:'US grain export inspections',prefixes:['alt.agri.exports.']},
 ];
-export type ResearchReceipt=Pick<Observation,'currency'|'metric'|'value'|'period'|'receivedAt'|'releaseDate'|'source'|'sourceUrl'|'quality'|'frequency'|'featureVersion'>;
+export type ResearchReceipt=Pick<Observation,'currency'|'metric'|'value'|'period'|'receivedAt'|'releaseDate'|'source'|'sourceUrl'|'quality'|'frequency'|'featureVersion'|'publicationDate'|'scheduledPublicationAt'|'researchExposures'>;
 export function researchCoverage(observations:ResearchReceipt[],checks:SourceCheck[],at:string){
   const latest=new Map<string,ResearchReceipt>();
   for(const o of observations.filter(o=>o.metric.startsWith('alt.')||o.metric.startsWith('proxy.'))){const id=o.currency+':'+o.metric,old=latest.get(id);if(!old||old.receivedAt<o.receivedAt)latest.set(id,o);}
-  const receipts:ResearchReceipt[]=[...latest.values()].map(({currency,metric,value,period,receivedAt,releaseDate,source,sourceUrl,quality,frequency,featureVersion})=>({currency,metric,value,period,receivedAt,releaseDate,source,sourceUrl,quality,frequency,featureVersion}));
-  const current=(r:ResearchReceipt)=>Number.isFinite(Date.parse(r.receivedAt))&&r.receivedAt<=at&&(!r.releaseDate||Number.isFinite(Date.parse(r.releaseDate))&&r.releaseDate<=at)&&r.quality==='VALID'&&observationQuality(r.metric,r.value,r.period,at)==='VALID';
+  const receipts:ResearchReceipt[]=[...latest.values()].map(({currency,metric,value,period,receivedAt,releaseDate,source,sourceUrl,quality,frequency,featureVersion,publicationDate,scheduledPublicationAt,researchExposures})=>({currency,metric,value,period,receivedAt,releaseDate,source,sourceUrl,quality,frequency,featureVersion,...(publicationDate!==undefined?{publicationDate}:{}),...(scheduledPublicationAt?{scheduledPublicationAt}:{}),...(researchExposures?{researchExposures}:{})}));
+  const current=(r:ResearchReceipt)=>Number.isFinite(Date.parse(r.receivedAt))&&r.receivedAt<=at&&(!r.releaseDate||Number.isFinite(Date.parse(r.releaseDate))&&r.releaseDate<=at)&&(!r.publicationDate||r.publicationDate<=at.slice(0,10))&&(!r.scheduledPublicationAt||r.scheduledPublicationAt<=at)&&r.quality==='VALID'&&observationQuality(r.metric,r.value,r.period,at)==='VALID';
   const classes=families.map(f=>{const rows=receipts.filter(r=>f.prefixes.some(p=>r.metric.startsWith(p))),fresh=rows.filter(current),failed=checks.some(c=>c.status!=='SUCCESS'&&c.metrics.some(m=>f.prefixes.some(p=>m.startsWith(p))));
-    return {name:f.name,status:fresh.length?(failed||fresh.length<rows.length?'PARTIAL':'FRESH'):rows.length?'STALE':failed?'FAILED':'WAITING FOR DATA',features:new Set(fresh.map(r=>r.metric)).size,observations:fresh.length,currencies:[...new Set(fresh.map(r=>r.currency))],latestPeriod:rows.map(r=>r.period).sort().at(-1)??null,sourceUrls:[...new Set(rows.map(r=>r.sourceUrl))]};});
+    return {name:f.name,status:fresh.length?(failed||fresh.length<rows.length?'PARTIAL':'FRESH'):rows.length?'STALE':failed?'FAILED':'WAITING FOR DATA',features:new Set(fresh.map(r=>r.metric)).size,observations:fresh.length,currencies:[...new Set(fresh.flatMap(r=>r.researchExposures?.map(e=>e.currency)??[r.currency]))],latestPeriod:rows.map(r=>r.period).sort().at(-1)??null,sourceUrls:[...new Set(rows.map(r=>r.sourceUrl))]};});
   return {asOf:at,scope:'Available registered Research families; independent of Core LIVE and adaptive qualification. Not a percentage of all possible alternative data.',families:classes.length,connected:classes.filter(c=>c.observations>0).length,freshObservations:receipts.filter(current).length,classes,receipts,notConnected:sourceGaps.filter(g=>g.scope==='RESEARCH')};
 }

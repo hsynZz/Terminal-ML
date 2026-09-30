@@ -13,6 +13,7 @@ import { sourceAttempt, sourceFetch } from '@/lib/source-health';
 import { prepareProductionSnapshot, productionFailure } from '@/worker/production';
 import { collectProxies } from '@/worker/proxy-discovery';
 import { collectOfficialInputs, collectMacroProxies } from '@/lib/observed-sources';
+import { collectAgriculturalInputs } from '@/lib/agricultural-research';
 import { collectExpansion, relativeYieldFeatures } from '@/lib/source-expansion';
 import { narrativeObservations } from '@/lib/narrative-features';
 import { collectWorldBankCore } from '@/lib/world-bank-core';
@@ -155,6 +156,7 @@ export async function POST(request: Request) {
   const officialInputs=collectOfficialInputs(sourceChecks,new Date().toISOString());
   const expansionInputs=collectExpansion(sourceChecks);
   const macroProxies=collectMacroProxies(sourceChecks,fredApiKey);
+  const agriculturalInputs=collectAgriculturalInputs(sourceChecks,fredApiKey);
   if (fredApiKey) {
     const usd = payload.currencies.find((currency) => currency.code === "USD");
     if (usd) {
@@ -252,7 +254,7 @@ export async function POST(request: Request) {
     if(observation.metric==='rate')c.rate=observation.value;else if(observation.metric==='yield2y')c.yield2y=observation.value;else if(observation.metric==='yield10y')c.yield10y=observation.value;else if(observation.metric==='seasonality')c.factors.seasonality=observation.value;else c.factors.cot=observation.value;
     receipts.push(observation);observations.push({currency:c.code,metric:observation.metric,value:observation.value,period:observation.period,source:observation.source,observedAt:observation.receivedAt});liveValues++;
   }
-  vintageRows.push(...official.filter(o=>o.metric.startsWith('alt.')||o.metric.startsWith('raw.')),...relativeYieldFeatures(receipts,new Date().toISOString()),...await macroProxies,...narrativeObservations(textSignals,new Date().toISOString()));
+  vintageRows.push(...official.filter(o=>o.metric.startsWith('alt.')||o.metric.startsWith('raw.')),...relativeYieldFeatures(receipts,new Date().toISOString()),...await macroProxies,...await agriculturalInputs,...narrativeObservations(textSignals,new Date().toISOString()));
   // Age weights change by day, not by the millisecond of a button click.
   const sentimentAt = new Date();
   for (const currency of payload.currencies) {

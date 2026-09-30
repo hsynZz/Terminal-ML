@@ -79,7 +79,8 @@ test('one-country and global alternatives retain provenance without fabricated p
 });
 test('redundancy detects underlying source/cause; hypothesis qualification ages out',()=>{
   const f=frame(),base=research.discoverRecipes([],f)[0];
-  const r={...base,id:'a',feature:'a',status:'ACTIVE',gate:{passed:true,improvement:1},weight:.02,lastChangedAt:at,lastValidatedAt:at,lineage:['same series'],economicCauses:['same cause']};
+  const certificate={passed:true,validationVersion:'date-cluster-hac-v1'};
+  const r={...base,id:'a',feature:'a',status:'ACTIVE',gate:{...certificate,improvement:1},historicalGate:certificate,holdoutGate:certificate,historicalIncrementalGate:certificate,holdoutIncrementalGate:certificate,incrementalGate:certificate,weight:.02,lastChangedAt:at,lastValidatedAt:at,lineage:['same series'],economicCauses:['same cause']};
   assert.equal(research.nonRedundant([r,{...r,id:'b',feature:'b'}],[f]).length,1);
   assert.equal(research.effectiveRecipeWeight(r,at),.02);assert.ok(research.effectiveRecipeWeight(r,new Date(Date.parse(at)+90*day).toISOString())<.02);assert.equal(research.effectiveRecipeWeight(r,new Date(Date.parse(at)+181*day).toISOString()),0);
 });
@@ -110,16 +111,19 @@ test('context learner trains only purged time splits and needs incremental valid
     for(const currency of data.currencies)outcomes.push({frameId:f.id,currency,horizon:10,asOf:time,label,entryDate:new Date(Date.parse(time)+day).toISOString().slice(0,10),labelEnd:new Date(Date.parse(time)+11*day).toISOString().slice(0,10),resolvedAt:new Date(Date.parse(time)+12*day).toISOString(),forwardReturn:label?.01:-.01});
   }
   const m=context.trainContextModel(frames,outcomes,10,'currency',at,1);assert.ok(m);assert.equal(m.weight,0);assert.ok(m.folds.length>=3);assert.ok(m.folds.every(f=>f.trainEnd<f.testStart));assert.deepEqual(m.recipeIds,['a']);assert.ok(m.gate&&m.incrementalGate);
+  const holdoutStart=frames[Math.floor(frames.length*.8)].at,changed=context.trainContextModel(frames,outcomes.map(o=>o.asOf>=holdoutStart?{...o,label:1-o.label}:o),10,'currency',at,1);
+  assert.deepEqual(changed.weights,m.weights);assert.deepEqual(changed.recipeIds,m.recipeIds);assert.deepEqual(changed.historicalGate,m.historicalGate);assert.notDeepEqual(changed.holdoutGate,m.holdoutGate);
   const future={...outcomes[0],frameId:'future',labelEnd:'2027-01-01'};assert.deepEqual(context.trainContextModel(frames,[...outcomes,future],10,'currency',at,1),m);
   assert.equal(context.trainContextModel(frames,outcomes.map(o=>({...o,resolvedAt:'2027-01-01T00:00:00Z'})),10,'currency',at,1),null);
   assert.equal(context.chooseContextChampions([m],[],frames,outcomes,at).length,0);
 });
 test('context allocation requires future shadow evidence and returns to zero after degradation',()=>{
   const template=frame(),frames=[],outcomes=[];
-  const model={id:'context-fixture',version:context.CONTEXT_VERSION,horizon:10,scope:'currency',recipeIds:['a'],weights:{},trainedAt:'2019-12-01T00:00:00Z',trainingSamples:100,status:'SHADOW',gate:{passed:true},incrementalGate:{passed:true},weight:0,look:1,lastBlocks:0,lastChangedAt:'2019-12-01T00:00:00Z',folds:[]};
+  const certificate={passed:true,validationVersion:'date-cluster-hac-v1'};
+  const model={historicalGate:certificate,holdoutGate:certificate,historicalIncrementalGate:certificate,holdoutIncrementalGate:certificate,id:'context-fixture',version:context.CONTEXT_VERSION,horizon:10,scope:'currency',recipeIds:['a'],weights:{},trainedAt:'2019-12-01T00:00:00Z',trainingSamples:100,status:'SHADOW',gate:{passed:true},incrementalGate:{passed:true},weight:0,look:1,lastBlocks:0,lastChangedAt:'2019-12-01T00:00:00Z',folds:[]};
   for(let i=0;i<80;i++){
     const time=new Date(Date.parse('2020-01-01')+i*21*day).toISOString(),label=1;
-    const candidate=i<40?(label?.9:.1):(label?.1:.9),regime=i%2?'risk-on':'risk-off';
+    const candidate=(i<40?.8:.2)+.1*Math.sin(i*1.7),regime=i%2?'risk-on':'risk-off';
     const f={...structuredClone(template),id:'shadow'+i,at:time,sourceReliability:1,regimeVerified:true,regime,contextPredictions:{[model.id]:{USD:{candidate,core:.5,ensemble:label?.6:.4,regime,inputVersion:context.CONTEXT_VERSION}}}};
     frames.push(f);outcomes.push({frameId:f.id,currency:'USD',horizon:10,asOf:time,label,entryDate:time.slice(0,10),labelEnd:new Date(Date.parse(time)+10*day).toISOString().slice(0,10),resolvedAt:new Date(Date.parse(time)+11*day).toISOString(),forwardReturn:label?.01:-.01});
   }

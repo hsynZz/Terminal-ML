@@ -1,6 +1,7 @@
 import { currencies, factorMeta, type FactorKey, type FactorScores } from './terminal-data';
 import { calibrationMetrics } from './calibration';
-import { independentBlocks, signP, type Sample } from './hypothesis/engine';
+import { type Sample } from './hypothesis/engine';
+import { VALIDATION_VERSION, dateClusters, dependence, historicalEpoch, purgeFold, type Dependence, type Removal } from './temporal-validation';
 import { trainLearnedWeights, type TrainingExample } from './retraining';
 import { coreEvidence, type EvidenceAttribution } from './adaptive-evidence';
 import { observationQuality, DATA_VERSION, dayMs, type Observation, type ProductionPayload, type SourceCheck } from './production-data';
@@ -12,9 +13,9 @@ export const outcomeHorizons=[1,3,5,10,30,60,90] as const;
 export type FeatureOrigin={definition:string;version:string;sourceUrls:string[];lineage:string[];economicCauses:string[];retrievedAt:string};
 export type ResearchFrame={id:string;at:string;version:string;regime:string;sourceReliability:number;regimeVerified?:boolean;pairForecasts?:{pair:string;horizon:number;core:number;adaptive:number}[];features:Record<string,Record<string,number>>;sources:Record<string,string[]>;featureOrigins?:Record<string,FeatureOrigin>;eventPredictions?:EventPrediction[];contextPredictions?:Record<string,Record<string,ContextPrediction>>;core:Record<string,number>;final:Record<string,number>;ml:Record<string,Record<string,number>>;hypotheses:Record<string,Record<string,number>>;modelIds:string[];prices:Record<string,number>;volatility:Record<string,number>;attributions:Record<string,EvidenceAttribution>;quality:string;digest?:string;inputIds?:string[];pairEvents?:ReturnType<typeof currencyPairs>};
 export type ResolvedTarget={frameId:string;currency:string;horizon:number;asOf:string;entryDate:string;labelEnd:string;resolvedAt:string;label:0|1;forwardReturn:number;mfe:number;mae:number;volatilityAdjustedReturn:number|null;volatilityExpansion:boolean|null;targetVersion:string;source:string;pricePath:{date:string;value:number}[];regime:string;core:number;adaptive:number;digest?:string};
-export type Recipe={id:string;version:string;feature:string;other?:string;operator:'level'|'change'|'lag'|'interaction';lag:number;horizon:number;direction:1|-1;target:'direction';createdAt:string;status:'DISCOVERY'|'TESTING'|'VALIDATING'|'SHADOW'|'ACTIVE'|'DEGRADED'|'REJECTED';reason:string;weight:number;look:number;lastBlocks:number;lastChangedAt:string;shadowStartedAt?:string;gate?:Gate;previousActiveVersion?:string;lastValidatedAt?:string;rationale?:string;lineage?:string[];economicCauses?:string[]};
-export type Comparison=Sample&{candidate:number};
-export type Gate={passed:boolean;reason:string;blocks:number;samples:number;adjustedP:number;confidence:number;stability:number;regimeFit:Record<string,number>;improvement:number|null;core:ReturnType<typeof calibrationMetrics>;adaptive:ReturnType<typeof calibrationMetrics>;recentImprovement:number|null;foldImprovements:number[]};
+export type Recipe={id:string;version:string;feature:string;other?:string;operator:'level'|'change'|'lag'|'interaction'|'season'|'regime'|'threshold'|'zscore'|'acceleration';lag:number;horizon:number;direction:1|-1;target:'direction';createdAt:string;status:'DISCOVERY'|'TESTING'|'VALIDATING'|'SHADOW'|'ACTIVE'|'DEGRADED'|'REJECTED';reason:string;weight:number;look:number;lastBlocks:number;lastDates?:number;lastChangedAt:string;shadowStartedAt?:string;gate?:Gate;incrementalGate?:Gate;historicalGate?:Gate;holdoutGate?:Gate;historicalIncrementalGate?:Gate;holdoutIncrementalGate?:Gate;historicalEpoch?:number;historicalAudit?:{epoch:number;developmentDates:number;trainingDates:number;validationDates:number;holdoutDates:number;testStart:string;testEnd:string;removed:Removal[]};commonCauseAudit?:{passed:boolean;reason:string;correlations:Record<string,number>;dates:number};progress?:{historical:Dependence;shadow:Dependence;nextCondition:string;holdoutStatus:string;nextHistoricalDates:number};previousActiveVersion?:string;lastValidatedAt?:string;rationale?:string;lineage?:string[];economicCauses?:string[]};
+export type Comparison=Sample&{candidate:number;entryDate?:string;resolvedAt?:string;controlBaseline?:number};
+export type Gate={passed:boolean;reason:string;blocks:number;samples:number;adjustedP:number;confidence:number;stability:number;regimeFit:Record<string,number>;improvement:number|null;core:ReturnType<typeof calibrationMetrics>;adaptive:ReturnType<typeof calibrationMetrics>;recentImprovement:number|null;foldImprovements:number[];validationVersion?:string;diagnostics?:Dependence};
 const clamp=(v:number,lo=-1,hi=1)=>Math.max(lo,Math.min(hi,v));
 const mean=(a:number[])=>a.length?a.reduce((s,v)=>s+v,0)/a.length:0;
 const addDays=(at:string,n:number)=>new Date(Date.parse(at.slice(0,10))+n*dayMs).toISOString().slice(0,10);
@@ -27,17 +28,17 @@ export function researchSourceChecks(frame:Pick<ResearchFrame,'features'|'source
   for(const k of keys){if(k.startsWith('factor.'))for(const m of dependencies[k.slice(7)]??[])metrics.add(m);else if(k.startsWith('fx.'))metrics.add('fxReferenceUsd');else if(k.startsWith('proxy.')||k.startsWith('alt.'))metrics.add(k);}
   if(keys.some(k=>k.startsWith('alt.narrative.')))metrics.add('nlpSentiment');
   return checks.filter(c=>{
-    if(!(used.has(c.source)||used.has('Official central bank RSS')&&c.metrics.includes('nlpSentiment'))||!c.metrics.some(m=>metrics.has(m)))return false;
+    if(!(used.has(c.source)||used.has('Official central bank RSS')&&c.metrics.includes('nlpSentiment'))||!c.metrics.some(m=>metrics.has(m)||m.endsWith('.')&&keys.some(k=>k.startsWith(m))))return false;
     if(c.currency==='ALL'||c.currency==='GLOBAL')return true;
     // A missing country that supplies no feature must not veto a different country's observed input.
     const local=Object.keys(frame.features[c.currency]??{});
-    return c.metrics.some(m=>m==='vix'||local.some(k=>k===m||k.startsWith('factor.')&&(dependencies[k.slice(7)]??[]).includes(m)||k.startsWith('fx.')&&m==='fxReferenceUsd'||k.startsWith('alt.narrative.')&&m==='nlpSentiment'));
+    return c.metrics.some(m=>m==='vix'||local.some(k=>k===m||m.endsWith('.')&&k.startsWith(m)||k.startsWith('factor.')&&(dependencies[k.slice(7)]??[]).includes(m)||k.startsWith('fx.')&&m==='fxReferenceUsd'||k.startsWith('alt.narrative.')&&m==='nlpSentiment'));
   });
 }
 
 export function buildResearchFrame(p:ProductionPayload,observations:Observation[],at=p.asOf):ResearchFrame{
   const features:ResearchFrame['features']={},sources:ResearchFrame['sources']={},featureOrigins:Record<string,FeatureOrigin>={},prices:Record<string,number>={},volatility:Record<string,number>={};
-  const valid=observations.filter(o=>o.quality==='VALID'&&Number.isFinite(Date.parse(o.receivedAt))&&o.receivedAt<=at&&(!o.releaseDate||Number.isFinite(Date.parse(o.releaseDate))&&o.releaseDate<=at)&&o.period<=at.slice(0,10));
+  const valid=observations.filter(o=>o.quality==='VALID'&&Number.isFinite(Date.parse(o.receivedAt))&&o.receivedAt<=at&&(!o.releaseDate||Number.isFinite(Date.parse(o.releaseDate))&&o.releaseDate<=at)&&(!o.publicationDate||o.publicationDate<=at.slice(0,10))&&(!o.scheduledPublicationAt||o.scheduledPublicationAt<=at)&&o.period<=at.slice(0,10));
   for(const c of p.currencies){
     const f:Record<string,number>={};
     for(const [key,meta] of Object.entries(p.coreFactors?.[c.code]??{}))if(meta.status==='OBSERVED'){
@@ -64,7 +65,7 @@ export function buildResearchFrame(p:ProductionPayload,observations:Observation[
       f['fx.dispersion']=clamp(Math.max(...returns)-Math.min(...returns),0,1);
       for(const key of Object.keys(f).filter(k=>k.startsWith('fx.')))sources[key]=['ECB reference fixing'];
     }
-    for(const o of valid.filter(o=>(o.currency===c.code||o.currency==='GLOBAL')&&(o.metric.startsWith('proxy.')||o.metric.startsWith('alt.')))){
+    for(const o of valid.filter(o=>(o.researchExposures?o.researchExposures.some(e=>e.currency===c.code):o.currency===c.code||o.currency==='GLOBAL')&&(o.metric.startsWith('proxy.')||o.metric.startsWith('alt.')))){
       if(!o.definition||!o.featureVersion||observationQuality(o.metric,o.value,o.period,at)!=='VALID')continue;
       f[o.metric]=clamp(o.normalizedValue??o.value);sources[o.metric]=[...new Set([...(sources[o.metric]??[]),o.source])];
       const old=featureOrigins[o.metric];featureOrigins[o.metric]={definition:o.definition,version:o.featureVersion,sourceUrls:[...new Set([...(old?.sourceUrls??[]),...o.sourceUrl.split(/\s+/)])],lineage:[...new Set([...(old?.lineage??[]),...o.lineage??[o.sourceUrl]])],economicCauses:[...new Set([...(old?.economicCauses??[]),o.economicCause??o.metric])],retrievedAt:o.receivedAt};
@@ -84,14 +85,20 @@ export function buildResearchFrame(p:ProductionPayload,observations:Observation[
 }
 
 /** Frozen deterministic feature grammar; discovery uses observed features, never outcomes. */
-export function discoverRecipes(existing:Recipe[],frame:ResearchFrame):Recipe[]{
+export function discoverRecipes(existing:Recipe[],frame:ResearchFrame,history:ResearchFrame[]=[]):Recipe[]{
   const result=[...existing],ids=new Set(existing.map(r=>r.id));
-  const keys=[...new Set(Object.values(frame.features).flatMap(Object.keys))].sort((a,b)=>existing.filter(r=>r.feature===a).length-existing.filter(r=>r.feature===b).length||a.localeCompare(b));
+  const prior=history.filter(f=>f.at<frame.at&&f.version===frame.version).slice(-120);
+  const priority=(key:string)=>{const origin=frame.featureOrigins?.[key],values=prior.flatMap(f=>Object.values(f.features).flatMap(v=>Number.isFinite(v[key])?[v[key]]:[])),depth=new Set(prior.filter(f=>Object.values(f.features).some(v=>Number.isFinite(v[key]))).map(f=>f.at.slice(0,10))).size,variation=values.length?Math.max(...values)-Math.min(...values):0;
+    // Scheduling metadata, not predictive confidence. No outcome enters the discovery priority.
+    return Number(!!origin?.economicCauses.length)+Number(!!origin?.sourceUrls.length)+Math.min(1,depth/90)+Math.min(1,variation)+Number(!!origin&&origin.retrievedAt<=frame.at);};
+  const keys=[...new Set(Object.values(frame.features).flatMap(Object.keys))].sort((a,b)=>existing.filter(r=>r.feature===a).length-existing.filter(r=>r.feature===b).length||priority(b)-priority(a)||a.localeCompare(b));
   const definitions:Omit<Recipe,'id'|'createdAt'|'status'|'reason'|'weight'|'look'|'lastBlocks'|'lastChangedAt'>[]=[];
   for(const variant of [0,1,2,3,4,5,6,7])for(const [index,key] of keys.entries()){
-    const operator=(['level','change','lag','interaction'] as const)[(variant+index)%4],horizon=[1,3,5,10][(Math.floor(variant/2)+index)%4];
-    const other=operator==='interaction'?keys[(index+1)%keys.length]:undefined;
-    definitions.push({version:RESEARCH_VERSION,feature:key,other,operator,lag:operator==='level'?0:7,horizon,direction:variant<4?1:-1,target:'direction'});
+    const operator=(['level','change','lag','interaction','season','regime','threshold','zscore','acceleration'] as const)[(variant+index)%9],horizon=[1,3,5,10][(Math.floor(variant/2)+index)%4];
+    const peers=keys.filter(k=>k!==key&&Object.values(frame.features).some(v=>Number.isFinite(v[key])&&Number.isFinite(v[k]))&&!frame.featureOrigins?.[k]?.lineage.some(s=>frame.featureOrigins?.[key]?.lineage.includes(s)));
+    const other=operator==='interaction'?peers[(variant+index)%Math.max(1,peers.length)]:operator==='season'?['season:mam','season:jja','season:son','season:djf'][(variant+index)%4]:operator==='regime'?'regime:'+frame.regime:undefined;
+    if(operator==='interaction'&&!other)continue;
+    definitions.push({version:operator==='level'||operator==='change'||operator==='lag'||operator==='interaction'?RESEARCH_VERSION:RESEARCH_VERSION+'-grammar3',feature:key,other,operator,lag:operator==='change'||operator==='lag'||operator==='acceleration'?7:0,horizon,direction:variant<4?1:-1,target:'direction'});
   }
   // A bounded registry controls resource use and multiplicity. Permanent IDs include exact formula.
   let added=0;
@@ -111,7 +118,14 @@ export function recipeSignal(r:Recipe,f:ResearchFrame,history:ResearchFrame[],cu
   if((r.operator==='change'||r.operator==='lag')&&!Number.isFinite(lag))return null;
   const other=r.other?f.features[currency]?.[r.other]:0;
   if(r.operator==='interaction'&&!Number.isFinite(other))return null;
-  return clamp(r.direction*(r.operator==='level'?value:r.operator==='change'?value-lag!:r.operator==='lag'?lag!:value*other!));
+  let signal:number;
+  if(r.operator==='season'){const windows:Record<string,number[]>={'season:mam':[2,3,4],'season:jja':[5,6,7],'season:son':[8,9,10],'season:djf':[11,0,1]},months=windows[r.other??''];if(!months||!months.includes(new Date(f.at).getUTCMonth()))return null;signal=value;}
+  else if(r.operator==='regime'){if(r.other!=='regime:'+f.regime)return null;signal=value;}
+  else if(r.operator==='threshold'){if(Math.abs(value)<=.5)return null;signal=Math.sign(value)*(Math.abs(value)-.5)/.5;}
+  else if(r.operator==='zscore'){const dated=new Map<string,number>();for(const h of history.filter(h=>h.version===f.version&&h.at<f.at&&h.at.slice(0,10)<f.at.slice(0,10))){const x=h.features[currency]?.[r.feature];if(Number.isFinite(x))dated.set(h.at.slice(0,10),x);}const past=[...dated.entries()].sort(([a],[b])=>a.localeCompare(b)).slice(-60).map(([,x])=>x);if(past.length<20)return null;const m=mean(past),sd=Math.sqrt(mean(past.map(x=>(x-m)**2)));if(sd<1e-8)return null;signal=Math.tanh((value-m)/sd/3);}
+  else if(r.operator==='acceleration'){const older=history.filter(h=>h.version===f.version&&h.at<=new Date(Date.parse(f.at)-2*r.lag*dayMs).toISOString()&&h.at>=new Date(Date.parse(f.at)-(2*r.lag+4)*dayMs).toISOString()).at(-1)?.features[currency]?.[r.feature];if(!Number.isFinite(lag)||!Number.isFinite(older))return null;signal=value-2*lag!+older!;}
+  else signal=r.operator==='level'?value:r.operator==='change'?value-lag!:r.operator==='lag'?lag!:value*other!;
+  return clamp(r.direction*signal);
 }
 
 /** Resolve only future, complete fixes. Each target includes the exact immutable price path. */
@@ -143,25 +157,33 @@ export function comparisons(frames:ResearchFrame[],outcomes:ResolvedTarget[],id:
   return outcomes.filter(o=>o.horizon===horizon).flatMap(o=>{
     const f=index.get(o.frameId),candidate=f?.[kind][id]?.[o.currency];
     if(!f||f.version!==DATA_VERSION||f.quality!=='VALID'||f.regimeVerified!==true||f.sourceReliability<.8||!Number.isFinite(candidate))return [];
-    return [{asOf:o.asOf,labelEnd:o.labelEnd,pair:o.currency,probability:clamp(o.core+.05*(candidate!-o.core),.001,.999),candidate:candidate!,baseline:o.core,label:o.label,regime:o.regime,pointInTimeVerified:true}];
+    // A frozen leave-one-component-out benchmark preserves all contemporaneous Core/other adaptive inputs.
+    const attribution=f.attributions[o.currency],controlBaseline=attribution?clamp(attribution.coreEvidenceScore+attribution.components.filter(x=>x.id!==id).reduce((n,x)=>n+x.contribution,0),.001,.999):o.core;
+    return [{asOf:o.asOf,entryDate:o.entryDate,labelEnd:o.labelEnd,resolvedAt:o.resolvedAt,pair:o.currency,probability:clamp(o.core+.05*(candidate!-o.core),.001,.999),candidate:candidate!,baseline:o.core,controlBaseline,label:o.label,regime:o.regime,pointInTimeVerified:true}];
   });
 }
 export function validationGate(rows:Comparison[],horizon:number,family:number,look:number,minBlocks=30):Gate{
-  const blocks=independentBlocks(rows,horizon),all=blocks.flatMap(b=>b.rows),core=calibrationMetrics(all.map(r=>({...r,probability:r.baseline}))),adaptive=calibrationMetrics(all);
+  void horizon; // Dependence uses actual label intervals, not nominal calendar spacing.
+  const eligible=rows.filter(r=>r.pointInTimeVerified===true&&Number.isFinite(r.probability)&&r.probability>0&&r.probability<1&&Number.isFinite(r.baseline)&&r.baseline>0&&r.baseline<1&&(r.label===0||r.label===1)),blocks=dateClusters(eligible).clusters,all=blocks.flatMap(b=>b.rows),core=calibrationMetrics(all.map(r=>({...r,probability:r.baseline}))),adaptive=calibrationMetrics(all);
+  const diagnostics=dependence(eligible,r=>(r.baseline-r.label)**2-(r.probability-r.label)**2);
   const effects=blocks.map(b=>mean(b.rows.map(r=>(r.baseline-r.label)**2-(r.probability-r.label)**2)));
-  const adjustedP=Math.min(1,signP(effects.filter(x=>x>0).length,effects.length)*Math.max(1,family)*Math.max(1,look)*(Math.max(1,look)+1));
+  const adjustedP=Math.min(1,diagnostics.pValue*Math.max(1,family)*Math.max(1,look)*(Math.max(1,look)+1));
   const regimeFit:Record<string,number>={};
-  for(const regime of [...new Set(all.map(r=>r.regime))]){const sub=blocks.filter(b=>b.rows.some(r=>r.regime===regime));regimeFit[regime]=sub.length>=10&&mean(sub.map(b=>mean(b.rows.filter(r=>r.regime===regime).map(r=>(r.baseline-r.label)**2-(r.probability-r.label)**2))))>0?1:0;}
+  for(const regime of [...new Set(all.map(r=>r.regime))]){const sub=all.filter(r=>r.regime===regime),info=dependence(sub,r=>(r.baseline-r.label)**2-(r.probability-r.label)**2);regimeFit[regime]=info.effectiveSampleSize>=10&&mean(sub.map(r=>(r.baseline-r.label)**2-(r.probability-r.label)**2))>0?1:0;}
   const folds=[0,1,2].map(i=>mean(effects.slice(Math.floor(i*effects.length/3),Math.floor((i+1)*effects.length/3))));
   const last=Date.parse(blocks.at(-1)?.asOf??'1970-01-01'),recency=blocks.map(b=>Math.exp(-Math.LN2*(last-Date.parse(b.asOf))/(180*dayMs)));
   const improvement=effects.length?effects.reduce((n,e,i)=>n+e*recency[i],0)/recency.reduce((a,b)=>a+b,0):null,recent=effects.length?mean(effects.slice(-20)):null,stability=effects.length?effects.filter(x=>x>0).length/effects.length:0;
-  const passed=blocks.length>=minBlocks&&adjustedP<=.05&&!!core&&!!adaptive&&adaptive.logLoss<core.logLoss&&adaptive.expectedCalibrationError<=core.expectedCalibrationError+.01&&folds.every(x=>x>0)&&stability>=.65&&recent!==null&&recent>0&&improvement!==null&&improvement>0&&Object.values(regimeFit).filter(x=>x>0).length>=2;
-  return {passed,reason:passed?'OOS_BLOCKS_CALIBRATION_REGIMES_PASSED':blocks.length<minBlocks?'INSUFFICIENT_SAMPLE':'VALIDATION_NOT_PASSED',blocks:blocks.length,samples:all.length,adjustedP,confidence:passed?1-adjustedP:0,stability,regimeFit,improvement,core,adaptive,recentImprovement:recent,foldImprovements:folds};
+  const passed=diagnostics.effectiveSampleSize>=minBlocks&&adjustedP<=.05&&!!core&&!!adaptive&&adaptive.logLoss<core.logLoss&&adaptive.expectedCalibrationError<=core.expectedCalibrationError+.01&&folds.every(x=>x>0)&&stability>=.65&&recent!==null&&recent>0&&improvement!==null&&improvement>0&&Object.values(regimeFit).filter(x=>x>0).length>=2;
+  return {passed,reason:passed?'OOS_HAC_CALIBRATION_REGIMES_PASSED':diagnostics.effectiveSampleSize<minBlocks?'INSUFFICIENT_SAMPLE':'VALIDATION_NOT_PASSED',blocks:Math.floor(diagnostics.effectiveSampleSize),samples:all.length,adjustedP,confidence:passed?1-adjustedP:0,stability,regimeFit,improvement,core,adaptive,recentImprovement:recent,foldImprovements:folds,validationVersion:VALIDATION_VERSION,diagnostics};
 }
+export function certified(m:{historicalGate?:Gate;holdoutGate?:Gate}){return m.historicalGate?.passed===true&&m.holdoutGate?.passed===true&&m.historicalGate.validationVersion===VALIDATION_VERSION&&m.holdoutGate.validationVersion===VALIDATION_VERSION;}
+const incrementalRows=(rows:Comparison[])=>rows.map(r=>({...r,baseline:r.controlBaseline??r.baseline,probability:clamp((r.controlBaseline??r.baseline)+.05*(r.candidate-(r.controlBaseline??r.baseline)),.001,.999)}));
+export function incrementalCertified(m:{historicalIncrementalGate?:Gate;holdoutIncrementalGate?:Gate}){return m.historicalIncrementalGate?.passed===true&&m.holdoutIncrementalGate?.passed===true&&m.historicalIncrementalGate.validationVersion===VALIDATION_VERSION&&m.holdoutIncrementalGate.validationVersion===VALIDATION_VERSION;}
+export function recipeCertified(r:Recipe){return certified(r)&&incrementalCertified(r);}
 /** Match contemporaneous predictions; a challenger cannot displace a qualified incumbent on selection rank alone. */
 export function chooseChampions(models:CandidateModel[],incumbents:string[],frames:ResearchFrame[],outcomes:ResolvedTarget[],now:string){
   return [10,30,60,90].flatMap(horizon=>{
-    const qualified=models.filter(m=>m.horizon===horizon&&m.status==='ACTIVE'&&m.gate.passed&&Date.parse(now)-Date.parse(m.lastValidatedAt??m.lastChangedAt)<180*dayMs).sort((a,b)=>(b.gate.improvement??0)-(a.gate.improvement??0));
+    const qualified=models.filter(m=>m.horizon===horizon&&m.status==='ACTIVE'&&certified(m)&&m.gate.passed&&m.gate.validationVersion===VALIDATION_VERSION&&Date.parse(now)-Date.parse(m.lastValidatedAt??m.lastChangedAt)<180*dayMs).sort((a,b)=>(b.gate.improvement??0)-(a.gate.improvement??0));
     const incumbent=qualified.find(m=>incumbents.includes(m.id));if(!incumbent)return qualified.slice(0,1);
     const challenger=qualified.find(m=>m.id!==incumbent.id);if(!challenger)return [incumbent];
     const rows=comparisons(frames,outcomes,challenger.id,horizon,'ml');
@@ -172,28 +194,43 @@ export function chooseChampions(models:CandidateModel[],incumbents:string[],fram
 }
 export function advanceRecipe(r:Recipe,rows:Comparison[],family:number,now:string):Recipe{
   if(r.status==='REJECTED')return {...r,weight:0};
-  const historical=rows.filter(x=>!r.shadowStartedAt||x.asOf<r.shadowStartedAt);
-  const blocks=independentBlocks(historical,r.horizon);
-  if(!r.shadowStartedAt){
-    if(blocks.length<120)return {...r,status:blocks.length>=100?'VALIDATING':'TESTING',weight:0,reason:`${blocks.length}/120 non-overlapping historical blocks`};
-    const first=blocks.slice(0,120).flatMap(b=>b.rows) as Comparison[];
-    // First 40 blocks reserved for development; next 60 validation; final 20 untouched holdout.
-    const validation=validationGate(first.filter(x=>x.asOf.slice(0,10)>=blocks[40].asOf&&x.asOf.slice(0,10)<blocks[100].asOf),r.horizon,family,1,60);
-    const gate=validationGate(blocks.slice(100,120).flatMap(b=>b.rows) as Comparison[],r.horizon,family,1,20);
-    const passed=validation.passed&&gate.passed;
-    return {...r,status:passed?'SHADOW':'REJECTED',weight:0,reason:passed?'Frozen holdout passed; prospective shadow required':'Frozen validation/holdout failed',shadowStartedAt:passed?now:undefined,gate,look:1,lastChangedAt:now};
+  const known=rows.filter(x=>x.asOf>=r.createdAt&&x.asOf<now&&x.labelEnd<now.slice(0,10)&&(!x.resolvedAt||x.resolvedAt<=now)),historical=known.filter(x=>!r.shadowStartedAt||x.asOf<r.shadowStartedAt),prospective=known.filter(x=>!!r.shadowStartedAt&&x.asOf>r.shadowStartedAt);
+  const historicalInfo=dependence(historical,x=>(x.baseline-x.label)**2-(x.probability-x.label)**2),shadowInfo=dependence(prospective,x=>(x.baseline-x.label)**2-(x.probability-x.label)**2);
+  const epoch=historicalEpoch(historical),progress={historical:historicalInfo,shadow:shadowInfo,nextCondition:'Historical ESS 120; validation ESS 60; untouched holdout ESS 20; two supported regimes; incremental over frozen Core + other contributions',holdoutStatus:recipeCertified(r)?'PASSED':r.holdoutGate?.reason??'NOT YET TESTED',nextHistoricalDates:epoch?.nextDateCount??120};
+  if(!r.shadowStartedAt||!recipeCertified(r)){
+    const pending={...r,progress,weight:0,shadowStartedAt:undefined,status:(historicalInfo.uniqueForecastDates>=100?'VALIDATING':'TESTING') as Recipe['status']};
+    if(!epoch)return {...pending,reason:`${historicalInfo.uniqueForecastDates}/120 historical dates; ESS ${historicalInfo.effectiveSampleSize.toFixed(1)}`};
+    if(r.historicalEpoch===epoch.epoch)return pending;
+    const look=r.look+1,purged=purgeFold(epoch.validation,epoch.holdout),validation=validationGate(purged.kept,r.horizon,family,look,60),holdout=validationGate(epoch.holdout,r.horizon,family,look,20);
+    const historicalIncrementalGate=validationGate(incrementalRows(purged.kept),r.horizon,family,look,60),holdoutIncrementalGate=validationGate(incrementalRows(epoch.holdout),r.horizon,family,look,20);
+    const enough=historicalInfo.effectiveSampleSize>=120&&validation.blocks>=60&&holdout.blocks>=20,passed=enough&&validation.passed&&holdout.passed&&historicalIncrementalGate.passed&&holdoutIncrementalGate.passed;
+    const mature=enough&&Object.values(validation.regimeFit).filter(Boolean).length>=2&&Object.values(holdout.regimeFit).filter(Boolean).length>=2;
+    return {...pending,status:passed?'SHADOW':mature?'REJECTED':'VALIDATING',reason:passed?'Historical HAC and frozen holdout passed; new prospective shadow required':mature?'Frozen validation/holdout failed':'WAITING_FOR_EFFECTIVE_INFORMATION_OR_REGIMES',shadowStartedAt:passed?now:undefined,historicalGate:validation,holdoutGate:holdout,historicalIncrementalGate,holdoutIncrementalGate,gate:holdout,historicalEpoch:epoch.epoch,historicalAudit:{epoch:epoch.epoch,developmentDates:dateClusters(epoch.development).clusters.length,trainingDates:dateClusters(epoch.training).clusters.length,validationDates:dateClusters(purged.kept).clusters.length,holdoutDates:dateClusters(epoch.holdout).clusters.length,testStart:purged.testStart,testEnd:purged.testEnd,removed:purged.removed},look,lastDates:0,lastChangedAt:now,progress:{...progress,holdoutStatus:holdout.reason,nextCondition:passed?'Future shadow ESS 30, two regimes, calibration and family/repeated-look gates':progress.nextCondition}};
   }
-  const prospective=rows.filter(x=>x.asOf>r.shadowStartedAt!),count=independentBlocks(prospective,r.horizon).length;
-  if(count<r.lastBlocks+10)return r;
-  const look=r.look+1,gate=validationGate(prospective,r.horizon,family,look);
+  const dates=shadowInfo.uniqueForecastDates;
+  if(dates<(r.lastDates??0)+10)return {...r,progress:{...progress,nextCondition:'10 new forecast dates for the next prospective look; shadow ESS 30 and quality gates'}};
+  const look=r.look+1,gate=validationGate(prospective,r.horizon,family,look),incrementalGate=validationGate(incrementalRows(prospective),r.horizon,family,look),count=gate.blocks;
+  if(!incrementalGate.passed){gate.passed=false;gate.confidence=0;gate.reason='INCREMENTAL_'+incrementalGate.reason;}
+  const next={...r,incrementalGate,progress:{...progress,nextCondition:gate.passed?'Continue future quality monitoring':gate.reason},lastDates:dates};
   const materiallyBad=gate.recentImprovement!==null&&gate.recentImprovement<-.002;
   const wait=Date.parse(now)-Date.parse(r.lastChangedAt)<30*dayMs;
-  if(materiallyBad||gate.blocks>=30&&!gate.passed)return {...r,status:'DEGRADED',weight:0,reason:gate.reason,gate,look,lastBlocks:count,lastChangedAt:now};
-  if(!gate.passed||r.status==='DEGRADED'&&wait)return {...r,gate,look,lastBlocks:count,weight:0};
-  return {...r,status:'ACTIVE',weight:gate.stability<.75&&r.weight>0?r.weight*.5:Math.min(.025,r.weight>0?r.weight+.005:.005),reason:'Prospective evidence passed',gate,look,lastBlocks:count,lastChangedAt:r.status==='ACTIVE'?r.lastChangedAt:now,lastValidatedAt:now};
+  if(materiallyBad||gate.blocks>=30&&!gate.passed||r.status==='ACTIVE'&&!gate.passed)return {...next,status:'DEGRADED',weight:0,reason:gate.reason,gate,look,lastBlocks:count,lastChangedAt:now};
+  if(!gate.passed||r.status==='DEGRADED'&&wait)return {...next,gate,look,lastBlocks:count,weight:0};
+  return {...next,status:'ACTIVE',weight:gate.stability<.75&&r.weight>0?r.weight*.5:Math.min(.025,r.weight>0?r.weight+.005:.005),reason:'Prospective HAC evidence passed',gate,look,lastBlocks:count,lastChangedAt:r.status==='ACTIVE'?r.lastChangedAt:now,lastValidatedAt:now};
 }
-export function effectiveRecipeWeight(r:Recipe,now:string){const age=Math.max(0,Date.parse(now)-Date.parse(r.lastValidatedAt??r.lastChangedAt));return r.status==='ACTIVE'&&r.gate?.passed&&age<180*dayMs?r.weight*Math.exp(-Math.LN2*age/(180*dayMs)):0;}
+export function effectiveRecipeWeight(r:Recipe,now:string){const age=Math.max(0,Date.parse(now)-Date.parse(r.lastValidatedAt??r.lastChangedAt));return r.status==='ACTIVE'&&recipeCertified(r)&&r.incrementalGate?.passed&&r.incrementalGate.validationVersion===VALIDATION_VERSION&&r.gate?.validationVersion===VALIDATION_VERSION&&r.gate?.passed&&age<180*dayMs?r.weight*Math.exp(-Math.LN2*age/(180*dayMs)):0;}
 export function correlation(a:number[],b:number[]){if(a.length!==b.length||a.length<10)return 1;const ma=mean(a),mb=mean(b),va=a.map(x=>x-ma),vb=b.map(x=>x-mb),den=Math.sqrt(va.reduce((s,x)=>s+x*x,0)*vb.reduce((s,x)=>s+x*x,0));return den?va.reduce((s,x,i)=>s+x*vb[i],0)/den:1;}
+export function agriculturalCommonCauseCheck(r:Recipe,frames:ResearchFrame[]){
+  if(!r.feature.startsWith('alt.agri.')&&!r.other?.startsWith('alt.agri.'))return {passed:true,reason:'NOT_AGRICULTURAL',correlations:{},dates:0};
+  const history=frames.filter(f=>f.quality==='VALID'&&f.regimeVerified&&f.sourceReliability>=.8).slice(-240),keys=[...new Set(history.flatMap(f=>Object.values(f.features).flatMap(Object.keys)))].filter(k=>k.startsWith('factor.')||k.startsWith('fx.trend')||k.startsWith('alt.global.energy.')||k.startsWith('alt.proxy.'));
+  const correlations:Record<string,number>={};let dates=0;
+  for(const key of keys){const paired=history.flatMap(f=>currencies.flatMap(c=>{const signal=f.hypotheses[r.id]?.[c],control=f.features[c]?.[key];return Number.isFinite(signal)&&Number.isFinite(control)?[{date:f.at.slice(0,10),signal,control}]:[];}));
+    const count=new Set(paired.map(x=>x.date)).size;dates=Math.max(dates,count);if(count<30||Math.max(...paired.map(x=>x.control))-Math.min(...paired.map(x=>x.control))<1e-8)continue;
+    correlations[key]=Math.abs(correlation(paired.map(x=>x.signal),paired.map(x=>x.control)));
+  }
+  const reason=Object.values(correlations).some(x=>x>.8)?'REDUNDANT_WITH_CORE_OR_COMMON_CAUSE':Object.keys(correlations).length<3?'WAITING_FOR_VARIABLE_COMMON_CAUSE_CONTROLS':'COMMON_CAUSE_SCREEN_PASSED_NOT_CAUSAL_PROOF';
+  return {passed:reason==='COMMON_CAUSE_SCREEN_PASSED_NOT_CAUSAL_PROOF',reason,correlations,dates};
+}
 export function nonRedundant(recipes:Recipe[],frames:ResearchFrame[],outcomes:ResolvedTarget[]=[]){
   const selected:Recipe[]=[];
   const vector=(r:Recipe,mode:'feature'|'signal'|'outcome')=>new Map(mode==='outcome'?comparisons(frames,outcomes,r.id,r.horizon,'hypotheses').slice(-960).map(x=>[x.asOf+':'+x.pair+':'+x.labelEnd,(x.probability-x.label)**2]):frames.slice(-120).flatMap(f=>currencies.flatMap(c=>{const v=mode==='feature'?f.features[c]?.[r.feature]:f.hypotheses[r.id]?.[c];return Number.isFinite(v)?[[f.at+':'+c,v] as [string,number]]:[];})));
@@ -203,7 +240,7 @@ export function nonRedundant(recipes:Recipe[],frames:ResearchFrame[],outcomes:Re
     selected.push(r);
   }return selected;
 }
-export type CandidateModel={id:string;horizon:number;version:string;trainedAt:string;weights:FactorScores;trainingSamples:number;status:'SHADOW'|'ACTIVE'|'DEGRADED'|'REJECTED';gate:Gate;shadowStartedAt:string;lastChangedAt:string;lastValidatedAt?:string;weight:number;look:number;lastBlocks:number;featureKeys:string[];featureRange:Record<string,[number,number]>;folds:{trainEnd:string;testStart:string;samples:number}[]};
+export type CandidateModel={id:string;horizon:number;version:string;trainedAt:string;weights:FactorScores;trainingSamples:number;status:'SHADOW'|'ACTIVE'|'DEGRADED'|'REJECTED';gate:Gate;historicalGate?:Gate;holdoutGate?:Gate;shadowStartedAt:string;lastChangedAt:string;lastValidatedAt?:string;weight:number;look:number;lastBlocks:number;lastDates?:number;featureKeys:string[];featureRange:Record<string,[number,number]>;folds:{trainEnd:string;testStart:string;samples:number;removed?:Removal[];embargoEnd?:string|null}[]};
 export function modelFeatures(frame:ResearchFrame,currency:string):FactorScores{
   return Object.fromEntries((Object.keys(factorMeta) as FactorKey[]).map(k=>[k,frame.features[currency]?.['factor.'+k]??0])) as FactorScores;
 }
@@ -212,22 +249,31 @@ export function trainChallenger(frames:ResearchFrame[],outcomes:ResolvedTarget[]
   const frameMap=new Map(frames.map(f=>[f.id,f]));
   const dataset=outcomes.filter(o=>o.horizon===horizon&&o.labelEnd<now.slice(0,10)&&o.resolvedAt<=now&&o.asOf<now).flatMap(o=>{
     const f=frameMap.get(o.frameId);if(!f||f.version!==DATA_VERSION||f.quality!=='VALID'||f.regimeVerified!==true||f.sourceReliability<.8)return [];
-    return [{features:modelFeatures(f,o.currency),label:o.label,asOf:o.asOf,labelEnd:o.labelEnd,pair:o.currency,horizon,core:o.core,regime:o.regime}] as (TrainingExample&{core:number;regime:string})[];
+    return [{features:modelFeatures(f,o.currency),label:o.label,asOf:o.asOf,entryDate:o.entryDate,labelEnd:o.labelEnd,resolvedAt:o.resolvedAt,pair:o.currency,horizon,core:o.core,regime:o.regime}] as (TrainingExample&{core:number;regime:string})[];
   });
   const days=[...new Set(dataset.map(x=>x.asOf!.slice(0,10)))].sort();if(dataset.length<100||days.length<40)return null;
   const initial=Object.fromEntries(Object.entries(factorMeta).map(([k,m])=>[k,m.weight])) as FactorScores;
   const results:Comparison[]=[],folds:CandidateModel['folds']=[];
-  for(let i=Math.floor(days.length*.5);i<days.length;i+=Math.max(1,Math.floor(days.length/6))){
-    const start=days[i],end=days[Math.min(days.length-1,i+Math.max(1,Math.floor(days.length/6))-1)];
-    const train=dataset.filter(x=>Date.parse(x.labelEnd!)+dayMs<Date.parse(start)),test=dataset.filter(x=>x.asOf!.slice(0,10)>=start&&x.asOf!.slice(0,10)<=end);
+  const timed=dateClusters(dataset.map(x=>({...x,asOf:x.asOf!,labelEnd:x.labelEnd!}))).clusters.flatMap(c=>c.rows),holdoutStart=Math.floor(days.length*.8),step=Math.max(1,Math.floor(holdoutStart/6));
+  const holdout=timed.filter(x=>x.asOf.slice(0,10)>=days[holdoutStart]);
+  const development=timed.filter(x=>x.asOf.slice(0,10)<days[holdoutStart]);let priorTest:typeof timed=[];
+  const predict=(row:typeof timed[number],weights:FactorScores):Comparison=>{const candidate=1/(1+Math.exp(-5*Object.entries(row.features).reduce((s,[k,v])=>s+v*weights[k as FactorKey],0)));return {asOf:row.asOf,entryDate:row.entryDate,labelEnd:row.labelEnd,resolvedAt:row.resolvedAt,pair:row.pair!,label:row.label,baseline:row.core,probability:row.core+.05*(candidate-row.core),candidate,regime:row.regime,pointInTimeVerified:true};};
+  for(let i=Math.floor(holdoutStart*.5);i<holdoutStart;i+=step){
+    const start=days[i],end=days[Math.min(holdoutStart-1,i+step-1)];
+    const test=development.filter(x=>x.asOf.slice(0,10)>=start&&x.asOf.slice(0,10)<=end),purged=purgeFold(development.filter(x=>x.asOf.slice(0,10)<start),test,priorTest),train=purged.kept;priorTest=test;
     if(train.length<60||!test.length)continue;
     const fitted=trainLearnedWeights(train,initial,180);
-    for(const row of test){const candidate=1/(1+Math.exp(-5*Object.entries(row.features).reduce((s,[k,v])=>s+v*fitted.weights[k as FactorKey],0)));results.push({asOf:row.asOf!,labelEnd:row.labelEnd!,pair:row.pair!,label:row.label,baseline:row.core,probability:row.core+.05*(candidate-row.core),candidate,regime:row.regime});}
-    folds.push({trainEnd:train.map(x=>x.labelEnd!).sort().at(-1)!,testStart:start,samples:test.length});
+    for(const row of test)results.push(predict(row,fitted.weights));
+    folds.push({trainEnd:train.map(x=>x.labelEnd).sort().at(-1)!,testStart:start,samples:test.length,removed:purged.removed,embargoEnd:purged.embargoEnd});
   }
-  const gate=validationGate(results,horizon,4*sequence*(sequence+1),1,60),trained=trainLearnedWeights(dataset,initial,240);
-  const featureRange=Object.fromEntries(Object.keys(factorMeta).map(k=>{const v=dataset.map(d=>d.features[k as FactorKey]);return [k,[Math.min(...v),Math.max(...v)] as [number,number]];}));
-  return {id:`ml:${RESEARCH_VERSION}:${horizon}:${now}`,horizon,version:DATA_VERSION,trainedAt:now,weights:trained.weights,trainingSamples:dataset.length,status:gate.passed?'SHADOW':'REJECTED',gate,shadowStartedAt:now,lastChangedAt:now,weight:0,look:1,lastBlocks:0,featureKeys:Object.keys(factorMeta).filter(k=>featureRange[k][0]!==featureRange[k][1]),featureRange,folds};
+  const family=4*sequence*(sequence+1),historicalGate=validationGate(results,horizon,family,1,60);
+  const frozen=purgeFold(development,holdout,priorTest),training=frozen.kept;if(training.length<60)return null;
+  const trained=trainLearnedWeights(training,initial,240),holdoutGate=validationGate(holdout.map(r=>predict(r,trained.weights)),horizon,family,1,20);
+  folds.push({trainEnd:training.map(x=>x.labelEnd).sort().at(-1)!,testStart:days[holdoutStart],samples:holdout.length,removed:frozen.removed,embargoEnd:frozen.embargoEnd});
+  if(folds.length<4){historicalGate.passed=false;historicalGate.reason='INSUFFICIENT_WALK_FORWARD_FOLDS';historicalGate.confidence=0;}
+  const featureRange=Object.fromEntries(Object.keys(factorMeta).map(k=>{const v=training.map(d=>d.features[k as FactorKey]);return [k,[Math.min(...v),Math.max(...v)] as [number,number]];}));
+  const mature=historicalGate.blocks>=60&&holdoutGate.blocks>=20;
+  return {id:`ml:${RESEARCH_VERSION}:${horizon}:${now}`,horizon,version:DATA_VERSION,trainedAt:now,weights:trained.weights,trainingSamples:training.length,status:mature&&(!historicalGate.passed||!holdoutGate.passed)?'REJECTED':'SHADOW',gate:historicalGate,historicalGate,holdoutGate,shadowStartedAt:now,lastChangedAt:now,weight:0,look:1,lastBlocks:0,lastDates:0,featureKeys:Object.keys(factorMeta).filter(k=>featureRange[k][0]!==featureRange[k][1]),featureRange,folds};
 }
 export function modelInDistribution(m:CandidateModel,f:ResearchFrame,c:string){const x=modelFeatures(f,c);return m.version===f.version&&m.featureKeys.length>0&&m.featureKeys.every(k=>Number.isFinite(f.features[c]?.['factor.'+k]))&&Object.entries(m.featureRange).every(([k,[lo,hi]])=>Number.isFinite(x[k as FactorKey])&&x[k as FactorKey]>=lo-.15&&x[k as FactorKey]<=hi+.15);}
 export function currencyPairs(frame:ResearchFrame){return currencies.flatMap((a,i)=>currencies.slice(i+1).map(b=>({pair:`${a}/${b}`,coreEvidence:.5+(frame.core[a]-frame.core[b])/2,finalEvidence:.5+(frame.final[a]-frame.final[b])/2,features:Object.fromEntries(Object.entries(frame.features[a]).filter(([k])=>Number.isFinite(frame.features[b]?.[k])).map(([k,v])=>[k,clamp(v-frame.features[b][k])]))})));}

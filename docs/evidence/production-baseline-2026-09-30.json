@@ -1,0 +1,946 @@
+{
+  "readAt": "2026-09-30T13:19:03.708Z",
+  "source": "Read-only existing production D1; this run has not generated any production data",
+  "status": {
+    "status": "WAITING_FOR_QUALITY_DATA",
+    "mlVersion": "DETERMINISTIC_CORE",
+    "hypothesisCount": 96,
+    "active": 0,
+    "shadow": 0,
+    "testing": 96,
+    "rejected": 0,
+    "resolved": 104,
+    "trainingExamples": 0,
+    "lastRetrain": "2026-09-26T20:01:07.695Z",
+    "rollbackCount": 0,
+    "mlInfluence": 0,
+    "hypothesisInfluence": 0,
+    "snapshotCount": 44,
+    "observationCountBeforeRefreshUpsert": 230,
+    "immutableVintages": 1598,
+    "coverage": {
+      "factors": 80,
+      "fresh": 54,
+      "carried": 13,
+      "partial": 13,
+      "ratio": 0.675,
+      "critical": {
+        "total": 60,
+        "fresh": 40,
+        "ratio": 0.6666666666666666,
+        "missing": [
+          "USD.yields",
+          "USD.risk",
+          "EUR.yields",
+          "EUR.risk",
+          "GBP.yields",
+          "GBP.risk",
+          "JPY.yields",
+          "JPY.commodities",
+          "JPY.risk",
+          "CHF.yields",
+          "CHF.risk",
+          "CAD.yields",
+          "CAD.commodities",
+          "CAD.risk",
+          "AUD.yields",
+          "AUD.commodities",
+          "AUD.risk",
+          "NZD.yields",
+          "NZD.commodities",
+          "NZD.risk"
+        ]
+      },
+      "stale": 0,
+      "failed": 10,
+      "unavailable": 13,
+      "categoryGaps": [
+        "yields",
+        "commodities",
+        "risk"
+      ],
+      "version": "critical-core-v1"
+    }
+  },
+  "snapshot": "2026-09-29T20:21:46.921Z",
+  "observationCount": 237,
+  "lastRefresh": {
+    "id": "eb65a1b3-f940-47a3-83b1-04ffdb66f3de",
+    "timestamp": "2026-09-29T20:21:36.310Z",
+    "completedAt": "2026-09-29T20:22:50.285Z",
+    "type": "DAILY_REFRESH",
+    "source": "MANUAL",
+    "status": "SUCCESS",
+    "message": "Refresh returned snapshot",
+    "httpStatus": 200,
+    "scheduledTime": null,
+    "cron": null,
+    "period": "2026-09-29",
+    "snapshotBefore": "2026-09-29T15:16:31.216Z",
+    "snapshotAfter": "2026-09-29T20:21:46.921Z",
+    "snapshotAdvanced": true,
+    "trainedAtBefore": null,
+    "trainedAtAfter": null,
+    "trainingSamples": 0,
+    "modelStateChanged": false
+  },
+  "lastGenuineRefresh": {
+    "id": "6f5e161d-86fe-4714-980f-d6c906238294",
+    "timestamp": "2026-09-29T15:16:09.746Z",
+    "completedAt": "2026-09-29T15:16:54.327Z",
+    "type": "DAILY_REFRESH",
+    "source": "CLOUDFLARE_CRON",
+    "status": "SUCCESS",
+    "message": "Refresh returned snapshot",
+    "httpStatus": 200,
+    "scheduledTime": "2026-09-29T15:15:53.000Z",
+    "cron": "15,30,45 15,16,17 * * *",
+    "period": "2026-09-29",
+    "snapshotBefore": "2026-09-28T15:16:25.174Z",
+    "snapshotAfter": "2026-09-29T15:16:31.216Z",
+    "snapshotAdvanced": true,
+    "trainedAtBefore": null,
+    "trainedAtAfter": null,
+    "trainingSamples": 0,
+    "modelStateChanged": false
+  },
+  "weekly": {
+    "id": "c63f46a9-b082-4e58-a236-3dc6f4d2313b",
+    "timestamp": "2026-09-26T20:01:07.169Z",
+    "completedAt": "2026-09-26T20:01:10.777Z",
+    "type": "WEEKLY_RETRAIN",
+    "source": "CLOUDFLARE_CRON",
+    "status": "WAITING",
+    "message": "Training deferred: WAITING_FOR_DATA; samples=0",
+    "httpStatus": 200,
+    "scheduledTime": "2026-09-26T20:00:53.000Z",
+    "cron": "0,15,30,45 20,21 * * 6",
+    "period": "2026-09-26",
+    "snapshotBefore": "2026-09-26T15:16:21.806Z",
+    "snapshotAfter": "2026-09-26T15:16:21.806Z",
+    "snapshotAdvanced": false,
+    "trainedAtBefore": null,
+    "trainedAtAfter": null,
+    "trainingSamples": 0,
+    "modelStateChanged": false
+  },
+  "failedSources": [
+    {
+      "source": "World Bank Open Data",
+      "currency": "EUR",
+      "metrics": [
+        "currentAccount"
+      ],
+      "status": "FAILED",
+      "cause": "NO_VALID_OBSERVATIONS"
+    },
+    {
+      "source": "World Bank Open Data",
+      "currency": "JPY",
+      "metrics": [
+        "debt"
+      ],
+      "status": "FAILED",
+      "cause": "NO_VALID_OBSERVATIONS"
+    },
+    {
+      "source": "World Bank Open Data",
+      "currency": "AUD",
+      "metrics": [
+        "debt"
+      ],
+      "status": "FAILED",
+      "cause": "INVALID_RESPONSE"
+    },
+    {
+      "source": "RBA export commodity baskets",
+      "currency": "AUD",
+      "metrics": [
+        "alt.commodity.basket.all.v1",
+        "alt.commodity.basket.rural.v1",
+        "alt.commodity.basket.metals.v1",
+        "alt.commodity.basket.bulk.v1"
+      ],
+      "status": "FAILED",
+      "cause": "HTTP_403"
+    },
+    {
+      "source": "UNODC via World Bank",
+      "currency": "EUR",
+      "metrics": [
+        "alt.safety.homicide.change.v1"
+      ],
+      "status": "MISSING",
+      "cause": "NO_VALID_OBSERVATIONS"
+    },
+    {
+      "source": "UNODC via World Bank",
+      "currency": "GBP",
+      "metrics": [
+        "alt.safety.homicide.change.v1"
+      ],
+      "status": "MISSING",
+      "cause": "STALE_OR_INSUFFICIENT_HISTORY"
+    },
+    {
+      "source": "UNODC via World Bank",
+      "currency": "NZD",
+      "metrics": [
+        "alt.safety.homicide.change.v1"
+      ],
+      "status": "MISSING",
+      "cause": "STALE_OR_INSUFFICIENT_HISTORY"
+    },
+    {
+      "source": "UNCTAD via World Bank",
+      "currency": "CHF",
+      "metrics": [
+        "alt.supply.container.change.v1"
+      ],
+      "status": "MISSING",
+      "cause": "STALE_OR_INSUFFICIENT_HISTORY"
+    },
+    {
+      "source": "Alpha Vantage",
+      "currency": "CHF",
+      "metrics": [
+        "momentum",
+        "fxCloseUsd"
+      ],
+      "status": "FAILED",
+      "cause": "PREMIUM_REQUIRED"
+    },
+    {
+      "source": "Alpha Vantage",
+      "currency": "GBP",
+      "metrics": [
+        "momentum",
+        "fxCloseUsd"
+      ],
+      "status": "FAILED",
+      "cause": "PREMIUM_REQUIRED"
+    },
+    {
+      "source": "Alpha Vantage",
+      "currency": "NZD",
+      "metrics": [
+        "momentum",
+        "fxCloseUsd"
+      ],
+      "status": "FAILED",
+      "cause": "PREMIUM_REQUIRED"
+    },
+    {
+      "source": "Alpha Vantage",
+      "currency": "JPY",
+      "metrics": [
+        "momentum",
+        "fxCloseUsd"
+      ],
+      "status": "FAILED",
+      "cause": "PREMIUM_REQUIRED"
+    },
+    {
+      "source": "Alpha Vantage",
+      "currency": "EUR",
+      "metrics": [
+        "momentum",
+        "fxCloseUsd"
+      ],
+      "status": "FAILED",
+      "cause": "PREMIUM_REQUIRED"
+    },
+    {
+      "source": "Alpha Vantage",
+      "currency": "AUD",
+      "metrics": [
+        "momentum",
+        "fxCloseUsd"
+      ],
+      "status": "FAILED",
+      "cause": "PREMIUM_REQUIRED"
+    },
+    {
+      "source": "Alpha Vantage",
+      "currency": "CAD",
+      "metrics": [
+        "momentum",
+        "fxCloseUsd"
+      ],
+      "status": "FAILED",
+      "cause": "PREMIUM_REQUIRED"
+    },
+    {
+      "source": "World Bank proxies",
+      "currency": "ALL",
+      "metrics": [
+        "alt.proxy.NY.ADJ.NNTY.KD.ZG.b7224c7166a0676c"
+      ],
+      "status": "FAILED",
+      "cause": "NO_VALID_OBSERVATIONS"
+    },
+    {
+      "source": "World Bank proxies",
+      "currency": "ALL",
+      "metrics": [
+        "alt.proxy.SE.LPV.PRIM.SD.cd6d50e70d04bb5b"
+      ],
+      "status": "FAILED",
+      "cause": "NO_VALID_OBSERVATIONS"
+    },
+    {
+      "source": "World Bank Open Data",
+      "currency": "EUR",
+      "metrics": [
+        "debt"
+      ],
+      "status": "FAILED",
+      "cause": "NO_VALID_OBSERVATIONS"
+    }
+  ],
+  "carriedInputs": [
+    {
+      "currency": "AUD",
+      "factor": "commodities",
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "period": null,
+      "availableAt": null,
+      "sourceUrls": [],
+      "qualityStatus": "LEGACY_OR_CARRIED",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "CARRIED INPUT; no fresh observation certified",
+      "frequency": "unknown",
+      "inputs": []
+    },
+    {
+      "currency": "AUD",
+      "factor": "risk",
+      "status": "PARTIAL_ANCHORED",
+      "availability": "FALLBACK",
+      "source": "Preserved baseline/carried factor",
+      "period": "2025",
+      "availableAt": null,
+      "sourceUrls": [
+        "https://api.worldbank.org/v2/country/AUS/indicator/BN.CAB.XOKA.GD.ZS"
+      ],
+      "qualityStatus": "PARTIAL_ANCHORED",
+      "releaseDate": null,
+      "failure": "World Bank Open Data: INVALID_RESPONSE",
+      "fallback": "CARRIED INPUT; no fresh observation certified",
+      "frequency": "annual",
+      "definition": "Current account balance as percent of GDP, annual; World Bank country/EMU definition.",
+      "inputs": [
+        {
+          "metric": "currentAccount",
+          "value": -2.68119524894682,
+          "period": "2025",
+          "receivedAt": "2026-09-29T20:21:42.248Z",
+          "source": "World Bank Open Data"
+        }
+      ]
+    },
+    {
+      "currency": "AUD",
+      "factor": "yields",
+      "status": "PARTIAL_CROSS_SECTION",
+      "availability": "CARRIED INPUT",
+      "source": "RBA government bond yields",
+      "period": "2026-09-23",
+      "availableAt": "2026-09-29T20:21:43.499Z",
+      "sourceUrls": [
+        "https://www.rba.gov.au/statistics/tables/csv/f2-data.csv"
+      ],
+      "qualityStatus": "PARTIAL_CROSS_SECTION",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "Cross-section or risk anchor contains carried values",
+      "frequency": "business-daily",
+      "definition": "RBA interpolated Australian Government bond closing yields, nominal constant maturity. 2-year nominal sovereign market yield.",
+      "inputs": [
+        {
+          "metric": "yield2y",
+          "value": 4.947,
+          "period": "2026-09-23",
+          "receivedAt": "2026-09-29T20:21:43.499Z",
+          "source": "RBA government bond yields"
+        },
+        {
+          "metric": "yield10y",
+          "value": 5.245,
+          "period": "2026-09-23",
+          "receivedAt": "2026-09-29T20:21:43.499Z",
+          "source": "RBA government bond yields"
+        }
+      ]
+    },
+    {
+      "currency": "CAD",
+      "factor": "commodities",
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "period": null,
+      "availableAt": null,
+      "sourceUrls": [],
+      "qualityStatus": "LEGACY_OR_CARRIED",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "CARRIED INPUT; no fresh observation certified",
+      "frequency": "unknown",
+      "inputs": []
+    },
+    {
+      "currency": "CAD",
+      "factor": "risk",
+      "status": "PARTIAL_ANCHORED",
+      "availability": "CARRIED INPUT",
+      "source": "World Bank Open Data",
+      "period": "2024",
+      "availableAt": "2026-09-29T20:21:42.251Z",
+      "sourceUrls": [
+        "https://api.worldbank.org/v2/country/CAN/indicator/GC.DOD.TOTL.GD.ZS",
+        "https://api.worldbank.org/v2/country/CAN/indicator/BN.CAB.XOKA.GD.ZS"
+      ],
+      "qualityStatus": "PARTIAL_ANCHORED",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "Cross-section or risk anchor contains carried values",
+      "frequency": "annual",
+      "definition": "Central government total debt as percent of GDP, annual; not general-government gross debt.",
+      "inputs": [
+        {
+          "metric": "debt",
+          "value": 64.1314232901439,
+          "period": "2024",
+          "receivedAt": "2026-09-29T20:21:42.251Z",
+          "source": "World Bank Open Data"
+        },
+        {
+          "metric": "currentAccount",
+          "value": -0.948637766653122,
+          "period": "2025",
+          "receivedAt": "2026-09-29T20:21:42.248Z",
+          "source": "World Bank Open Data"
+        }
+      ]
+    },
+    {
+      "currency": "CAD",
+      "factor": "yields",
+      "status": "PARTIAL_CROSS_SECTION",
+      "availability": "CARRIED INPUT",
+      "source": "Bank of Canada benchmark yields",
+      "period": "2026-09-28",
+      "availableAt": "2026-09-29T20:21:42.690Z",
+      "sourceUrls": [
+        "https://www.bankofcanada.ca/valet/observations/BD.CDN.2YR.DQ.YLD,BD.CDN.10YR.DQ.YLD/json?recent=30"
+      ],
+      "qualityStatus": "PARTIAL_CROSS_SECTION",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "Cross-section or risk anchor contains carried values",
+      "frequency": "business-daily",
+      "definition": "Selected benchmark closing yield; instrument rolls are not pure constant-maturity changes. 2-year nominal sovereign market yield.",
+      "inputs": [
+        {
+          "metric": "yield2y",
+          "value": 3.37,
+          "period": "2026-09-28",
+          "receivedAt": "2026-09-29T20:21:42.690Z",
+          "source": "Bank of Canada benchmark yields"
+        },
+        {
+          "metric": "yield10y",
+          "value": 3.96,
+          "period": "2026-09-28",
+          "receivedAt": "2026-09-29T20:21:42.690Z",
+          "source": "Bank of Canada benchmark yields"
+        }
+      ]
+    },
+    {
+      "currency": "CHF",
+      "factor": "commodities",
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "period": null,
+      "availableAt": null,
+      "sourceUrls": [],
+      "qualityStatus": "LEGACY_OR_CARRIED",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "CARRIED INPUT; no fresh observation certified",
+      "frequency": "unknown",
+      "inputs": []
+    },
+    {
+      "currency": "CHF",
+      "factor": "risk",
+      "status": "PARTIAL_ANCHORED",
+      "availability": "CARRIED INPUT",
+      "source": "World Bank Open Data",
+      "period": "2024",
+      "availableAt": "2026-09-29T20:21:42.251Z",
+      "sourceUrls": [
+        "https://api.worldbank.org/v2/country/CHE/indicator/GC.DOD.TOTL.GD.ZS",
+        "https://api.worldbank.org/v2/country/CHE/indicator/BN.CAB.XOKA.GD.ZS"
+      ],
+      "qualityStatus": "PARTIAL_ANCHORED",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "Cross-section or risk anchor contains carried values",
+      "frequency": "annual",
+      "definition": "Central government total debt as percent of GDP, annual; not general-government gross debt.",
+      "inputs": [
+        {
+          "metric": "debt",
+          "value": 22.2786942016816,
+          "period": "2024",
+          "receivedAt": "2026-09-29T20:21:42.251Z",
+          "source": "World Bank Open Data"
+        },
+        {
+          "metric": "currentAccount",
+          "value": 6.98382706222827,
+          "period": "2025",
+          "receivedAt": "2026-09-29T20:21:42.248Z",
+          "source": "World Bank Open Data"
+        }
+      ]
+    },
+    {
+      "currency": "CHF",
+      "factor": "yields",
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "period": null,
+      "availableAt": null,
+      "sourceUrls": [],
+      "qualityStatus": "LEGACY_OR_CARRIED",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "CARRIED INPUT; no fresh observation certified",
+      "frequency": "unknown",
+      "inputs": []
+    },
+    {
+      "currency": "EUR",
+      "factor": "commodities",
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "period": null,
+      "availableAt": null,
+      "sourceUrls": [],
+      "qualityStatus": "LEGACY_OR_CARRIED",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "CARRIED INPUT; no fresh observation certified",
+      "frequency": "unknown",
+      "inputs": []
+    },
+    {
+      "currency": "EUR",
+      "factor": "risk",
+      "status": "PARTIAL_ANCHORED",
+      "availability": "FALLBACK",
+      "source": "Preserved baseline/carried factor",
+      "period": null,
+      "availableAt": null,
+      "sourceUrls": [],
+      "qualityStatus": "PARTIAL_ANCHORED",
+      "releaseDate": null,
+      "failure": "World Bank Open Data: NO_VALID_OBSERVATIONS; World Bank Open Data: NO_VALID_OBSERVATIONS",
+      "fallback": "CARRIED INPUT; no fresh observation certified",
+      "frequency": "unknown",
+      "inputs": []
+    },
+    {
+      "currency": "EUR",
+      "factor": "yields",
+      "status": "PARTIAL_CROSS_SECTION",
+      "availability": "CARRIED INPUT",
+      "source": "ECB AAA sovereign par yields",
+      "period": "2026-09-28",
+      "availableAt": "2026-09-29T20:21:43.482Z",
+      "sourceUrls": [
+        "https://data-api.ecb.europa.eu/service/data/YC/B.U2.EUR.4F.G_N_A.SV_C_YM.PY_2Y+PY_10Y?lastNObservations=30&format=csvdata"
+      ],
+      "qualityStatus": "PARTIAL_CROSS_SECTION",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "Cross-section or risk anchor contains carried values",
+      "frequency": "business-daily",
+      "definition": "ECB fitted AAA euro-area nominal sovereign par curve. Country composition and issuer risk differ from single-country curves; par rates, not zero-coupon spot rates or OIS paths. 2-year nominal sovereign market yield.",
+      "inputs": [
+        {
+          "metric": "yield2y",
+          "value": 3.2279436038,
+          "period": "2026-09-28",
+          "receivedAt": "2026-09-29T20:21:43.482Z",
+          "source": "ECB AAA sovereign par yields"
+        },
+        {
+          "metric": "yield10y",
+          "value": 3.6001438679,
+          "period": "2026-09-28",
+          "receivedAt": "2026-09-29T20:21:43.482Z",
+          "source": "ECB AAA sovereign par yields"
+        }
+      ]
+    },
+    {
+      "currency": "GBP",
+      "factor": "commodities",
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "period": null,
+      "availableAt": null,
+      "sourceUrls": [],
+      "qualityStatus": "LEGACY_OR_CARRIED",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "CARRIED INPUT; no fresh observation certified",
+      "frequency": "unknown",
+      "inputs": []
+    },
+    {
+      "currency": "GBP",
+      "factor": "risk",
+      "status": "PARTIAL_ANCHORED",
+      "availability": "CARRIED INPUT",
+      "source": "World Bank Open Data",
+      "period": "2024",
+      "availableAt": "2026-09-29T20:21:42.251Z",
+      "sourceUrls": [
+        "https://api.worldbank.org/v2/country/GBR/indicator/GC.DOD.TOTL.GD.ZS",
+        "https://api.worldbank.org/v2/country/GBR/indicator/BN.CAB.XOKA.GD.ZS"
+      ],
+      "qualityStatus": "PARTIAL_ANCHORED",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "Cross-section or risk anchor contains carried values",
+      "frequency": "annual",
+      "definition": "Central government total debt as percent of GDP, annual; not general-government gross debt.",
+      "inputs": [
+        {
+          "metric": "debt",
+          "value": 130.735888365813,
+          "period": "2024",
+          "receivedAt": "2026-09-29T20:21:42.251Z",
+          "source": "World Bank Open Data"
+        },
+        {
+          "metric": "currentAccount",
+          "value": -2.42693271936225,
+          "period": "2025",
+          "receivedAt": "2026-09-29T20:21:42.248Z",
+          "source": "World Bank Open Data"
+        }
+      ]
+    },
+    {
+      "currency": "GBP",
+      "factor": "yields",
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "period": "2026-09-25",
+      "availableAt": null,
+      "sourceUrls": [
+        "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=15%2FAug%2F2026&Dateto=now&SeriesCodes=IUDMNPY&CSVF=TN&UsingCodes=Y&VPD=Y&VFD=N"
+      ],
+      "qualityStatus": "LEGACY_OR_CARRIED",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "CARRIED INPUT; no fresh observation certified",
+      "frequency": "business-daily",
+      "definition": "IUDMNPY: daily 10-year nominal UK government par yield fitted with the BoE VRP model. Not a zero-coupon, forward, real or monthly-average yield. GBP 2Y remains separately unavailable. Revisions are archived as received; CSV does not identify original publication time.",
+      "inputs": [
+        {
+          "metric": "yield10y",
+          "value": 5.3321,
+          "period": "2026-09-25",
+          "receivedAt": "2026-09-29T20:21:42.665Z",
+          "source": "Bank of England nominal par yield"
+        }
+      ]
+    },
+    {
+      "currency": "JPY",
+      "factor": "commodities",
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "period": null,
+      "availableAt": null,
+      "sourceUrls": [],
+      "qualityStatus": "LEGACY_OR_CARRIED",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "CARRIED INPUT; no fresh observation certified",
+      "frequency": "unknown",
+      "inputs": []
+    },
+    {
+      "currency": "JPY",
+      "factor": "risk",
+      "status": "PARTIAL_ANCHORED",
+      "availability": "FALLBACK",
+      "source": "Preserved baseline/carried factor",
+      "period": "2025",
+      "availableAt": null,
+      "sourceUrls": [
+        "https://api.worldbank.org/v2/country/JPN/indicator/BN.CAB.XOKA.GD.ZS"
+      ],
+      "qualityStatus": "PARTIAL_ANCHORED",
+      "releaseDate": null,
+      "failure": "World Bank Open Data: NO_VALID_OBSERVATIONS",
+      "fallback": "CARRIED INPUT; no fresh observation certified",
+      "frequency": "annual",
+      "definition": "Current account balance as percent of GDP, annual; World Bank country/EMU definition.",
+      "inputs": [
+        {
+          "metric": "currentAccount",
+          "value": 4.86496093471918,
+          "period": "2025",
+          "receivedAt": "2026-09-29T20:21:42.248Z",
+          "source": "World Bank Open Data"
+        }
+      ]
+    },
+    {
+      "currency": "JPY",
+      "factor": "sentiment",
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "period": null,
+      "availableAt": null,
+      "sourceUrls": [],
+      "qualityStatus": "LEGACY_OR_CARRIED",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "CARRIED INPUT; no fresh observation certified",
+      "frequency": "unknown",
+      "inputs": []
+    },
+    {
+      "currency": "JPY",
+      "factor": "yields",
+      "status": "PARTIAL_CROSS_SECTION",
+      "availability": "CARRIED INPUT",
+      "source": "Japan Ministry of Finance yields",
+      "period": "2026-09-28",
+      "availableAt": "2026-09-29T20:21:42.542Z",
+      "sourceUrls": [
+        "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/jgbcme.csv"
+      ],
+      "qualityStatus": "PARTIAL_CROSS_SECTION",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "Cross-section or risk anchor contains carried values",
+      "frequency": "business-daily",
+      "definition": "Constant-maturity semiannual-compound JGB closing yield; not an OIS-implied policy path. 2-year nominal sovereign market yield.",
+      "inputs": [
+        {
+          "metric": "yield2y",
+          "value": 1.981,
+          "period": "2026-09-28",
+          "receivedAt": "2026-09-29T20:21:42.542Z",
+          "source": "Japan Ministry of Finance yields"
+        },
+        {
+          "metric": "yield10y",
+          "value": 3.082,
+          "period": "2026-09-28",
+          "receivedAt": "2026-09-29T20:21:42.542Z",
+          "source": "Japan Ministry of Finance yields"
+        }
+      ]
+    },
+    {
+      "currency": "NZD",
+      "factor": "commodities",
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "period": null,
+      "availableAt": null,
+      "sourceUrls": [],
+      "qualityStatus": "LEGACY_OR_CARRIED",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "CARRIED INPUT; no fresh observation certified",
+      "frequency": "unknown",
+      "inputs": []
+    },
+    {
+      "currency": "NZD",
+      "factor": "risk",
+      "status": "PARTIAL_ANCHORED",
+      "availability": "CARRIED INPUT",
+      "source": "World Bank Open Data",
+      "period": "2024",
+      "availableAt": "2026-09-29T20:21:42.251Z",
+      "sourceUrls": [
+        "https://api.worldbank.org/v2/country/NZL/indicator/GC.DOD.TOTL.GD.ZS",
+        "https://api.worldbank.org/v2/country/NZL/indicator/BN.CAB.XOKA.GD.ZS"
+      ],
+      "qualityStatus": "PARTIAL_ANCHORED",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "Cross-section or risk anchor contains carried values",
+      "frequency": "annual",
+      "definition": "Central government total debt as percent of GDP, annual; not general-government gross debt.",
+      "inputs": [
+        {
+          "metric": "debt",
+          "value": 51.9851333336419,
+          "period": "2024",
+          "receivedAt": "2026-09-29T20:21:42.251Z",
+          "source": "World Bank Open Data"
+        },
+        {
+          "metric": "currentAccount",
+          "value": -3.61936128781643,
+          "period": "2025",
+          "receivedAt": "2026-09-29T20:21:42.248Z",
+          "source": "World Bank Open Data"
+        }
+      ]
+    },
+    {
+      "currency": "NZD",
+      "factor": "sentiment",
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "period": null,
+      "availableAt": null,
+      "sourceUrls": [],
+      "qualityStatus": "LEGACY_OR_CARRIED",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "CARRIED INPUT; no fresh observation certified",
+      "frequency": "unknown",
+      "inputs": []
+    },
+    {
+      "currency": "NZD",
+      "factor": "yields",
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "period": null,
+      "availableAt": null,
+      "sourceUrls": [],
+      "qualityStatus": "LEGACY_OR_CARRIED",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "CARRIED INPUT; no fresh observation certified",
+      "frequency": "unknown",
+      "inputs": []
+    },
+    {
+      "currency": "USD",
+      "factor": "commodities",
+      "status": "LEGACY_OR_CARRIED",
+      "availability": "CARRIED INPUT",
+      "source": "Preserved baseline/carried factor",
+      "period": null,
+      "availableAt": null,
+      "sourceUrls": [],
+      "qualityStatus": "LEGACY_OR_CARRIED",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "CARRIED INPUT; no fresh observation certified",
+      "frequency": "unknown",
+      "inputs": []
+    },
+    {
+      "currency": "USD",
+      "factor": "risk",
+      "status": "PARTIAL_ANCHORED",
+      "availability": "CARRIED INPUT",
+      "source": "World Bank Open Data",
+      "period": "2024",
+      "availableAt": "2026-09-29T20:21:42.251Z",
+      "sourceUrls": [
+        "https://api.worldbank.org/v2/country/USA/indicator/GC.DOD.TOTL.GD.ZS",
+        "https://api.worldbank.org/v2/country/USA/indicator/BN.CAB.XOKA.GD.ZS"
+      ],
+      "qualityStatus": "PARTIAL_ANCHORED",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "Cross-section or risk anchor contains carried values",
+      "frequency": "annual",
+      "definition": "Central government total debt as percent of GDP, annual; not general-government gross debt.",
+      "inputs": [
+        {
+          "metric": "debt",
+          "value": 115.768352618316,
+          "period": "2024",
+          "receivedAt": "2026-09-29T20:21:42.251Z",
+          "source": "World Bank Open Data"
+        },
+        {
+          "metric": "currentAccount",
+          "value": -3.62698693844919,
+          "period": "2025",
+          "receivedAt": "2026-09-29T20:21:42.248Z",
+          "source": "World Bank Open Data"
+        }
+      ]
+    },
+    {
+      "currency": "USD",
+      "factor": "yields",
+      "status": "PARTIAL_CROSS_SECTION",
+      "availability": "CARRIED INPUT",
+      "source": "FRED",
+      "period": "2026-09-28",
+      "availableAt": "2026-09-29T20:21:44.219Z",
+      "sourceUrls": [
+        "https://fred.stlouisfed.org/series/DGS10",
+        "https://fred.stlouisfed.org/series/DGS2"
+      ],
+      "qualityStatus": "PARTIAL_CROSS_SECTION",
+      "releaseDate": null,
+      "failure": null,
+      "fallback": "Cross-section or risk anchor contains carried values",
+      "frequency": "unknown",
+      "inputs": [
+        {
+          "metric": "yield10y",
+          "value": 5.24,
+          "period": "2026-09-28",
+          "receivedAt": "2026-09-29T20:21:44.219Z",
+          "source": "FRED"
+        },
+        {
+          "metric": "yield2y",
+          "value": 4.92,
+          "period": "2026-09-28",
+          "receivedAt": "2026-09-29T20:21:43.884Z",
+          "source": "FRED"
+        }
+      ]
+    }
+  ],
+  "errorRecords": 0,
+  "runtime": {
+    "revision": 9,
+    "ADAPTIVE_ENABLED": "unset -> true",
+    "ML_ENABLED": "unset -> true",
+    "HYPOTHESIS_ENGINE_ENABLED": "unset -> true",
+    "ADAPTIVE_MAX_WEIGHT": "unset -> 0.1",
+    "configuredFREDSecret": true
+  }
+}

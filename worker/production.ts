@@ -1,8 +1,10 @@
 import { ADAPTIVE_VERSION, combineEvidence, factorFingerprint, type EvidenceComponent, type EvidenceAttribution } from '../lib/adaptive-evidence';
 import { digest } from '../lib/hypothesis/provenance';
 import { currencies, forecastHorizons, type TerminalPayload } from '../lib/terminal-data';
-import { dayMs, refreshSourceStatus, type Observation, type ProductionPayload } from '../lib/production-data';
-import { advanceRecipe, buildResearchFrame, chooseChampions, comparisons, currencyPairs, discoverRecipes, modelInDistribution, modelScore, nonRedundant, outcomeHorizons, recipeSignal, researchSourceChecks, RESEARCH_VERSION, resolveFrameTargets, trainChallenger, validationGate, type CandidateModel, type Recipe, type ResearchFrame, type ResolvedTarget } from '../lib/production-research';
+import { dayMs, observationQuality, refreshSourceStatus, type Observation, type ProductionPayload } from '../lib/production-data';
+import { advanceRecipe, agriculturalCommonCauseCheck, buildResearchFrame, certified, incrementalCertified, chooseChampions, comparisons, currencyPairs, discoverRecipes, modelInDistribution, modelScore, nonRedundant, outcomeHorizons, recipeSignal, researchSourceChecks, RESEARCH_VERSION, resolveFrameTargets, trainChallenger, validationGate, type CandidateModel, type Gate, type Recipe, type ResearchFrame, type ResolvedTarget } from '../lib/production-research';
+import { dateClusters, dependence, VALIDATION_VERSION } from '../lib/temporal-validation';
+import { independentBlocks } from '../lib/hypothesis/engine';
 import type { ResearchDB } from './hypothesis-research';
 import { buildPairForecast } from '../lib/model-engine';
 import { sourceReliability } from '../lib/source-health';
@@ -42,11 +44,11 @@ async function priceArchive(db:ResearchDB,now:string){
 export async function archiveObservations(db:ResearchDB,rows:Observation[],at:string){
   const statements=[];
   for(const o of rows){
-    if(o.quality==='INVALID'||!Number.isFinite(o.value)||!Number.isFinite(Date.parse(o.receivedAt))||o.receivedAt>at||o.releaseDate&&(!Number.isFinite(Date.parse(o.releaseDate))||o.releaseDate>at))continue;
+    if(observationQuality(o.metric,o.value,o.period,at)==='INVALID'||o.quality==='INVALID'||!Number.isFinite(o.value)||!Number.isFinite(Date.parse(o.receivedAt))||o.receivedAt>at||o.releaseDate&&(!Number.isFinite(Date.parse(o.releaseDate))||o.releaseDate>at)||o.publicationDate&&o.publicationDate>at.slice(0,10)||o.scheduledPublicationAt&&o.scheduledPublicationAt>at)continue;
     // A revision of an older component can change a normalized feature even when its latest raw value is unchanged.
     // Receipt clocks in nested dependencies are audit metadata, not economic revisions.
     const economicInputs=JSON.parse(JSON.stringify(o.rawInputs??null,(key,value)=>['receivedAt','retrievedAt','retrievalTime'].includes(key)?undefined:value));
-    const contentHash=await digest({value:o.value,normalizedValue:o.normalizedValue??null,featureVersion:o.featureVersion??null,rawInputs:economicInputs,releaseDate:o.releaseDate??null});
+    const contentHash=await digest({value:o.value,normalizedValue:o.normalizedValue??null,featureVersion:o.featureVersion??null,rawInputs:economicInputs,releaseDate:o.releaseDate??null,...(o.publicationDate!==undefined?{publicationDate:o.publicationDate,researchExposures:o.researchExposures??null}:{})});
     const id=await digest({currency:o.currency,metric:o.metric,period:o.period,source:o.source,contentHash,receivedAt:o.receivedAt});
     const payload={...o,rawValue:o.value,normalizedValue:o.normalizedValue??null,id,vintage:id,contentHash,releaseDate:o.releaseDate??null,availabilityBasis:'actual-receipt',freshness:Math.max(0,(Date.parse(at)-Date.parse(o.period.length===4?`${o.period}-12-31`:o.period))/dayMs)};
     statements.push(db.prepare("INSERT INTO observation_vintages (id,currency,metric,period,source,received_at,value,payload) SELECT ?,?,?,?,?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM observation_vintages WHERE currency=? AND metric=? AND period=? AND source=? AND json_extract(payload,'$.contentHash')=? AND received_at=(SELECT max(received_at) FROM observation_vintages WHERE currency=? AND metric=? AND period=? AND source=?))").bind(id,o.currency,o.metric,o.period,o.source,o.receivedAt,o.value,JSON.stringify(payload),o.currency,o.metric,o.period,o.source,contentHash,o.currency,o.metric,o.period,o.source));
@@ -73,6 +75,12 @@ async function resolvePending(db:ResearchDB,history:ResearchFrame[],prices:Obser
 }
 export function configuration(env:ProductionEnv){const flag=(s:string|undefined)=>s===undefined||s.trim().toLowerCase()==='true';const parsed=Number(env.ADAPTIVE_MAX_WEIGHT??'.1');return {enabled:flag(env.ADAPTIVE_ENABLED),cap:Number.isFinite(parsed)&&parsed>=0?Math.min(.15,parsed):0,ml:flag(env.ML_ENABLED),hypothesis:flag(env.HYPOTHESIS_ENGINE_ENABLED)};}
 
+export function validationSummaries(outcomes:ResolvedTarget[],models:CandidateModel[]){return outcomeHorizons.map(horizon=>{
+  const labels=outcomes.filter(o=>o.horizon===horizon),rows=labels.map(o=>({...o,pair:o.currency,probability:.5,baseline:.5,regime:o.regime}));
+  const labelDependence=dependence(rows,r=>r.label),model=models.filter(m=>m.horizon===horizon).sort((a,b)=>b.trainedAt.localeCompare(a.trainedAt))[0];
+  return {horizon,version:VALIDATION_VERSION,rawObservations:labels.length,uniqueForecastDates:dateClusters(rows).clusters.length,oldIndependentBlocks:independentBlocks(rows,horizon).length,overlappingLabelRatio:labelDependence.overlappingLabelRatio,labelProcessEffectiveSampleSize:labelDependence.effectiveSampleSize,trainingExamples:model?.trainingSamples??0,effectiveSampleSize:model?.historicalGate?.diagnostics?.effectiveSampleSize??0,folds:Math.max(0,(model?.folds.length??0)-1),purgedRows:model?.folds.reduce((n,f)=>n+(f.removed?.length??0),0)??0,oosSamples:model?.historicalGate?.samples??0,holdoutStatus:model?.holdoutGate?.reason??'WAITING_FOR_DATA',shadowStatus:model?.status??'WAITING_FOR_DATA',shadowEffectiveSampleSize:(model?.lastDates??0)>0?model?.gate?.diagnostics?.effectiveSampleSize??0:0,blocker:!model?'WAITING_FOR_DATA':!certified(model)?model.historicalGate?.passed?model.holdoutGate?.reason??'HOLDOUT_PENDING':model.historicalGate?.reason??'HISTORICAL_VALIDATION_PENDING':model.status==='ACTIVE'?'MONITORING_REAL_OUTCOMES':'PROSPECTIVE_SHADOW_AND_REGIMES',purpose:horizon<10?'AUXILIARY / HYPOTHESIS SCREENING; no substitution for long-horizon labels':'MAIN ML + CURRENCY / PAIR CONTEXT'};
+});}
+
 /** Called from the real refresh, before snapshot publication. No background waitUntil tail can lose it. */
 export async function prepareProductionSnapshot(env:ProductionEnv,p:ProductionPayload,observations:Observation[]){
   const db=env.DB,now=p.asOf;
@@ -86,19 +94,21 @@ export async function prepareProductionSnapshot(env:ProductionEnv,p:ProductionPa
   const previousSources=await db.prepare("SELECT payload FROM production_records WHERE kind='sources' ORDER BY at DESC LIMIT 30").all<{payload:string}>();
   const reliability=sourceReliability(researchSourceChecks(current,p.sourceChecks??[]),previousSources.results.map(r=>researchSourceChecks(current,JSON.parse(r.payload).checks??[])));
   current.sourceReliability=Math.min(current.sourceReliability,...Object.values(reliability).map(s=>s.score));
-  const catalog=discoverRecipes(old.registry,current);
+  const catalog=discoverRecipes(old.registry,current,history);
   const allOutcomes:ResolvedTarget[]=[];
   for(const horizon of outcomeHorizons)allOutcomes.push(...await targets(db,horizon));
-  const registry=catalog.map(r=>advanceRecipe(r,comparisons(history,allOutcomes,r.id,r.horizon,'hypotheses'),4096,now));
+  const registry=catalog.map(r=>{const next=advanceRecipe(r,comparisons(history,allOutcomes,r.id,r.horizon,'hypotheses'),4096,now);if(next.status!=='ACTIVE')return next;
+    const audit=agriculturalCommonCauseCheck(next,history);return audit.passed?{...next,commonCauseAudit:audit}:{...next,commonCauseAudit:audit,status:(audit.reason==='REDUNDANT_WITH_CORE_OR_COMMON_CAUSE'?'REJECTED':'DEGRADED') as Recipe['status'],weight:0,reason:audit.reason,lastChangedAt:now};});
   const models=old.models.map(model=>{
     if(model.status==='REJECTED')return model;
+    if(!certified(model))return {...model,status:'SHADOW' as const,weight:0};
     const rows=comparisons(history,allOutcomes,model.id,model.horizon,'ml').filter(r=>r.asOf>model.shadowStartedAt);
     const nextLook=model.look+1,gate=validationGate(rows,model.horizon,Math.max(4,old.trainingSequence*(old.trainingSequence+1)*4),nextLook);
-    if(gate.blocks<model.lastBlocks+10)return model;
-    const mature=gate.blocks>=30;
-    if(mature&&!gate.passed)return {...model,status:'DEGRADED' as const,weight:0,gate,look:nextLook,lastBlocks:gate.blocks,lastChangedAt:now};
-    if(!gate.passed||model.status==='DEGRADED'&&Date.parse(now)-Date.parse(model.lastChangedAt)<30*dayMs)return {...model,gate,look:nextLook,lastBlocks:gate.blocks};
-    return {...model,status:'ACTIVE' as const,weight:gate.stability<.75&&model.weight>0?model.weight*.5:Math.min(.025,model.weight+.005),gate,look:nextLook,lastBlocks:gate.blocks,lastValidatedAt:now};
+    const dates=gate.diagnostics?.uniqueForecastDates??0;if(dates<(model.lastDates??0)+10)return model;
+    const next={...model,gate,look:nextLook,lastBlocks:gate.blocks,lastDates:dates},mature=gate.blocks>=30;
+    if((mature||model.status==='ACTIVE')&&!gate.passed)return {...next,status:'DEGRADED' as const,weight:0,lastChangedAt:now};
+    if(!gate.passed||model.status==='DEGRADED'&&Date.parse(now)-Date.parse(model.lastChangedAt)<30*dayMs)return {...next,weight:0};
+    return {...next,status:'ACTIVE' as const,weight:gate.stability<.75&&model.weight>0?model.weight*.5:Math.min(.025,model.weight+.005),lastValidatedAt:now};
   });
   // Loss of a challenger falls back only to an independently current qualified champion.
   const champions=chooseChampions(models,old.championIds,history,allOutcomes,now);
@@ -155,6 +165,16 @@ export async function prepareProductionSnapshot(env:ProductionEnv,p:ProductionPa
   for(const research of p.researchCoverage.classes)writes.push(record(db,'research-status',`research-status:${now}:${research.name}`,now,research));
   for(const [index,check] of (p.sourceChecks??[]).entries())
     writes.push(record(db,'source-status',`source-status:${now}:${index}`,now,check));
+  for(const recipe of registry)writes.push(record(db,'validation-hypothesis',`validation-hypothesis:${now}:${recipe.id}`,now,{id:recipe.id,feature:recipe.feature,horizon:recipe.horizon,status:recipe.status,reason:recipe.reason,progress:recipe.progress,regimeFit:recipe.gate?.regimeFit,validationVersion:VALIDATION_VERSION}));
+  for(const recipe of registry){
+    if(recipe.commonCauseAudit)writes.push(record(db,'common-cause-audit',`common-cause:${now}:${recipe.id}`,now,{id:recipe.id,...recipe.commonCauseAudit}));
+    if(recipe.historicalAudit&&recipe.historicalEpoch!==old.registry.find(r=>r.id===recipe.id)?.historicalEpoch){
+      const {removed,...audit}=recipe.historicalAudit;writes.push(record(db,'hypothesis-split',`hypothesis-split:${recipe.id}:${audit.epoch}`,now,{id:recipe.id,...audit,removedCount:removed.length}));
+      for(const [i,removal] of removed.entries())writes.push(record(db,'purge-audit',`purge:${recipe.id}:${audit.epoch}:${i}`,now,{recipeId:recipe.id,epoch:audit.epoch,...removal}));
+    }
+  }
+  for(const summary of validationSummaries(allOutcomes,models))writes.push(record(db,'validation-horizon',`validation-horizon:${now}:${summary.horizon}`,now,summary));
+
   writes.push(record(db,'status',`status:${now}`,now,{status:next.status,mlVersion:[...championIds,...currencyContextChampions.map(m=>m.id)].join(',')||'DETERMINISTIC_CORE',hypothesisCount:registry.length,active:registry.filter(r=>r.status==='ACTIVE').length,shadow:registry.filter(r=>r.status==='SHADOW').length,testing:registry.filter(r=>['DISCOVERY','TESTING','VALIDATING'].includes(r.status)).length,rejected:registry.filter(r=>r.status==='REJECTED').length,resolved:next.resolved,trainingExamples:next.trainingExamples,lastRetrain:next.lastRetrain,rollbackCount:next.rollbackCount,mlInfluence:Math.max(0,...p.currencies.map(c=>c.evidenceAttribution!.mlWeight)),hypothesisInfluence:Math.max(0,...p.currencies.map(c=>c.evidenceAttribution!.hypothesisWeight)),snapshotCount:(totals?.snapshots??0)+1,observationCountBeforeRefreshUpsert:totals?.observations??0,immutableVintages:totals?.vintages??0,coverage:p.sourceCoverage}));
   // Commit frame, attribution, lifecycle state and public snapshot atomically.
   // Source receipts may be archived earlier, but an aborted refresh publishes no prediction.
@@ -171,6 +191,7 @@ export async function productionRetrain(env:ProductionEnv,now=new Date().toISOSt
   }
   const writes=candidates.map(m=>record(db,'model',m.id,now,m));
   writes.push(...contexts.map(m=>record(db,'context-model',m.id,now,m)));
+  for(const model of [...candidates,...contexts])for(const [fold,details] of model.folds.entries())for(const [index,removal] of (details.removed??[]).entries())writes.push(record(db,'purge-audit',`purge:${model.id}:${fold}:${index}`,now,{modelId:model.id,fold,...removal}));
   const attempt={at:now,status:candidates.length||contexts.length?'SHADOW_TRAINED':'WAITING_FOR_DATA',samples,candidateIds:[...candidates,...contexts].map(m=>m.id),accepted:[...candidates,...contexts].filter(m=>m.status==='SHADOW').map(m=>m.id),legacyModelChanged:false};
   const next={...old,at:now,lastRetrain:now,trainingSequence:sequence,models:[...old.models.filter(m=>m.status!=='REJECTED'),...candidates],contextModels:[...old.contextModels.filter(m=>m.status!=='REJECTED'),...contexts],resolved:Math.max(old.resolved,samples),trainingExamples:samples,lastError:old.lastError};
   writes.push(stateWrite(db,next),record(db,'retrain',`retrain:${now}`,now,attempt));await batch(db,writes);
@@ -215,12 +236,14 @@ export async function productionHealth(env:ProductionEnv){
   const hypothesisInfluence=config.hypothesis?Math.max(0,...attributions.map(a=>a.hypothesisWeight)):0;
   const adaptiveTotalInfluence=Math.max(0,...attributions.map(a=>(config.ml?a.mlWeight:0)+(config.hypothesis?a.hypothesisWeight:0)));
   const allModels=[...s.models,...s.contextModels];
+  const validationOutcomes:ResolvedTarget[]=[];for(const horizon of outcomeHorizons)validationOutcomes.push(...await targets(env.DB,horizon));
+  const validation=validationSummaries(validationOutcomes,s.models);
   const mlStatus=!config.enabled||!config.ml?'DISABLED':mlInfluence>0?'ACTIVE':allModels.some(m=>m.status==='DEGRADED')?'DEGRADED':allModels.some(m=>m.status==='SHADOW')?'SHADOW':s.trainingExamples<100?'WAITING_FOR_DATA':'VALIDATING';
   const runtimeFlags={ADAPTIVE_ENABLED:config.enabled,ML_ENABLED:config.ml,HYPOTHESIS_ENGINE_ENABLED:config.hypothesis};
   const runtimeGateStatus=!config.enabled||config.cap===0?'DISABLED':!config.ml||!config.hypothesis?'PARTIALLY_DISABLED':'AUTOMATIC_QUALIFICATION_ENABLED';
   const lifecycleCounts=Object.fromEntries(['DISCOVERY','TESTING','VALIDATING','SHADOW','ACTIVE','DEGRADED','REJECTED'].map(status=>[status,s.registry.filter(r=>r.status===status).length]));
-  const diagnostics={mlStatus,runtimeFlags,runtimeGateStatus,adaptiveTotalInfluence,adaptiveCap:config.cap,dataSourceStatus:coveragePayload.sourceMode,hypothesisLifecycle:lifecycleCounts,evidencePipelineStatus:!fresh?'CORE_FALLBACK':adaptiveTotalInfluence>0?'GATED_ADAPTIVE_ACTIVE':'CORE_ONLY_WAITING_FOR_VALIDATION',automaticActivationRequires:'Frozen OOS + prospective shadow, calibration, multiple testing, >=2 regimes, incremental value, current source quality and qualification; retrain alone never activates'};
-  const rest={lastSuccessfulDailyRefresh,lastSuccessfulRealCronRefresh,lastRegularWeeklyRetrain,researchCoverage:research,coreRequirements:requirements,weeklyVerification:lastRegularWeeklyRetrain?'REGULAR_INVOCATION_OBSERVED':'WAITING_FOR_NEXT_SCHEDULED_RUN',coverage,carriedInputs:originRows.filter(r=>r.status!=='OBSERVED'),notConnected:unavailableClasses,sourceChecks:sourceStatus?.checks??[],eventTargets,contextLearning:{status:s.contextModels.length?'SHADOW_OR_VALIDATING':'WAITING_FOR_DATA',champions:s.contextChampionIds,models:s.contextModels.map(m=>({id:m.id,scope:m.scope,horizon:m.horizon,status:m.status,samples:m.trainingSamples,gate:m.gate,incrementalGate:m.incrementalGate}))},testingHypotheses:s.registry.filter(r=>['DISCOVERY','TESTING','VALIDATING'].includes(r.status)).length};
+  const diagnostics={mlStatus,runtimeFlags,runtimeGateStatus,adaptiveTotalInfluence,adaptiveCap:config.cap,dataSourceStatus:coveragePayload.sourceMode,hypothesisLifecycle:lifecycleCounts,validation,validationVersion:VALIDATION_VERSION,evidencePipelineStatus:!fresh?'CORE_FALLBACK':adaptiveTotalInfluence>0?'GATED_ADAPTIVE_ACTIVE':'CORE_ONLY_WAITING_FOR_VALIDATION',automaticActivationRequires:'Frozen OOS + prospective shadow, date-cluster HAC effective information, calibration, multiple testing, >=2 regimes, incremental value, current source quality and qualification; retrain alone never activates'};
+  const rest={lastSuccessfulDailyRefresh,lastSuccessfulRealCronRefresh,lastRegularWeeklyRetrain,researchCoverage:research,coreRequirements:requirements,weeklyVerification:lastRegularWeeklyRetrain?'REGULAR_INVOCATION_OBSERVED':'WAITING_FOR_NEXT_SCHEDULED_RUN',coverage,carriedInputs:originRows.filter(r=>r.status!=='OBSERVED'),notConnected:unavailableClasses,sourceChecks:sourceStatus?.checks??[],eventTargets,contextLearning:{status:s.contextModels.length?'SHADOW_OR_VALIDATING':'WAITING_FOR_DATA',champions:s.contextChampionIds,models:s.contextModels.map(m=>({id:m.id,scope:m.scope,horizon:m.horizon,status:m.status,samples:m.trainingSamples,gate:m.gate,incrementalGate:m.incrementalGate,historicalGate:m.historicalGate,historicalIncrementalGate:m.historicalIncrementalGate,holdoutGate:m.holdoutGate,holdoutIncrementalGate:m.holdoutIncrementalGate,folds:m.folds.length,purgedRows:m.folds.reduce((n,f)=>n+(f.removed?.length??0),0)}))},testingHypotheses:s.registry.filter(r=>['DISCOVERY','TESTING','VALIDATING'].includes(r.status)).length};
   return {...rest,...diagnostics,version:ADAPTIVE_VERSION,status:fresh?s.status:'CORE_FALLBACK',lastSuccessfulSnapshot:snapshots?.latest??null,snapshotCount:snapshots?.count??0,observationCount:row?.observations??0,observationVintages:vintageCount?.count??0,coreInputQuality,sourceReliability:sourceStatus?.providers??{},counts:counts.results,trainingExamples:s.trainingExamples,resolvedOutcomes:counts.results.filter(c=>c.kind.startsWith('outcome:')).reduce((n,c)=>n+c.count,0),lastRetrain:s.lastRetrain,currentMlVersion:[...s.championIds,...s.contextChampionIds.filter(id=>s.contextModels.some(m=>m.id===id&&m.scope==='currency'))].join(',')||'DETERMINISTIC_CORE',challengerVersions:s.models.map(m=>({id:m.id,status:m.status,samples:m.trainingSamples,gate:m.gate})),mlInfluence,hypothesisInfluence,hypothesisCount:s.registry.length,activeHypotheses:s.registry.filter(r=>r.status==='ACTIVE').length,shadowHypotheses:s.registry.filter(r=>r.status==='SHADOW').length,rejectedHypotheses:s.registry.filter(r=>r.status==='REJECTED').length,registry:s.registry,failedDataSources:sourceStatus?.checks?.filter((c:{status:string})=>c.status!=='SUCCESS')??[],lastError:s.lastError,rollbackCount:s.rollbackCount,evidenceHistory:history.results.map(r=>JSON.parse(r.payload)),config:configuration(env),notice:'Prospective currency-basket validation. Daily fixing excursions are not intraday MFE/MAE. Model-generated dispersion is not an empirical confidence interval.'};
 }
 
@@ -229,8 +252,8 @@ export async function guardProductionPayload(env:ProductionEnv,p:TerminalPayload
   try{const s=await state(env.DB),config=configuration(env);if(!config.enabled||s.lastError||Date.now()-Date.parse(s.at)>36*3600000)throw new Error('ADAPTIVE_DISABLED');
     for(const c of p.currencies){const a=c.evidenceAttribution;if(!a)continue;
       if(a.version!==ADAPTIVE_VERSION||a.factorFingerprint!==factorFingerprint(c)||!Number.isFinite(Date.parse(a.expiresAt))||Date.parse(a.expiresAt)<Date.now()||!Number.isFinite(a.cap)){delete c.evidenceAttribution;continue;}
-      const current=(m:{status:string;gate:{passed:boolean};lastValidatedAt?:string;lastChangedAt:string})=>m.status==='ACTIVE'&&m.gate.passed&&Date.now()-Date.parse(m.lastValidatedAt??m.lastChangedAt)<180*dayMs;
-      const valid=a.components.filter(x=>x.kind==='ML'?config.ml&&(s.championIds.includes(x.id)&&s.models.some(m=>m.id===x.id&&current(m))||s.contextChampionIds.includes(x.id)&&s.contextModels.some(m=>m.id===x.id&&m.scope==='currency'&&current(m)&&m.incrementalGate.passed)):config.hypothesis&&s.registry.some(r=>r.id===x.id&&effectiveRecipeWeight(r,new Date().toISOString())>0));
+      const current=(m:{status:string;gate:Gate;historicalGate?:Gate;holdoutGate?:Gate;lastValidatedAt?:string;lastChangedAt:string})=>m.status==='ACTIVE'&&certified(m)&&m.gate.validationVersion===VALIDATION_VERSION&&m.gate.passed&&Date.now()-Date.parse(m.lastValidatedAt??m.lastChangedAt)<180*dayMs;
+      const valid=a.components.filter(x=>x.kind==='ML'?config.ml&&(s.championIds.includes(x.id)&&s.models.some(m=>m.id===x.id&&current(m))||s.contextChampionIds.includes(x.id)&&s.contextModels.some(m=>m.id===x.id&&m.scope==='currency'&&current(m)&&incrementalCertified(m)&&m.incrementalGate.validationVersion===VALIDATION_VERSION&&m.incrementalGate.passed)):config.hypothesis&&s.registry.some(r=>r.id===x.id&&effectiveRecipeWeight(r,new Date().toISOString())>0));
       c.evidenceAttribution=combineEvidence(c,valid,{at:a.at,cap:Math.min(config.cap,a.cap),enabled:true,modelVersion:a.modelVersion,regime:a.regime});
     }
   }catch{for(const c of p.currencies)delete c.evidenceAttribution;}return p;

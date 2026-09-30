@@ -1,4 +1,5 @@
 import { factorMeta, type FactorKey, type FactorScores, type ForecastHorizon } from "@/lib/terminal-data";
+import { purgeFold, type Removal } from './temporal-validation';
 
 export type TrainingExample = {
   features: FactorScores;
@@ -6,6 +7,8 @@ export type TrainingExample = {
   asOf?: string;
   pair?: string;
   labelEnd?: string;
+  entryDate?: string;
+  resolvedAt?: string;
   horizon?: ForecastHorizon;
 };
 
@@ -19,6 +22,8 @@ export type WalkForwardFold = {
   trainSamples: number;
   testSamples: number;
   purgedSamples: number;
+  removals: Removal[];
+  embargoEnd: string|null;
   accuracy: number;
   logLoss: number;
   brierScore: number;
@@ -109,14 +114,14 @@ export function walkForwardValidate(
   const rollingTrainSamples = Math.max(minimumTrainSamples, options.rollingTrainSamples ?? 180);
   const maxFolds = Math.max(1, options.maxFolds ?? 12);
   const ordered = [...examples]
-    .map((example, index) => ({ ...example, asOf: example.asOf?.slice(0, 10) ?? `synthetic-${String(index).padStart(8, "0")}` }))
+    .map((example, index) => ({ ...example, asOf: example.asOf ?? `synthetic-${String(index).padStart(8, "0")}` }))
     .sort((a, b) => a.asOf.localeCompare(b.asOf));
 
   const groups: { asOf: string; examples: TrainingExample[] }[] = [];
   for (const example of ordered) {
     const current = groups.at(-1);
-    if (current?.asOf === example.asOf) current.examples.push(example);
-    else groups.push({ asOf: example.asOf, examples: [example] });
+    if (current?.asOf === example.asOf.slice(0,10)) current.examples.push(example);
+    else groups.push({ asOf: example.asOf.slice(0,10), examples: [example] });
   }
 
   let trainEnd = 0;
@@ -127,6 +132,7 @@ export function walkForwardValidate(
   }
 
   const folds: WalkForwardFold[] = [];
+  let priorTest: {asOf:string;entryDate?:string;labelEnd:string;resolvedAt?:string}[] = [];
   while (trainEnd < groups.length && folds.length < maxFolds) {
     let testEnd = trainEnd;
     let currentTestSamples = 0;
@@ -145,15 +151,19 @@ export function walkForwardValidate(
         rollingCount += groups[trainStart].examples.length;
       }
     }
-    const testStart = groups[trainEnd].asOf;
     const unpurgedTrainSet = groups.slice(trainStart, trainEnd).flatMap((group) => group.examples);
-    const trainSet = unpurgedTrainSet.filter((example) => !example.labelEnd || example.labelEnd.slice(0, 10) < testStart);
     const testSet = groups.slice(trainEnd, testEnd).flatMap((group) => group.examples);
+    // Undated examples are supported only by the old isolated trainer; production requires intervals.
+    const timed=unpurgedTrainSet.filter(e=>!!e.labelEnd).map(e=>({...e,asOf:e.asOf!,labelEnd:e.labelEnd!.slice(0,10)}));
+    const datedTest=testSet.filter(e=>!!e.labelEnd).map(e=>({...e,asOf:e.asOf!,labelEnd:e.labelEnd!.slice(0,10)}));
+    const purged=purgeFold(timed,datedTest,priorTest);
+    const trainSet=[...unpurgedTrainSet.filter(e=>!e.labelEnd),...purged.kept];
     if (!testSet.length) break;
     if (trainSet.length < minimumTrainSamples) {
       trainEnd += 1;
       continue;
     }
+    priorTest=datedTest;
     const trained = trainLearnedWeights(trainSet, initial, 180);
     const metrics = evaluate(testSet, trained.weights);
     folds.push({
@@ -164,6 +174,8 @@ export function walkForwardValidate(
       trainSamples: trainSet.length,
       testSamples: testSet.length,
       purgedSamples: unpurgedTrainSet.length - trainSet.length,
+      removals:purged.removed,
+      embargoEnd:purged.embargoEnd,
       ...metrics,
     });
     trainEnd = testEnd;

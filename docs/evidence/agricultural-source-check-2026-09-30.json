@@ -1,0 +1,1880 @@
+{
+  "at": "2026-09-30T13:12:46.942Z",
+  "scope": "Read-only public endpoint and parser check, never production D1",
+  "checks": [
+    {
+      "at": "2026-09-30T13:12:38.769Z",
+      "source": "IMF agricultural prices via FRED",
+      "url": "https://fred.stlouisfed.org/series/PMAIZMTUSDM",
+      "currency": "USD",
+      "metrics": [
+        "alt.agri.price.corn."
+      ],
+      "status": "MISSING",
+      "cause": "NOT_CONFIGURED",
+      "fallback": "NOT YET CONNECTED",
+      "latencyMs": 0
+    },
+    {
+      "at": "2026-09-30T13:12:38.769Z",
+      "source": "IMF agricultural prices via FRED",
+      "url": "https://fred.stlouisfed.org/series/PWHEAMTUSDM",
+      "currency": "USD",
+      "metrics": [
+        "alt.agri.price.wheat."
+      ],
+      "status": "MISSING",
+      "cause": "NOT_CONFIGURED",
+      "fallback": "NOT YET CONNECTED",
+      "latencyMs": 0
+    },
+    {
+      "at": "2026-09-30T13:12:38.769Z",
+      "source": "IMF agricultural prices via FRED",
+      "url": "https://fred.stlouisfed.org/series/PSOYBUSDM",
+      "currency": "USD",
+      "metrics": [
+        "alt.agri.price.soy."
+      ],
+      "status": "MISSING",
+      "cause": "NOT_CONFIGURED",
+      "fallback": "NOT YET CONNECTED",
+      "latencyMs": 0
+    },
+    {
+      "at": "2026-09-30T13:12:44.440Z",
+      "source": "USDA AMS Grain Inspections",
+      "url": "https://www.ams.usda.gov/mnreports/wa_gr101.txt",
+      "currency": "USD",
+      "metrics": [
+        "alt.agri.exports."
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 5668
+    },
+    {
+      "at": "2026-09-30T13:12:44.582Z",
+      "source": "USDA NASS Crop Progress",
+      "url": "https://esmis.nal.usda.gov/publication/crop-progress",
+      "currency": "USD",
+      "metrics": [
+        "alt.agri.crop."
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 5824
+    },
+    {
+      "at": "2026-09-30T13:12:44.646Z",
+      "source": "USDA NASS Crop Production",
+      "url": "https://esmis.nal.usda.gov/publication/crop-production",
+      "currency": "USD",
+      "metrics": [
+        "alt.agri.estimate.",
+        "alt.agri.acreage."
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 5879
+    },
+    {
+      "at": "2026-09-30T13:12:44.669Z",
+      "source": "USDA NASS Grain Stocks",
+      "url": "https://esmis.nal.usda.gov/publication/grain-stocks",
+      "currency": "USD",
+      "metrics": [
+        "alt.agri.stocks."
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 5901
+    },
+    {
+      "at": "2026-09-30T13:12:44.955Z",
+      "source": "EIA weekly fuel ethanol",
+      "url": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=pet&s=W_EPOOXE_YOP_NUS_MBBLD&f=w",
+      "currency": "USD",
+      "metrics": [
+        "alt.agri.ethanol.production."
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 6184
+    },
+    {
+      "at": "2026-09-30T13:12:45.720Z",
+      "source": "US Drought Monitor",
+      "url": "https://usdmdataservices.unl.edu/api/USStatistics/GetDroughtSeverityStatisticsByAreaPercent?aoi=us&startdate=2026-08-01&enddate=2026-09-30&statisticsType=1",
+      "currency": "USD",
+      "metrics": [
+        "alt.agri.drought."
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 6951
+    },
+    {
+      "at": "2026-09-30T13:12:45.765Z",
+      "source": "EIA weekly fuel ethanol",
+      "url": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=pet&s=W_EPOOXE_SAE_NUS_MBBL&f=w",
+      "currency": "USD",
+      "metrics": [
+        "alt.agri.ethanol.inventory."
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 6994
+    },
+    {
+      "at": "2026-09-30T13:12:46.850Z",
+      "source": "NOAA NCEI Climate at a Glance",
+      "url": "https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/national/time-series/110/tavg/1/0/2024-2026.csv?base_prd=true&begbaseyear=1991&endbaseyear=2020",
+      "currency": "USD",
+      "metrics": [
+        "alt.agri.weather.us.temperature.anomaly.v1"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 8080
+    },
+    {
+      "at": "2026-09-30T13:12:46.942Z",
+      "source": "NOAA NCEI Climate at a Glance",
+      "url": "https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/national/time-series/110/pcp/1/0/2024-2026.csv?base_prd=true&begbaseyear=1991&endbaseyear=2020",
+      "currency": "USD",
+      "metrics": [
+        "alt.agri.weather.us.rainfall.anomaly.v1"
+      ],
+      "status": "SUCCESS",
+      "cause": null,
+      "fallback": "none",
+      "latencyMs": 8171
+    }
+  ],
+  "observations": [
+    {
+      "currency": "USD",
+      "metric": "alt.agri.crop.corn.condition.level.v1",
+      "value": 57,
+      "normalizedValue": 0.5153592780074097,
+      "period": "2026-09-27",
+      "receivedAt": "2026-09-30T13:12:44.579Z",
+      "source": "USDA NASS Crop Progress",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796082/prog3926.txt",
+      "unit": "percent good + excellent",
+      "frequency": "weekly; crop season",
+      "releaseDate": null,
+      "publicationDate": "2026-09-28",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Corn selected-state acreage-weighted condition, good + excellent; not a global yield measure. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US weather → crop condition → yield expectations → grain/feed/food costs",
+      "lineage": [
+        "USDA NASS Crop Progress:crop.corn.condition"
+      ],
+      "rawInputs": [
+        {
+          "categories": [
+            6,
+            11,
+            26,
+            44,
+            13
+          ],
+          "publicationDate": "2026-09-28"
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-28T20:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.crop.corn.condition.weekly_change.v1",
+      "value": 0,
+      "normalizedValue": 0,
+      "period": "2026-09-27",
+      "receivedAt": "2026-09-30T13:12:44.579Z",
+      "source": "USDA NASS Crop Progress",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796082/prog3926.txt",
+      "unit": "percentage points",
+      "frequency": "weekly; crop season",
+      "releaseDate": null,
+      "publicationDate": "2026-09-28",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Change versus previous week as printed in this release; corrections are known only now. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US crop-condition deterioration",
+      "lineage": [
+        "USDA NASS Crop Progress:crop.corn.condition"
+      ],
+      "rawInputs": [
+        {
+          "current": [
+            6,
+            11,
+            26,
+            44,
+            13
+          ],
+          "previousWeek": [
+            6,
+            11,
+            26,
+            44,
+            13
+          ]
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-28T20:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.crop.soy.condition.level.v1",
+      "value": 58,
+      "normalizedValue": 0.5226654296858209,
+      "period": "2026-09-27",
+      "receivedAt": "2026-09-30T13:12:44.579Z",
+      "source": "USDA NASS Crop Progress",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796082/prog3926.txt",
+      "unit": "percent good + excellent",
+      "frequency": "weekly; crop season",
+      "releaseDate": null,
+      "publicationDate": "2026-09-28",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Soybean selected-state acreage-weighted condition, good + excellent; not a global yield measure. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US weather → crop condition → yield expectations → grain/feed/food costs",
+      "lineage": [
+        "USDA NASS Crop Progress:crop.soy.condition"
+      ],
+      "rawInputs": [
+        {
+          "categories": [
+            4,
+            9,
+            29,
+            47,
+            11
+          ],
+          "publicationDate": "2026-09-28"
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-28T20:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.crop.soy.condition.weekly_change.v1",
+      "value": 0,
+      "normalizedValue": 0,
+      "period": "2026-09-27",
+      "receivedAt": "2026-09-30T13:12:44.579Z",
+      "source": "USDA NASS Crop Progress",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796082/prog3926.txt",
+      "unit": "percentage points",
+      "frequency": "weekly; crop season",
+      "releaseDate": null,
+      "publicationDate": "2026-09-28",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Change versus previous week as printed in this release; corrections are known only now. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US crop-condition deterioration",
+      "lineage": [
+        "USDA NASS Crop Progress:crop.soy.condition"
+      ],
+      "rawInputs": [
+        {
+          "current": [
+            4,
+            9,
+            29,
+            47,
+            11
+          ],
+          "previousWeek": [
+            4,
+            10,
+            28,
+            46,
+            12
+          ]
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-28T20:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.crop.corn.harvest.level.v1",
+      "value": 18,
+      "normalizedValue": 0.17808086811733018,
+      "period": "2026-09-27",
+      "receivedAt": "2026-09-30T13:12:44.579Z",
+      "source": "USDA NASS Crop Progress",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796082/prog3926.txt",
+      "unit": "percent completed",
+      "frequency": "weekly; crop season",
+      "releaseDate": null,
+      "publicationDate": "2026-09-28",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Corn Harvested selected states; reported crop progress. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US seasonal crop production",
+      "lineage": [
+        "USDA NASS Crop Progress:crop.corn.harvest"
+      ],
+      "rawInputs": [
+        {
+          "previousYear": 17,
+          "previousWeek": 13,
+          "current": 18,
+          "fiveYearAverage": 18
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-28T20:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.crop.corn.harvest.seasonal_deviation.v1",
+      "value": 0,
+      "normalizedValue": 0,
+      "period": "2026-09-27",
+      "receivedAt": "2026-09-30T13:12:44.579Z",
+      "source": "USDA NASS Crop Progress",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796082/prog3926.txt",
+      "unit": "percentage points",
+      "frequency": "weekly; crop season",
+      "releaseDate": null,
+      "publicationDate": "2026-09-28",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Current progress minus published five-year seasonal average, known at this receipt. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US seasonal crop timing",
+      "lineage": [
+        "USDA NASS Crop Progress:crop.corn.harvest"
+      ],
+      "rawInputs": [
+        {
+          "current": 18,
+          "fiveYearAverage": 18
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-28T20:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.crop.soy.harvest.level.v1",
+      "value": 17,
+      "normalizedValue": 0.1683810458708147,
+      "period": "2026-09-27",
+      "receivedAt": "2026-09-30T13:12:44.579Z",
+      "source": "USDA NASS Crop Progress",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796082/prog3926.txt",
+      "unit": "percent completed",
+      "frequency": "weekly; crop season",
+      "releaseDate": null,
+      "publicationDate": "2026-09-28",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Soybeans Harvested selected states; reported crop progress. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US seasonal crop production",
+      "lineage": [
+        "USDA NASS Crop Progress:crop.soy.harvest"
+      ],
+      "rawInputs": [
+        {
+          "previousYear": 18,
+          "previousWeek": 12,
+          "current": 17,
+          "fiveYearAverage": 17
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-28T20:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.crop.soy.harvest.seasonal_deviation.v1",
+      "value": 0,
+      "normalizedValue": 0,
+      "period": "2026-09-27",
+      "receivedAt": "2026-09-30T13:12:44.579Z",
+      "source": "USDA NASS Crop Progress",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796082/prog3926.txt",
+      "unit": "percentage points",
+      "frequency": "weekly; crop season",
+      "releaseDate": null,
+      "publicationDate": "2026-09-28",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Current progress minus published five-year seasonal average, known at this receipt. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US seasonal crop timing",
+      "lineage": [
+        "USDA NASS Crop Progress:crop.soy.harvest"
+      ],
+      "rawInputs": [
+        {
+          "current": 17,
+          "fiveYearAverage": 17
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-28T20:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.crop.wheat.winter.planting.level.v1",
+      "value": 27,
+      "normalizedValue": 0.2636248354722033,
+      "period": "2026-09-27",
+      "receivedAt": "2026-09-30T13:12:44.579Z",
+      "source": "USDA NASS Crop Progress",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796082/prog3926.txt",
+      "unit": "percent completed",
+      "frequency": "weekly; crop season",
+      "releaseDate": null,
+      "publicationDate": "2026-09-28",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Winter Wheat Planted selected states; reported crop progress. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US seasonal crop production",
+      "lineage": [
+        "USDA NASS Crop Progress:crop.wheat.winter"
+      ],
+      "rawInputs": [
+        {
+          "previousYear": 32,
+          "previousWeek": 17,
+          "current": 27,
+          "fiveYearAverage": 34
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-28T20:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.crop.wheat.winter.planting.seasonal_deviation.v1",
+      "value": -7,
+      "normalizedValue": -0.069885890316429,
+      "period": "2026-09-27",
+      "receivedAt": "2026-09-30T13:12:44.579Z",
+      "source": "USDA NASS Crop Progress",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796082/prog3926.txt",
+      "unit": "percentage points",
+      "frequency": "weekly; crop season",
+      "releaseDate": null,
+      "publicationDate": "2026-09-28",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Current progress minus published five-year seasonal average, known at this receipt. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US seasonal crop timing",
+      "lineage": [
+        "USDA NASS Crop Progress:crop.wheat.winter"
+      ],
+      "rawInputs": [
+        {
+          "current": 27,
+          "fiveYearAverage": 34
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-28T20:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.crop.moisture.topsoil.short.v1",
+      "value": 43,
+      "normalizedValue": 0.4053213086894629,
+      "period": "2026-09-27",
+      "receivedAt": "2026-09-30T13:12:44.579Z",
+      "source": "USDA NASS Crop Progress",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796082/prog3926.txt",
+      "unit": "percent very short + short",
+      "frequency": "weekly",
+      "releaseDate": null,
+      "publicationDate": "2026-09-28",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "NASS 48-state surveyed moisture shortage, provider cropland-acreage weighting; no invented local weights or remotely sensed soil-moisture values. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US moisture → crop condition → expected yield",
+      "lineage": [
+        "USDA NASS Crop Progress:crop.moisture.topsoil"
+      ],
+      "rawInputs": [
+        {
+          "categories": [
+            17,
+            26,
+            48,
+            9
+          ]
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-28T20:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.crop.moisture.subsoil.short.v1",
+      "value": 48,
+      "normalizedValue": 0.4462436102487797,
+      "period": "2026-09-27",
+      "receivedAt": "2026-09-30T13:12:44.579Z",
+      "source": "USDA NASS Crop Progress",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796082/prog3926.txt",
+      "unit": "percent very short + short",
+      "frequency": "weekly",
+      "releaseDate": null,
+      "publicationDate": "2026-09-28",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "NASS 48-state surveyed moisture shortage, provider cropland-acreage weighting; no invented local weights or remotely sensed soil-moisture values. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US moisture → crop condition → expected yield",
+      "lineage": [
+        "USDA NASS Crop Progress:crop.moisture.subsoil"
+      ],
+      "rawInputs": [
+        {
+          "categories": [
+            19,
+            29,
+            46,
+            6
+          ]
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-28T20:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.acreage.corn.planted.v1",
+      "value": 96777,
+      "normalizedValue": -0.020563877770400425,
+      "period": "2026-01-01",
+      "receivedAt": "2026-09-30T13:12:44.640Z",
+      "source": "USDA NASS Crop Production",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796056/crop0926.txt",
+      "unit": "thousand acres",
+      "frequency": "crop-year estimate",
+      "releaseDate": null,
+      "publicationDate": "2026-09-11",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Corn for grain planted acreage from the domestic-unit national summary; latest available estimate, not completed future harvest. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US planted area → expected supply → grain prices",
+      "lineage": [
+        "USDA NASS Crop Production:acreage.corn.planted"
+      ],
+      "rawInputs": [
+        {
+          "cropYear": "2026",
+          "priorYear": 98788,
+          "currentYear": 96777
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-11T16:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.estimate.corn.yield.v1",
+      "value": 178.5,
+      "normalizedValue": -0.0438145683439744,
+      "period": "2026-09-01",
+      "receivedAt": "2026-09-30T13:12:44.640Z",
+      "source": "USDA NASS Crop Production",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796056/crop0926.txt",
+      "unit": "bushels per acre",
+      "frequency": "monthly crop-year estimate",
+      "releaseDate": null,
+      "publicationDate": "2026-09-11",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Corn for grain published yield estimate; past-year comparator is not a market consensus. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US weather/acreage → yield expectations → grain/feed/food costs",
+      "lineage": [
+        "USDA NASS Crop Production:estimate.corn.yield"
+      ],
+      "rawInputs": [
+        {
+          "previousCropYear": 186.5,
+          "currentEstimate": 178.5,
+          "reference": "2026-09-01"
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-11T16:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.estimate.corn.production.v1",
+      "value": 15799759,
+      "normalizedValue": -0.07428957112643708,
+      "period": "2026-09-01",
+      "receivedAt": "2026-09-30T13:12:44.640Z",
+      "source": "USDA NASS Crop Production",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796056/crop0926.txt",
+      "unit": "thousand bushels",
+      "frequency": "monthly crop-year estimate",
+      "releaseDate": null,
+      "publicationDate": "2026-09-11",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Corn for grain published crop-year production estimate, not a realized future outcome. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US crop supply → trade balance and food inflation",
+      "lineage": [
+        "USDA NASS Crop Production:estimate.corn.production"
+      ],
+      "rawInputs": [
+        {
+          "previousCropYear": 17020549,
+          "currentEstimate": 15799759
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-11T16:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.estimate.corn.yield_revision.v1",
+      "value": -2.1999999999999886,
+      "normalizedValue": -0.012174273969062777,
+      "period": "2026-09-01",
+      "receivedAt": "2026-09-30T13:12:44.640Z",
+      "source": "USDA NASS Crop Production",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796056/crop0926.txt",
+      "unit": "bushels per acre revision",
+      "frequency": "monthly",
+      "releaseDate": null,
+      "publicationDate": "2026-09-11",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Current-minus-prior monthly yield estimate printed in the current report. Both column dates are explicitly identified; unsupported schemas emit no revision. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US yield-estimate revision → grain-price expectations",
+      "lineage": [
+        "USDA NASS Crop Production:estimate.corn.yield_revision"
+      ],
+      "rawInputs": [
+        {
+          "priorReference": "August 1",
+          "currentReference": "September 1",
+          "priorEstimate": 180.7,
+          "currentEstimate": 178.5
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-11T16:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.acreage.soy.planted.v1",
+      "value": 86865,
+      "normalizedValue": 0.0671540088792242,
+      "period": "2026-01-01",
+      "receivedAt": "2026-09-30T13:12:44.640Z",
+      "source": "USDA NASS Crop Production",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796056/crop0926.txt",
+      "unit": "thousand acres",
+      "frequency": "crop-year estimate",
+      "releaseDate": null,
+      "publicationDate": "2026-09-11",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Soybeans for beans planted acreage from the domestic-unit national summary; latest available estimate, not completed future harvest. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US planted area → expected supply → grain prices",
+      "lineage": [
+        "USDA NASS Crop Production:acreage.soy.planted"
+      ],
+      "rawInputs": [
+        {
+          "cropYear": "2026",
+          "priorYear": 81215,
+          "currentYear": 86865
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-11T16:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.estimate.soy.yield.v1",
+      "value": 52.8,
+      "normalizedValue": -0.003780704826294837,
+      "period": "2026-09-01",
+      "receivedAt": "2026-09-30T13:12:44.640Z",
+      "source": "USDA NASS Crop Production",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796056/crop0926.txt",
+      "unit": "bushels per acre",
+      "frequency": "monthly crop-year estimate",
+      "releaseDate": null,
+      "publicationDate": "2026-09-11",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Soybeans for beans published yield estimate; past-year comparator is not a market consensus. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US weather/acreage → yield expectations → grain/feed/food costs",
+      "lineage": [
+        "USDA NASS Crop Production:estimate.soy.yield"
+      ],
+      "rawInputs": [
+        {
+          "previousCropYear": 53,
+          "currentEstimate": 52.8,
+          "reference": "2026-09-01"
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-11T16:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.estimate.soy.production.v1",
+      "value": 4534981,
+      "normalizedValue": 0.062035913429636075,
+      "period": "2026-09-01",
+      "receivedAt": "2026-09-30T13:12:44.640Z",
+      "source": "USDA NASS Crop Production",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796056/crop0926.txt",
+      "unit": "thousand bushels",
+      "frequency": "monthly crop-year estimate",
+      "releaseDate": null,
+      "publicationDate": "2026-09-11",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Soybeans for beans published crop-year production estimate, not a realized future outcome. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US crop supply → trade balance and food inflation",
+      "lineage": [
+        "USDA NASS Crop Production:estimate.soy.production"
+      ],
+      "rawInputs": [
+        {
+          "previousCropYear": 4261858,
+          "currentEstimate": 4534981
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-11T16:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.estimate.soy.yield_revision.v1",
+      "value": 0.09999999999999432,
+      "normalizedValue": 0.001897530929394525,
+      "period": "2026-09-01",
+      "receivedAt": "2026-09-30T13:12:44.640Z",
+      "source": "USDA NASS Crop Production",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796056/crop0926.txt",
+      "unit": "bushels per acre revision",
+      "frequency": "monthly",
+      "releaseDate": null,
+      "publicationDate": "2026-09-11",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Current-minus-prior monthly yield estimate printed in the current report. Both column dates are explicitly identified; unsupported schemas emit no revision. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US yield-estimate revision → grain-price expectations",
+      "lineage": [
+        "USDA NASS Crop Production:estimate.soy.yield_revision"
+      ],
+      "rawInputs": [
+        {
+          "priorReference": "August 1",
+          "currentReference": "September 1",
+          "priorEstimate": 52.7,
+          "currentEstimate": 52.8
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-11T16:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.acreage.wheat.planted.v1",
+      "value": 42650,
+      "normalizedValue": -0.06082250045587755,
+      "period": "2026-01-01",
+      "receivedAt": "2026-09-30T13:12:44.640Z",
+      "source": "USDA NASS Crop Production",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796056/crop0926.txt",
+      "unit": "thousand acres",
+      "frequency": "crop-year estimate",
+      "releaseDate": null,
+      "publicationDate": "2026-09-11",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Wheat, all planted acreage from the domestic-unit national summary; latest available estimate, not completed future harvest. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US planted area → expected supply → grain prices",
+      "lineage": [
+        "USDA NASS Crop Production:acreage.wheat.planted"
+      ],
+      "rawInputs": [
+        {
+          "cropYear": "2026",
+          "priorYear": 45328,
+          "currentYear": 42650
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-11T16:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.estimate.wheat.yield.v1",
+      "value": 47.8,
+      "normalizedValue": -0.10848210888985572,
+      "period": "2026-01-01",
+      "receivedAt": "2026-09-30T13:12:44.640Z",
+      "source": "USDA NASS Crop Production",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796056/crop0926.txt",
+      "unit": "bushels per acre",
+      "frequency": "monthly crop-year estimate",
+      "releaseDate": null,
+      "publicationDate": "2026-09-11",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Wheat, all published yield estimate; past-year comparator is not a market consensus. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US weather/acreage → yield expectations → grain/feed/food costs",
+      "lineage": [
+        "USDA NASS Crop Production:estimate.wheat.yield"
+      ],
+      "rawInputs": [
+        {
+          "previousCropYear": 53.3,
+          "currentEstimate": 47.8,
+          "reference": "2026-01-01"
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-11T16:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.estimate.wheat.production.v1",
+      "value": 1530598,
+      "normalizedValue": -0.2540402893132034,
+      "period": "2026-01-01",
+      "receivedAt": "2026-09-30T13:12:44.640Z",
+      "source": "USDA NASS Crop Production",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/796056/crop0926.txt",
+      "unit": "thousand bushels",
+      "frequency": "monthly crop-year estimate",
+      "releaseDate": null,
+      "publicationDate": "2026-09-11",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Wheat, all published crop-year production estimate, not a realized future outcome. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US crop supply → trade balance and food inflation",
+      "lineage": [
+        "USDA NASS Crop Production:estimate.wheat.production"
+      ],
+      "rawInputs": [
+        {
+          "previousCropYear": 1984537,
+          "currentEstimate": 1530598
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-09-11T16:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.stocks.corn.level.v1",
+      "value": 5294828,
+      "normalizedValue": 0.1306416800169799,
+      "period": "2026-06-01",
+      "receivedAt": "2026-09-30T13:12:44.667Z",
+      "source": "USDA NASS Grain Stocks",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/795959/grst0626.txt",
+      "unit": "thousand bushels",
+      "frequency": "quarterly, release after reference date",
+      "releaseDate": null,
+      "publicationDate": "2026-06-30",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Total on/off-farm stocks; normalized year-on-year log change. Reference date, publication day and actual receipt remain separate. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US grain inventory → available supply → food/feed prices",
+      "lineage": [
+        "USDA NASS Grain Stocks:stocks.corn.level"
+      ],
+      "rawInputs": [
+        {
+          "current": 5294828,
+          "priorYear": 4642894,
+          "onFarm": 2959100,
+          "offFarm": 2335728
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-06-30T16:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.stocks.soy.level.v1",
+      "value": 1061122,
+      "normalizedValue": 0.05167080967017139,
+      "period": "2026-06-01",
+      "receivedAt": "2026-09-30T13:12:44.667Z",
+      "source": "USDA NASS Grain Stocks",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/795959/grst0626.txt",
+      "unit": "thousand bushels",
+      "frequency": "quarterly, release after reference date",
+      "releaseDate": null,
+      "publicationDate": "2026-06-30",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Total on/off-farm stocks; normalized year-on-year log change. Reference date, publication day and actual receipt remain separate. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US grain inventory → available supply → food/feed prices",
+      "lineage": [
+        "USDA NASS Grain Stocks:stocks.soy.level"
+      ],
+      "rawInputs": [
+        {
+          "current": 1061122,
+          "priorYear": 1007639,
+          "onFarm": 367000,
+          "offFarm": 694122
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-06-30T16:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.stocks.wheat.level.v1",
+      "value": 920112,
+      "normalizedValue": 0.07357191554629168,
+      "period": "2026-06-01",
+      "receivedAt": "2026-09-30T13:12:44.667Z",
+      "source": "USDA NASS Grain Stocks",
+      "sourceUrl": "https://esmis.nal.usda.gov/sites/default/release-files/795959/grst0626.txt",
+      "unit": "thousand bushels",
+      "frequency": "quarterly, release after reference date",
+      "releaseDate": null,
+      "publicationDate": "2026-06-30",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Total on/off-farm stocks; normalized year-on-year log change. Reference date, publication day and actual receipt remain separate. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US grain inventory → available supply → food/feed prices",
+      "lineage": [
+        "USDA NASS Grain Stocks:stocks.wheat.level"
+      ],
+      "rawInputs": [
+        {
+          "current": 920112,
+          "priorYear": 854734,
+          "onFarm": 177094,
+          "offFarm": 743018
+        }
+      ],
+      "quality": "VALID",
+      "scheduledPublicationAt": "2026-06-30T16:00:00.000Z"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.drought.us.d2.level.v1",
+      "value": 33.58,
+      "normalizedValue": 0.3237226666796849,
+      "period": "2026-09-22",
+      "receivedAt": "2026-09-30T13:12:45.718Z",
+      "source": "US Drought Monitor",
+      "sourceUrl": "https://usdmdataservices.unl.edu/api/USStatistics/GetDroughtSeverityStatisticsByAreaPercent?aoi=us&startdate=2026-08-01&enddate=2026-09-30&statisticsType=1",
+      "unit": "CONUS cumulative area percent",
+      "frequency": "weekly",
+      "releaseDate": null,
+      "publicationDate": null,
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Cumulative CONUS area at or above D2; USDM combines NOAA/USDA/NDMC information. National area is not crop-weighted. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US drought → crop condition → yield/feed costs",
+      "lineage": [
+        "US Drought Monitor:drought.us.d2"
+      ],
+      "rawInputs": [
+        {
+          "MapDate": "20260922",
+          "AreaOfInterest": "CONUS",
+          "None": "21.12",
+          "D0": "78.88",
+          "D1": "59.24",
+          "D2": "33.58",
+          "D3": "12.17",
+          "D4": "2.11",
+          "ValidStart": "2026-09-22",
+          "ValidEnd": "2026-09-28",
+          "StatisticFormatID": "1",
+          "period": "2026-09-22"
+        }
+      ],
+      "quality": "VALID"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.drought.us.d2.change.v1",
+      "value": -0.240000000000002,
+      "normalizedValue": -0.0023999953920106364,
+      "period": "2026-09-22",
+      "receivedAt": "2026-09-30T13:12:45.718Z",
+      "source": "US Drought Monitor",
+      "sourceUrl": "https://usdmdataservices.unl.edu/api/USStatistics/GetDroughtSeverityStatisticsByAreaPercent?aoi=us&startdate=2026-08-01&enddate=2026-09-30&statisticsType=1",
+      "unit": "percentage points",
+      "frequency": "weekly",
+      "releaseDate": null,
+      "publicationDate": null,
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Seven-day change in the same cumulative drought area definition. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US drought change",
+      "lineage": [
+        "US Drought Monitor:drought.us.d2"
+      ],
+      "rawInputs": [
+        {
+          "MapDate": "20260922",
+          "AreaOfInterest": "CONUS",
+          "None": "21.12",
+          "D0": "78.88",
+          "D1": "59.24",
+          "D2": "33.58",
+          "D3": "12.17",
+          "D4": "2.11",
+          "ValidStart": "2026-09-22",
+          "ValidEnd": "2026-09-28",
+          "StatisticFormatID": "1",
+          "period": "2026-09-22"
+        },
+        {
+          "MapDate": "20260915",
+          "AreaOfInterest": "CONUS",
+          "None": "19.03",
+          "D0": "80.97",
+          "D1": "59.37",
+          "D2": "33.82",
+          "D3": "12.54",
+          "D4": "2.02",
+          "ValidStart": "2026-09-15",
+          "ValidEnd": "2026-09-21",
+          "StatisticFormatID": "1",
+          "period": "2026-09-15"
+        }
+      ],
+      "quality": "VALID"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.drought.us.d4.level.v1",
+      "value": 2.11,
+      "normalizedValue": 0.021096869247202464,
+      "period": "2026-09-22",
+      "receivedAt": "2026-09-30T13:12:45.718Z",
+      "source": "US Drought Monitor",
+      "sourceUrl": "https://usdmdataservices.unl.edu/api/USStatistics/GetDroughtSeverityStatisticsByAreaPercent?aoi=us&startdate=2026-08-01&enddate=2026-09-30&statisticsType=1",
+      "unit": "CONUS cumulative area percent",
+      "frequency": "weekly",
+      "releaseDate": null,
+      "publicationDate": null,
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Cumulative CONUS area at or above D4; USDM combines NOAA/USDA/NDMC information. National area is not crop-weighted. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US drought → crop condition → yield/feed costs",
+      "lineage": [
+        "US Drought Monitor:drought.us.d4"
+      ],
+      "rawInputs": [
+        {
+          "MapDate": "20260922",
+          "AreaOfInterest": "CONUS",
+          "None": "21.12",
+          "D0": "78.88",
+          "D1": "59.24",
+          "D2": "33.58",
+          "D3": "12.17",
+          "D4": "2.11",
+          "ValidStart": "2026-09-22",
+          "ValidEnd": "2026-09-28",
+          "StatisticFormatID": "1",
+          "period": "2026-09-22"
+        }
+      ],
+      "quality": "VALID"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.drought.us.d4.change.v1",
+      "value": 0.08999999999999986,
+      "normalizedValue": 0.0008999997570000773,
+      "period": "2026-09-22",
+      "receivedAt": "2026-09-30T13:12:45.718Z",
+      "source": "US Drought Monitor",
+      "sourceUrl": "https://usdmdataservices.unl.edu/api/USStatistics/GetDroughtSeverityStatisticsByAreaPercent?aoi=us&startdate=2026-08-01&enddate=2026-09-30&statisticsType=1",
+      "unit": "percentage points",
+      "frequency": "weekly",
+      "releaseDate": null,
+      "publicationDate": null,
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Seven-day change in the same cumulative drought area definition. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US drought change",
+      "lineage": [
+        "US Drought Monitor:drought.us.d4"
+      ],
+      "rawInputs": [
+        {
+          "MapDate": "20260922",
+          "AreaOfInterest": "CONUS",
+          "None": "21.12",
+          "D0": "78.88",
+          "D1": "59.24",
+          "D2": "33.58",
+          "D3": "12.17",
+          "D4": "2.11",
+          "ValidStart": "2026-09-22",
+          "ValidEnd": "2026-09-28",
+          "StatisticFormatID": "1",
+          "period": "2026-09-22"
+        },
+        {
+          "MapDate": "20260915",
+          "AreaOfInterest": "CONUS",
+          "None": "19.03",
+          "D0": "80.97",
+          "D1": "59.37",
+          "D2": "33.82",
+          "D3": "12.54",
+          "D4": "2.02",
+          "ValidStart": "2026-09-15",
+          "ValidEnd": "2026-09-21",
+          "StatisticFormatID": "1",
+          "period": "2026-09-15"
+        }
+      ],
+      "quality": "VALID"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.weather.us.temperature.anomaly.v1",
+      "value": 2.53,
+      "normalizedValue": 0.43700152870233433,
+      "period": "2026-08-01",
+      "receivedAt": "2026-09-30T13:12:46.849Z",
+      "source": "NOAA NCEI Climate at a Glance",
+      "sourceUrl": "https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/national/time-series/110/tavg/1/0/2024-2026.csv?base_prd=true&begbaseyear=1991&endbaseyear=2020",
+      "unit": "degrees Fahrenheit departure",
+      "frequency": "monthly",
+      "releaseDate": null,
+      "publicationDate": null,
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "CONUS monthly departure from the published 1991–2020 normal; not daily heat stress, crop-region rainfall or yield prediction. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US weather → crop condition → expected yield; crop exposure must be tested",
+      "lineage": [
+        "NOAA NCEI Climate at a Glance:weather.us.temperature"
+      ],
+      "rawInputs": [
+        {
+          "Date": "202608",
+          "Value": "75.58",
+          "Departure from Average": "2.53"
+        },
+        {
+          "basePeriod": "1991-2020"
+        }
+      ],
+      "quality": "VALID"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.weather.us.rainfall.anomaly.v1",
+      "value": -0.38,
+      "normalizedValue": -0.12599355412480107,
+      "period": "2026-08-01",
+      "receivedAt": "2026-09-30T13:12:46.941Z",
+      "source": "NOAA NCEI Climate at a Glance",
+      "sourceUrl": "https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/national/time-series/110/pcp/1/0/2024-2026.csv?base_prd=true&begbaseyear=1991&endbaseyear=2020",
+      "unit": "inches departure",
+      "frequency": "monthly",
+      "releaseDate": null,
+      "publicationDate": null,
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "CONUS monthly departure from the published 1991–2020 normal; not daily heat stress, crop-region rainfall or yield prediction. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US weather → crop condition → expected yield; crop exposure must be tested",
+      "lineage": [
+        "NOAA NCEI Climate at a Glance:weather.us.rainfall"
+      ],
+      "rawInputs": [
+        {
+          "Date": "202608",
+          "Value": "2.3",
+          "Departure from Average": "-0.38",
+          "Percent of Average": "85.8"
+        },
+        {
+          "basePeriod": "1991-2020"
+        }
+      ],
+      "quality": "VALID"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.ethanol.production.level.v1",
+      "value": 1028,
+      "normalizedValue": 0.47305594086947816,
+      "period": "2026-09-18",
+      "receivedAt": "2026-09-30T13:12:44.950Z",
+      "source": "EIA weekly fuel ethanol",
+      "sourceUrl": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=pet&s=W_EPOOXE_YOP_NUS_MBBLD&f=w",
+      "unit": "thousand barrels per day",
+      "frequency": "weekly",
+      "releaseDate": null,
+      "publicationDate": "2026-09-23",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "US Oxygenate Plant Production of fuel ethanol; raw EIA definition. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US corn demand → ethanol → fuel substitution; control for gasoline/oil",
+      "lineage": [
+        "EIA weekly fuel ethanol:ethanol.production.level"
+      ],
+      "rawInputs": [
+        {
+          "date": "2026-09-18",
+          "value": 1028
+        },
+        {
+          "date": "2026-09-11",
+          "value": 1099
+        },
+        {
+          "date": "2026-09-04",
+          "value": 1099
+        },
+        {
+          "date": "2026-08-28",
+          "value": 1110
+        },
+        {
+          "date": "2026-08-21",
+          "value": 1112
+        }
+      ],
+      "quality": "VALID"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.ethanol.production.change.v1",
+      "value": -0.066785508388511,
+      "normalizedValue": -0.06668639066318999,
+      "period": "2026-09-18",
+      "receivedAt": "2026-09-30T13:12:44.950Z",
+      "source": "EIA weekly fuel ethanol",
+      "sourceUrl": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=pet&s=W_EPOOXE_YOP_NUS_MBBLD&f=w",
+      "unit": "weekly log change",
+      "frequency": "weekly",
+      "releaseDate": null,
+      "publicationDate": "2026-09-23",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Seven-day log change in the exact EIA series. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US ethanol/corn demand and energy substitution",
+      "lineage": [
+        "EIA weekly fuel ethanol:ethanol.production.change"
+      ],
+      "rawInputs": [
+        {
+          "date": "2026-09-18",
+          "value": 1028
+        },
+        {
+          "date": "2026-09-11",
+          "value": 1099
+        },
+        {
+          "date": "2026-09-04",
+          "value": 1099
+        },
+        {
+          "date": "2026-08-28",
+          "value": 1110
+        },
+        {
+          "date": "2026-08-21",
+          "value": 1112
+        }
+      ],
+      "quality": "VALID"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.ethanol.inventory.level.v1",
+      "value": 24683,
+      "normalizedValue": 0.549088191691301,
+      "period": "2026-09-18",
+      "receivedAt": "2026-09-30T13:12:45.763Z",
+      "source": "EIA weekly fuel ethanol",
+      "sourceUrl": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=pet&s=W_EPOOXE_SAE_NUS_MBBL&f=w",
+      "unit": "thousand barrels",
+      "frequency": "weekly",
+      "releaseDate": null,
+      "publicationDate": "2026-09-23",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "US Ending Stocks of fuel ethanol; raw EIA definition. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US corn demand → ethanol → fuel substitution; control for gasoline/oil",
+      "lineage": [
+        "EIA weekly fuel ethanol:ethanol.inventory.level"
+      ],
+      "rawInputs": [
+        {
+          "date": "2026-09-18",
+          "value": 24683
+        },
+        {
+          "date": "2026-09-11",
+          "value": 25220
+        },
+        {
+          "date": "2026-09-04",
+          "value": 25187
+        },
+        {
+          "date": "2026-08-28",
+          "value": 25035
+        },
+        {
+          "date": "2026-08-21",
+          "value": 25206
+        }
+      ],
+      "quality": "VALID"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.ethanol.inventory.change.v1",
+      "value": -0.02152258297118692,
+      "normalizedValue": -0.021519260345216645,
+      "period": "2026-09-18",
+      "receivedAt": "2026-09-30T13:12:45.763Z",
+      "source": "EIA weekly fuel ethanol",
+      "sourceUrl": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=pet&s=W_EPOOXE_SAE_NUS_MBBL&f=w",
+      "unit": "weekly log change",
+      "frequency": "weekly",
+      "releaseDate": null,
+      "publicationDate": "2026-09-23",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Seven-day log change in the exact EIA series. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US ethanol/corn demand and energy substitution",
+      "lineage": [
+        "EIA weekly fuel ethanol:ethanol.inventory.change"
+      ],
+      "rawInputs": [
+        {
+          "date": "2026-09-18",
+          "value": 24683
+        },
+        {
+          "date": "2026-09-11",
+          "value": 25220
+        },
+        {
+          "date": "2026-09-04",
+          "value": 25187
+        },
+        {
+          "date": "2026-08-28",
+          "value": 25035
+        },
+        {
+          "date": "2026-08-21",
+          "value": 25206
+        }
+      ],
+      "quality": "VALID"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.exports.corn.level.v1",
+      "value": 1565924,
+      "normalizedValue": 0.47922262697123236,
+      "period": "2026-09-24",
+      "receivedAt": "2026-09-30T13:12:44.438Z",
+      "source": "USDA AMS Grain Inspections",
+      "sourceUrl": "https://www.ams.usda.gov/mnreports/wa_gr101.txt",
+      "unit": "metric tonnes",
+      "frequency": "weekly",
+      "releaseDate": null,
+      "publicationDate": "2026-09-28",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Inspected/weighed exports, not export sales. Corrections in current market-year totals are known at this receipt. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US grain exports → trade balance and farm income",
+      "lineage": [
+        "USDA AMS Grain Inspections:exports.corn.level"
+      ],
+      "rawInputs": [
+        {
+          "current": 1565924,
+          "previousWeek": 1960147,
+          "previousYear": 1539257
+        }
+      ],
+      "quality": "VALID"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.exports.corn.change.v1",
+      "value": -0.2245432768943437,
+      "normalizedValue": -0.22084406398421802,
+      "period": "2026-09-24",
+      "receivedAt": "2026-09-30T13:12:44.438Z",
+      "source": "USDA AMS Grain Inspections",
+      "sourceUrl": "https://www.ams.usda.gov/mnreports/wa_gr101.txt",
+      "unit": "weekly log change",
+      "frequency": "weekly",
+      "releaseDate": null,
+      "publicationDate": "2026-09-28",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Current versus previous weekly inspections printed in this release. Transform: log((current tonnes + 1)/(previous tonnes + 1)), including zero exports. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US grain export demand",
+      "lineage": [
+        "USDA AMS Grain Inspections:exports.corn.change"
+      ],
+      "rawInputs": [
+        [
+          1565924,
+          1960147,
+          1539257,
+          5726150,
+          5108803
+        ]
+      ],
+      "quality": "VALID"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.exports.soy.level.v1",
+      "value": 1152913,
+      "normalizedValue": 0.3664396871499308,
+      "period": "2026-09-24",
+      "receivedAt": "2026-09-30T13:12:44.438Z",
+      "source": "USDA AMS Grain Inspections",
+      "sourceUrl": "https://www.ams.usda.gov/mnreports/wa_gr101.txt",
+      "unit": "metric tonnes",
+      "frequency": "weekly",
+      "releaseDate": null,
+      "publicationDate": "2026-09-28",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Inspected/weighed exports, not export sales. Corrections in current market-year totals are known at this receipt. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US grain exports → trade balance and farm income",
+      "lineage": [
+        "USDA AMS Grain Inspections:exports.soy.level"
+      ],
+      "rawInputs": [
+        {
+          "current": 1152913,
+          "previousWeek": 769698,
+          "previousYear": 610633
+        }
+      ],
+      "quality": "VALID"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.exports.soy.change.v1",
+      "value": 0.4040484001240662,
+      "normalizedValue": 0.3834075915147334,
+      "period": "2026-09-24",
+      "receivedAt": "2026-09-30T13:12:44.438Z",
+      "source": "USDA AMS Grain Inspections",
+      "sourceUrl": "https://www.ams.usda.gov/mnreports/wa_gr101.txt",
+      "unit": "weekly log change",
+      "frequency": "weekly",
+      "releaseDate": null,
+      "publicationDate": "2026-09-28",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Current versus previous weekly inspections printed in this release. Transform: log((current tonnes + 1)/(previous tonnes + 1)), including zero exports. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US grain export demand",
+      "lineage": [
+        "USDA AMS Grain Inspections:exports.soy.change"
+      ],
+      "rawInputs": [
+        [
+          1152913,
+          769698,
+          610633,
+          2844930,
+          2262781
+        ]
+      ],
+      "quality": "VALID"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.exports.wheat.level.v1",
+      "value": 310635,
+      "normalizedValue": 0.10317652528403641,
+      "period": "2026-09-24",
+      "receivedAt": "2026-09-30T13:12:44.438Z",
+      "source": "USDA AMS Grain Inspections",
+      "sourceUrl": "https://www.ams.usda.gov/mnreports/wa_gr101.txt",
+      "unit": "metric tonnes",
+      "frequency": "weekly",
+      "releaseDate": null,
+      "publicationDate": "2026-09-28",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Inspected/weighed exports, not export sales. Corrections in current market-year totals are known at this receipt. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US grain exports → trade balance and farm income",
+      "lineage": [
+        "USDA AMS Grain Inspections:exports.wheat.level"
+      ],
+      "rawInputs": [
+        {
+          "current": 310635,
+          "previousWeek": 339955,
+          "previousYear": 873578
+        }
+      ],
+      "quality": "VALID"
+    },
+    {
+      "currency": "USD",
+      "metric": "alt.agri.exports.wheat.change.v1",
+      "value": -0.09019438877234089,
+      "normalizedValue": -0.08995060406742522,
+      "period": "2026-09-24",
+      "receivedAt": "2026-09-30T13:12:44.438Z",
+      "source": "USDA AMS Grain Inspections",
+      "sourceUrl": "https://www.ams.usda.gov/mnreports/wa_gr101.txt",
+      "unit": "weekly log change",
+      "frequency": "weekly",
+      "releaseDate": null,
+      "publicationDate": "2026-09-28",
+      "publicationTimeKnown": false,
+      "revision": "As received; immutable content-hash vintage. Current revisions are not original historical releases.",
+      "researchExposures": [
+        {
+          "currency": "USD",
+          "reason": "US crop supply, farm income, food inflation and ethanol demand; FX sign is unproven."
+        }
+      ],
+      "featureVersion": "agricultural-receipt-v1",
+      "definition": "Current versus previous weekly inspections printed in this release. Transform: log((current tonnes + 1)/(previous tonnes + 1)), including zero exports. Research only; no direct FX direction or Core points. Availability begins at actual receipt.",
+      "economicCause": "US grain export demand",
+      "lineage": [
+        "USDA AMS Grain Inspections:exports.wheat.change"
+      ],
+      "rawInputs": [
+        [
+          310635,
+          339955,
+          873578,
+          6342896,
+          9672185
+        ]
+      ],
+      "quality": "VALID"
+    }
+  ]
+}

@@ -13,6 +13,7 @@ const research=await vite.ssrLoadModule('/lib/production-research.ts');
 const runtime=await vite.ssrLoadModule('/worker/production.ts');
 const sourceHealth=await vite.ssrLoadModule('/lib/source-health.ts');
 const proxies=await vite.ssrLoadModule('/worker/proxy-discovery.ts');
+const validationVersion='date-cluster-hac-v1',certificate={passed:true,validationVersion};
 const at='2026-01-01T17:00:00.000Z',day=86400000;
 function sqlite(){const sql=new DatabaseSync(':memory:');for(const file of ['0000_hesitant_krista_starr.sql','0001_happy_mandroid.sql','0002_sudden_blazing_skull.sql'])sql.exec(readFileSync(new URL('../drizzle/'+file,import.meta.url),'utf8'));return {sql,db:{prepare(query){const statement=sql.prepare(query);let v=[];return {bind(...values){v=values;return this},async first(){return statement.get(...v)??null},async all(){return {results:statement.all(...v)}},async run(){return {meta:{changes:Number(statement.run(...v).changes)}}}}},async batch(rows){sql.exec('BEGIN');try{const result=[];for(const row of rows)result.push(await row.run());sql.exec('COMMIT');return result}catch(e){sql.exec('ROLLBACK');throw e}}}};}
 function observations(end=at,n=70){return Array.from({length:n},(_,i)=>data.currencies.map((currency,j)=>({currency,metric:'fxReferenceUsd',value:currency==='USD'?1:1+j*.1+i*.002*(j%2?1:-1),period:new Date(Date.parse(end)-(n-i)*day).toISOString().slice(0,10),receivedAt:end,source:'ECB reference fixing',sourceUrl:'https://www.ecb.europa.eu/',unit:'USD per currency',releaseDate:null,quality:'VALID',frequency:'business-daily'}))).flat();}
@@ -57,13 +58,13 @@ test('adaptive arithmetic has one cap, exact attribution and fail-closed stale/N
   c.evidenceAttribution=a;assert.equal(evidence.evidenceShift(c),a.mlContribution+a.hypothesisContribution);a.expiresAt='bad';assert.equal(evidence.evidenceShift(c),0);assert.equal(evidence.combineEvidence(c,parts,{at:now,enabled:false}).finalEvidenceScore,evidence.coreEvidence(c));
   parts[0].score=NaN;assert.ok(Number.isFinite(evidence.combineEvidence(c,parts,{at:now}).finalEvidenceScore));
 });
-function samples(n,start='2020-01-01',horizon=1,bad=false){return Array.from({length:n},(_,i)=>({asOf:new Date(Date.parse(start)+i*(horizon+4)*day).toISOString(),labelEnd:new Date(Date.parse(start)+(i*(horizon+4)+horizon+1)*day).toISOString().slice(0,10),pair:'EUR',probability:bad?.48:.52,candidate:bad?.1:.9,baseline:.5,label:1,regime:i%2?'risk-on':'risk-off',pointInTimeVerified:true}));}
+function samples(n,start='2018-01-01',horizon=1,bad=false){return Array.from({length:n},(_,i)=>{const time=Date.parse(start)+i*(horizon+4)*day,candidate=(bad?.2:.8)+.1*Math.sin(i*1.7);return {asOf:new Date(time).toISOString(),entryDate:new Date(time+day).toISOString().slice(0,10),labelEnd:new Date(time+(horizon+1)*day).toISOString().slice(0,10),resolvedAt:new Date(time+(horizon+2)*day).toISOString(),pair:'EUR',probability:.5+.05*(candidate-.5),candidate,baseline:.5,label:1,regime:i%2?'risk-on':'risk-off',pointInTimeVerified:true};});}
 test('hypothesis lifecycle requires frozen holdout, then new shadow; collapse zeroes weight',()=>{
-  const f=research.buildResearchFrame(payload(),observations());let r=research.discoverRecipes([],f)[0];r={...r,horizon:1};
+  const f=research.buildResearchFrame(payload(),observations());let r=research.discoverRecipes([],f)[0];r={...r,horizon:1,createdAt:'2018-01-01T00:00:00.000Z'};
   assert.equal(research.advanceRecipe(r,samples(119),128,'2022-01-01T00:00:00Z').weight,0);
-  r=research.advanceRecipe(r,samples(120),128,'2022-01-01T00:00:00Z');assert.equal(r.status,'SHADOW');assert.equal(r.weight,0);
-  r=research.advanceRecipe(r,[...samples(120),...samples(40,'2022-01-02')],128,'2023-01-01T00:00:00Z');assert.equal(r.status,'ACTIVE');assert.ok(r.weight<=.005);
-  const bad=research.advanceRecipe(r,[...samples(120),...samples(100,'2022-01-02',1,true)],128,'2024-01-01T00:00:00Z');assert.equal(bad.weight,0);assert.equal(bad.status,'DEGRADED');
+  r=research.advanceRecipe(r,samples(160),128,'2022-01-01T00:00:00Z');assert.equal(r.status,'SHADOW');assert.equal(r.weight,0);
+  r=research.advanceRecipe(r,[...samples(160),...samples(40,'2022-01-02')],128,'2023-01-01T00:00:00Z');assert.equal(r.status,'ACTIVE');assert.ok(r.weight<=.005);
+  const bad=research.advanceRecipe(r,[...samples(160),...samples(100,'2022-01-02',1,true)],128,'2024-01-01T00:00:00Z');assert.equal(bad.weight,0);assert.equal(bad.status,'DEGRADED');
   assert.equal(research.validationGate(samples(15),1,128,1).passed,false);assert.ok(research.validationGate(samples(15),1,128,10).adjustedP>=research.validationGate(samples(15),1,1,1).adjustedP);
 });
 test('fresh snapshot persistence, immutable labels and weekly waiting work through SQLite',async()=>{
@@ -106,7 +107,10 @@ test('walk-forward trains a frozen challenger on purged past labels; no automati
   const now=new Date(Date.parse(frames.at(-1).at)+30*day).toISOString();
   const candidate=research.trainChallenger(frames,outcomes,10,now,1);
   assert.ok(candidate);assert.equal(candidate.status,'SHADOW');assert.equal(candidate.weight,0);assert.ok(candidate.folds.length>=3);assert.ok(candidate.folds.every(f=>f.trainEnd<f.testStart));
-  const champion={...candidate,id:'incumbent',status:'ACTIVE',gate:{...candidate.gate,passed:true},weight:.005};
+  const holdoutStart=frames[120].at,changed=research.trainChallenger(frames,outcomes.map(o=>o.asOf>=holdoutStart?{...o,label:1-o.label}:o),10,now,1);
+  assert.deepEqual(changed.weights,candidate.weights);assert.deepEqual(changed.featureRange,candidate.featureRange);assert.deepEqual(changed.historicalGate,candidate.historicalGate);assert.notDeepEqual(changed.holdoutGate,candidate.holdoutGate);
+  assert.equal(research.certified(candidate),false);assert.equal(research.chooseChampions([{...candidate,status:'ACTIVE'}],[],frames,outcomes,now).length,0);
+  const champion={...candidate,id:'incumbent',status:'ACTIVE',gate:{...candidate.gate,...certificate},historicalGate:certificate,holdoutGate:certificate,weight:.005};
   const competitor={...champion,id:'challenger',gate:{...champion.gate,improvement:1}};
   assert.equal(research.chooseChampions([champion,competitor],['incumbent'],frames,outcomes,now)[0].id,'incumbent');
   assert.equal(research.chooseChampions([{...champion,status:'DEGRADED'},competitor],['incumbent'],frames,outcomes,now)[0].id,'challenger');
