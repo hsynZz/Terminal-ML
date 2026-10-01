@@ -1,0 +1,13 @@
+{
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXUSEU,DEXUSUK,DEXUSAL,DEXUSNZ,DEXJPUS,DEXSZUS,DEXCAUS&cosd=1971-01-01&coed=2026-10-01",
+  "status": 200,
+  "retrievedAt": "2026-10-01T10:09:44.021Z",
+  "lastModified": "Mon, 28 Sep 2026 20:16:52 GMT",
+  "bytes": 805007,
+  "sha256": "90d438c2de397f57c2ce602fe3ad579e0c0b543d395e1e48fa9955c4acd1b78c",
+  "dataThrough": "2026-09-25",
+  "source": "Board of Governors of the Federal Reserve System, H.10, distributed by FRED (Federal Reserve Bank of St. Louis)",
+  "fixing": "New York noon reference rates, not market closing prices",
+  "publicationTimestamp": null,
+  "note": "The HTTP last-modified time is source transport metadata, not a historical observation publication time. This is a real dated bootstrap archive; subsequent updates are fetched separately."
+}

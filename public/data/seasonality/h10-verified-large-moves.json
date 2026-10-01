@@ -1,0 +1,14 @@
+{
+  "source": "https://www.federalreserve.gov/releases/h10/data/FRB_h10_xml.zip",
+  "member": "H10_data.xml",
+  "retrievedAt": "2026-10-01T19:49:56.262Z",
+  "sha256": "38b941973dd7e6570e590291a34ebd27873ef98c7d09fcb0e3097ee76e793046",
+  "meaning": "Exact official observation confirmation, not an economic explanation or a trading signal. A revised value must be verified again.",
+  "observations": [
+    {"currency":"AUD","series":"RXI$US_N.B.AL","date":"1974-09-25","raw":1.3075,"status":"A"},
+    {"currency":"AUD","series":"RXI$US_N.B.AL","date":"1976-11-29","raw":1.0150,"status":"A"},
+    {"currency":"NZD","series":"RXI$US_N.B.NZ","date":"1975-08-11","raw":1.0605,"status":"A"},
+    {"currency":"NZD","series":"RXI$US_N.B.NZ","date":"1984-07-18","raw":0.5010,"status":"A"},
+    {"currency":"CHF","series":"RXI_N.B.SZ","date":"2015-01-15","raw":0.8930,"status":"A"}
+  ]
+}

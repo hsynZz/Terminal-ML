@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { index, integer, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { index, integer, real, sqliteTable, text, uniqueIndex, primaryKey } from "drizzle-orm/sqlite-core";
 
 export const terminalSnapshots = sqliteTable("terminal_snapshots", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -71,3 +71,29 @@ export const productionRecords = sqliteTable("production_records", {
   version: text("version").notNull(),
   payload: text("payload").notNull(),
 }, t => [index("idx_production_kind_at").on(t.kind,t.at)]);
+
+// Separate descriptive FX archive. No relationship to Core factors, ML or labels.
+// Immutable receipt vintages: changes append; repeated unchanged receipts do not.
+export const seasonalityFxRates = sqliteTable('seasonality_fx_rates', {
+  date: text('date').notNull(),
+  baseCurrency: text('base_currency').notNull(),
+  quoteCurrency: text('quote_currency').notNull(),
+  close: real('close').notNull(),
+  rawValue: real('raw_value').notNull(),
+  source: text('source').notNull(),
+  sourceSeriesId: text('source_series_id').notNull(),
+  sourceTimestamp: text('source_timestamp'),
+  ingestedAt: text('ingested_at').notNull(),
+  isDerived: integer('is_derived').notNull(),
+  derivationMethod: text('derivation_method').notNull(),
+  normalizationVersion: text('normalization_version').notNull(),
+  dataQualityStatus: text('data_quality_status').notNull(),
+  verification: text('verification'),
+},t=>[primaryKey({columns:[t.baseCurrency,t.date,t.ingestedAt]})]);
+
+export const seasonalitySyncState = sqliteTable('seasonality_sync_state',{
+  key:text('key').primaryKey(),value:text('value').notNull(),updatedAt:text('updated_at').notNull(),
+});
+export const seasonalitySyncRuns = sqliteTable('seasonality_sync_runs',{
+  id:text('id').primaryKey(),at:text('at').notNull(),source:text('source').notNull(),status:text('status').notNull(),payload:text('payload').notNull(),
+},t=>[index('idx_seasonality_sync_at').on(t.at)]);

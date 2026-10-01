@@ -6,6 +6,7 @@ import { dueJob } from "./automation-policy";
 import { requireAuthenticatedSiteUser } from "./site-auth";
 import { queueResearch, researchStatus, runResearch } from "./hypothesis-research";
 import { productionHealth } from './production';
+import { queueSeasonality, seasonalityApi } from './seasonality';
 
 interface Env {
   ASSETS: Fetcher;
@@ -45,7 +46,12 @@ const worker = {
     const url = new URL(request.url);
     const invoke = async (inner: Request) => {
       const response = await handler.fetch(inner, env, ctx);
-      if (inner.method === "POST" && new URL(inner.url).pathname === "/api/refresh" && response.ok) queueResearch(env, ctx);
+      if (inner.method === "POST" && new URL(inner.url).pathname === "/api/refresh" && response.ok) {
+        queueResearch(env, ctx);
+        // Only the secret-verified automation dispatcher creates a Cron-labelled inner request.
+        // A user-supplied x-fx-schedule header on /api/refresh is not Cron evidence.
+        queueSeasonality(env, ctx, url.pathname === '/api/automation/run' ? (inner.headers.has('x-fx-schedule') ? 'CLOUDFLARE_CRON' : 'CONTROLLED_TEST') : 'MANUAL_REFRESH');
+      }
       return response;
     };
 
@@ -55,6 +61,7 @@ const worker = {
       if (unauthorized) return unauthorized;
     }
     if (url.pathname === "/api/health" && request.method === "GET") return healthResponse(env, invoke);
+    if (url.pathname.startsWith('/api/seasonality/')) return seasonalityApi(request,env,ctx);
     if (url.pathname === '/api/production' && request.method === 'GET') {
       try { return Response.json(await productionHealth(env),{headers:{'Cache-Control':'private, no-store'}}); }
       catch { return Response.json({status:'unavailable',error:'Production status unavailable'},{status:503}); }
@@ -91,7 +98,7 @@ const worker = {
     const type = dueJob(controller.cron, controller.scheduledTime);
     if (!type) return;
     ctx.waitUntil(executeJob(env, (request) => handler.fetch(request, env, ctx), type, "CLOUDFLARE_CRON", controller)
-      .then((response) => { if (!response.ok) throw new Error(`FX automation failed: HTTP ${response.status}`); if (type === "DAILY_REFRESH") queueResearch(env, ctx); }));
+      .then((response) => { if (!response.ok) throw new Error(`FX automation failed: HTTP ${response.status}`); if (type === "DAILY_REFRESH") { queueResearch(env, ctx); queueSeasonality(env,ctx,'CLOUDFLARE_CRON'); } }));
   },
 };
 

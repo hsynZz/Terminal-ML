@@ -215,6 +215,7 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
             <h1>Currency dominance</h1>
           </div>
           <div className="model-actions">
+            <a href="/seasonality" className="audit-button">Seasonality</a>
             <a href="/hypotheses" className="audit-button">Hypothesis Lab</a>
             <Button variant="outline" size="icon" onClick={refresh} disabled={refreshing} className="quiet-button" aria-label="Daten aktualisieren">
               <RefreshCw className={refreshing ? "animate-spin" : ""} />

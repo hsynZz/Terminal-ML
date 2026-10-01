@@ -1,0 +1,1351 @@
+{
+  "auditedAt": "2026-10-01T19:57:05.541Z",
+  "scope": "LOCAL_REAL_DATA_VALIDATION; not production Cron proof",
+  "sources": {
+    "fred": {
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXUSEU,DEXUSUK,DEXUSAL,DEXUSNZ,DEXJPUS,DEXSZUS,DEXCAUS&cosd=1971-01-01&coed=2026-10-01",
+      "status": 200,
+      "retrievedAt": "2026-10-01T10:09:44.021Z",
+      "lastModified": "Mon, 28 Sep 2026 20:16:52 GMT",
+      "bytes": 805007,
+      "sha256": "90d438c2de397f57c2ce602fe3ad579e0c0b543d395e1e48fa9955c4acd1b78c",
+      "dataThrough": "2026-09-25",
+      "source": "Board of Governors of the Federal Reserve System, H.10, distributed by FRED (Federal Reserve Bank of St. Louis)",
+      "fixing": "New York noon reference rates, not market closing prices",
+      "publicationTimestamp": null,
+      "note": "The HTTP last-modified time is source transport metadata, not a historical observation publication time. This is a real dated bootstrap archive; subsequent updates are fetched separately."
+    },
+    "fed": {
+      "url": "https://www.federalreserve.gov/releases/h10/data/FRB_h10_xml.zip",
+      "retrievedAt": "2026-10-01T19:49:56.262Z",
+      "bytes": 2082185
+    },
+    "ecb": {
+      "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml",
+      "retrievedAt": "2026-10-01T19:49:56.529Z",
+      "bytes": 8190397
+    }
+  },
+  "fredSha256": "90d438c2de397f57c2ce602fe3ad579e0c0b543d395e1e48fa9955c4acd1b78c",
+  "fedSha256": "38b941973dd7e6570e590291a34ebd27873ef98c7d09fcb0e3097ee76e793046",
+  "ecbSha256": "d381a445174fbcc375ca1fc23524245b07a6aa9f95a374f426f48980a88c9287",
+  "fedComparisons": {
+    "EUR": 6955,
+    "GBP": 13976,
+    "AUD": 13969,
+    "NZD": 13960,
+    "JPY": 13970,
+    "CHF": 13976,
+    "CAD": 13982
+  },
+  "fedMismatches": [],
+  "verifiedLargeMoves": [
+    {
+      "currency": "AUD",
+      "series": "RXI$US_N.B.AL",
+      "date": "1974-09-25",
+      "raw": 1.3075,
+      "status": "A"
+    },
+    {
+      "currency": "AUD",
+      "series": "RXI$US_N.B.AL",
+      "date": "1976-11-29",
+      "raw": 1.015,
+      "status": "A"
+    },
+    {
+      "currency": "NZD",
+      "series": "RXI$US_N.B.NZ",
+      "date": "1975-08-11",
+      "raw": 1.0605,
+      "status": "A"
+    },
+    {
+      "currency": "NZD",
+      "series": "RXI$US_N.B.NZ",
+      "date": "1984-07-18",
+      "raw": 0.501,
+      "status": "A"
+    },
+    {
+      "currency": "CHF",
+      "series": "RXI_N.B.SZ",
+      "date": "2015-01-15",
+      "raw": 0.893,
+      "status": "A"
+    }
+  ],
+  "checks": [
+    {
+      "pair": "EURUSD",
+      "year": 2010,
+      "start": "10-04",
+      "end": "10-27",
+      "startDate": "2010-10-04",
+      "endDate": "2010-10-27",
+      "sourceStart": {
+        "DEXUSEU": 1.3688
+      },
+      "sourceEnd": {
+        "DEXUSEU": 1.3788
+      },
+      "startPrice": 1.3688,
+      "endPrice": 1.3788,
+      "return": 0.007305669199298759,
+      "mfe": 0.02761542957334906,
+      "mae": 0,
+      "ecbStart": 1.3705,
+      "ecbEnd": 1.3803,
+      "ecbReturn": 0.007150674936154733,
+      "returnDifferenceBps": 1.5499426314402598,
+      "startDifferenceBps": -12.404232032104945,
+      "endDifferenceBps": -10.867202782004481
+    },
+    {
+      "pair": "EURUSD",
+      "year": 2016,
+      "start": "06-20",
+      "end": "06-30",
+      "startDate": "2016-06-20",
+      "endDate": "2016-06-30",
+      "sourceStart": {
+        "DEXUSEU": 1.1318
+      },
+      "sourceEnd": {
+        "DEXUSEU": 1.1032
+      },
+      "startPrice": 1.1318,
+      "endPrice": 1.1032,
+      "return": -0.025269482240678487,
+      "mfe": 0.004859515815515136,
+      "mae": -0.025976320904753325,
+      "ecbStart": 1.1332,
+      "ecbEnd": 1.1102,
+      "ecbReturn": -0.02029650547123185,
+      "returnDifferenceBps": -49.729767694466354,
+      "startDifferenceBps": -12.354394634663812,
+      "endDifferenceBps": -63.05170239596536
+    },
+    {
+      "pair": "EURUSD",
+      "year": 2020,
+      "start": "03-02",
+      "end": "03-27",
+      "startDate": "2020-03-02",
+      "endDate": "2020-03-27",
+      "sourceStart": {
+        "DEXUSEU": 1.1164
+      },
+      "sourceEnd": {
+        "DEXUSEU": 1.1059
+      },
+      "startPrice": 1.1164,
+      "endPrice": 1.1059,
+      "return": -0.009405231099964162,
+      "mfe": 0.022930849158007804,
+      "mae": -0.04317448943031177,
+      "ecbStart": 1.1122,
+      "ecbEnd": 1.0977,
+      "ecbReturn": -0.013037223520949603,
+      "returnDifferenceBps": 36.31992420985441,
+      "startDifferenceBps": 37.76299226757818,
+      "endDifferenceBps": 74.70164890225118
+    },
+    {
+      "pair": "EURUSD",
+      "year": 2025,
+      "start": "10-03",
+      "end": "10-27",
+      "startDate": "2025-10-03",
+      "endDate": "2025-10-27",
+      "sourceStart": {
+        "DEXUSEU": 1.1747
+      },
+      "sourceEnd": {
+        "DEXUSEU": 1.1636
+      },
+      "startPrice": 1.1747,
+      "endPrice": 1.1636,
+      "return": -0.009449221077722059,
+      "mfe": 0,
+      "mae": -0.016004086149655317,
+      "ecbStart": 1.1734,
+      "ecbEnd": 1.164,
+      "ecbReturn": -0.008010908471109635,
+      "returnDifferenceBps": -14.383126066124241,
+      "startDifferenceBps": 11.078915970683667,
+      "endDifferenceBps": -3.4364261168384758
+    },
+    {
+      "pair": "AUDUSD",
+      "year": 2010,
+      "start": "10-04",
+      "end": "10-27",
+      "startDate": "2010-10-04",
+      "endDate": "2010-10-27",
+      "sourceStart": {
+        "DEXUSAL": 0.9666
+      },
+      "sourceEnd": {
+        "DEXUSAL": 0.9699
+      },
+      "startPrice": 0.9666,
+      "endPrice": 0.9699,
+      "return": 0.003414028553693216,
+      "mfe": 0.02865714876888048,
+      "mae": 0,
+      "ecbStart": 0.9683459337242988,
+      "ecbEnd": 0.9724531492179795,
+      "ecbReturn": 0.00424147543831177,
+      "returnDifferenceBps": -8.274468846185545,
+      "startDifferenceBps": -18.03006202116042,
+      "endDifferenceBps": -26.254727233211426
+    },
+    {
+      "pair": "AUDUSD",
+      "year": 2016,
+      "start": "06-20",
+      "end": "06-30",
+      "startDate": "2016-06-20",
+      "endDate": "2016-06-30",
+      "sourceStart": {
+        "DEXUSAL": 0.7458
+      },
+      "sourceEnd": {
+        "DEXUSAL": 0.7432
+      },
+      "startPrice": 0.7458,
+      "endPrice": 0.7432,
+      "return": -0.003486189326897371,
+      "mfe": 0.01877178868329321,
+      "mae": -0.014078841512469964,
+      "ecbStart": 0.7461153542270214,
+      "ecbEnd": 0.7436532922499833,
+      "ecbReturn": -0.003299840920160002,
+      "returnDifferenceBps": -1.8634840673736885,
+      "startDifferenceBps": -4.226614895870284,
+      "endDifferenceBps": -6.095478292200696
+    },
+    {
+      "pair": "AUDUSD",
+      "year": 2020,
+      "start": "03-02",
+      "end": "03-27",
+      "startDate": "2020-03-02",
+      "endDate": "2020-03-27",
+      "sourceStart": {
+        "DEXUSAL": 0.6524
+      },
+      "sourceEnd": {
+        "DEXUSAL": 0.6126
+      },
+      "startPrice": 0.6524,
+      "endPrice": 0.6126,
+      "return": -0.061005518087063115,
+      "mfe": 0.019926425505824685,
+      "mae": -0.11787247087676267,
+      "ecbStart": 0.6543122720320038,
+      "ecbEnd": 0.6028337635235322,
+      "ecbReturn": -0.07867574965177127,
+      "returnDifferenceBps": 176.7023156470815,
+      "startDifferenceBps": -29.225678834743363,
+      "endDifferenceBps": 162.00546597431088
+    },
+    {
+      "pair": "AUDUSD",
+      "year": 2025,
+      "start": "10-03",
+      "end": "10-27",
+      "startDate": "2025-10-03",
+      "endDate": "2025-10-27",
+      "sourceStart": {
+        "DEXUSAL": 0.6615
+      },
+      "sourceEnd": {
+        "DEXUSAL": 0.6554
+      },
+      "startPrice": 0.6615,
+      "endPrice": 0.6554,
+      "return": -0.009221466364323527,
+      "mfe": 0.0007558578987150177,
+      "mae": -0.019501133786848146,
+      "ecbStart": 0.6602892352709471,
+      "ecbEnd": 0.6558855017749479,
+      "ecbReturn": -0.006669400712238094,
+      "returnDifferenceBps": -25.520656520854335,
+      "startDifferenceBps": 18.33688426793767,
+      "endDifferenceBps": -7.402233676976344
+    },
+    {
+      "pair": "USDCHF",
+      "year": 2010,
+      "start": "10-04",
+      "end": "10-27",
+      "startDate": "2010-10-04",
+      "endDate": "2010-10-27",
+      "sourceStart": {
+        "DEXSZUS": 0.9723
+      },
+      "sourceEnd": {
+        "DEXSZUS": 0.9893
+      },
+      "startPrice": 0.9723,
+      "endPrice": 0.9893,
+      "return": 0.01748431554047092,
+      "mfe": 0.01748431554047092,
+      "mae": -0.019849840584181933,
+      "ecbStart": 0.9724188252462604,
+      "ecbEnd": 0.9881185249583423,
+      "ecbReturn": 0.016144997715471066,
+      "returnDifferenceBps": 13.393178249998527,
+      "startDifferenceBps": -1.2219554288273038,
+      "endDifferenceBps": 11.9568150157634
+    },
+    {
+      "pair": "USDCHF",
+      "year": 2016,
+      "start": "06-20",
+      "end": "06-30",
+      "startDate": "2016-06-20",
+      "endDate": "2016-06-30",
+      "sourceStart": {
+        "DEXSZUS": 0.9616
+      },
+      "sourceEnd": {
+        "DEXSZUS": 0.9792
+      },
+      "startPrice": 0.9616,
+      "endPrice": 0.9792,
+      "return": 0.01830282861896837,
+      "mfe": 0.020382695507487503,
+      "mae": -0.005199667221297832,
+      "ecbStart": 0.9604659371690788,
+      "ecbEnd": 0.9788326427670689,
+      "ecbReturn": 0.019122703770344085,
+      "returnDifferenceBps": -8.198751513757152,
+      "startDifferenceBps": 11.807423741270195,
+      "endDifferenceBps": 3.753013711236264
+    },
+    {
+      "pair": "USDCHF",
+      "year": 2020,
+      "start": "03-02",
+      "end": "03-27",
+      "startDate": "2020-03-02",
+      "endDate": "2020-03-27",
+      "sourceStart": {
+        "DEXSZUS": 0.9577
+      },
+      "sourceEnd": {
+        "DEXSZUS": 0.9558
+      },
+      "startPrice": 0.9577,
+      "endPrice": 0.9558,
+      "return": -0.001983919807873047,
+      "mfe": 0.030176464446068696,
+      "mae": -0.029341129790122156,
+      "ecbStart": 0.9580111490739074,
+      "ecbEnd": 0.9639245695545232,
+      "ecbReturn": 0.006172600899616132,
+      "returnDifferenceBps": -81.56520707489179,
+      "startDifferenceBps": -3.2478648521805376,
+      "endDifferenceBps": -84.28636234760533
+    },
+    {
+      "pair": "USDCHF",
+      "year": 2025,
+      "start": "10-03",
+      "end": "10-27",
+      "startDate": "2025-10-03",
+      "endDate": "2025-10-27",
+      "sourceStart": {
+        "DEXSZUS": 0.7949
+      },
+      "sourceEnd": {
+        "DEXSZUS": 0.7965
+      },
+      "startPrice": 0.7949,
+      "endPrice": 0.7965,
+      "return": 0.0020128318027423653,
+      "mfe": 0.013838218643854372,
+      "mae": -0.003899861617813638,
+      "ecbStart": 0.7962331685699676,
+      "ecbEnd": 0.7958762886597939,
+      "ecbReturn": -0.000448210303540475,
+      "returnDifferenceBps": 24.6104210628284,
+      "startDifferenceBps": -16.743444289841758,
+      "endDifferenceBps": 7.836787564765579
+    },
+    {
+      "pair": "AUDCAD",
+      "year": 2010,
+      "start": "10-04",
+      "end": "10-27",
+      "startDate": "2010-10-04",
+      "endDate": "2010-10-27",
+      "sourceStart": {
+        "DEXUSAL": 0.9666,
+        "DEXCAUS": 1.0235
+      },
+      "sourceEnd": {
+        "DEXUSAL": 0.9699,
+        "DEXCAUS": 1.0321
+      },
+      "startPrice": 0.9893151000000001,
+      "endPrice": 1.00103379,
+      "return": 0.011845255369093088,
+      "mfe": 0.02380728849686009,
+      "mae": -0.0041189808990078625,
+      "ecbStart": 0.9890482583197908,
+      "ecbEnd": 1.0011272368606454,
+      "ecbReturn": 0.01221272919622196,
+      "returnDifferenceBps": -3.6747382712887244,
+      "startDifferenceBps": 2.697964209175119,
+      "endDifferenceBps": -0.9334164250540677
+    },
+    {
+      "pair": "AUDCAD",
+      "year": 2016,
+      "start": "06-20",
+      "end": "06-30",
+      "startDate": "2016-06-20",
+      "endDate": "2016-06-30",
+      "sourceStart": {
+        "DEXUSAL": 0.7458,
+        "DEXCAUS": 1.2807
+      },
+      "sourceEnd": {
+        "DEXUSAL": 0.7432,
+        "DEXCAUS": 1.301
+      },
+      "startPrice": 0.95514606,
+      "endPrice": 0.9669032,
+      "return": 0.012309258753577357,
+      "mfe": 0.01415800218031582,
+      "mae": 0,
+      "ecbStart": 0.956017908875428,
+      "ecbEnd": 0.9634938709893496,
+      "ecbReturn": 0.007819897561035738,
+      "returnDifferenceBps": 44.89361192541619,
+      "startDifferenceBps": -9.11958727272788,
+      "endDifferenceBps": 35.38506173526024
+    },
+    {
+      "pair": "AUDCAD",
+      "year": 2020,
+      "start": "03-02",
+      "end": "03-27",
+      "startDate": "2020-03-02",
+      "endDate": "2020-03-27",
+      "sourceStart": {
+        "DEXUSAL": 0.6524,
+        "DEXCAUS": 1.3334
+      },
+      "sourceEnd": {
+        "DEXUSAL": 0.6126,
+        "DEXCAUS": 1.4075
+      },
+      "startPrice": 0.8699101599999999,
+      "endPrice": 0.8622345,
+      "return": -0.008823508855213102,
+      "mfe": 0.03468912238017796,
+      "mae": -0.038154181346726435,
+      "ecbStart": 0.8740440051770797,
+      "ecbEnd": 0.8523806908671536,
+      "ecbReturn": -0.02478515290032468,
+      "returnDifferenceBps": 159.61644045111578,
+      "startDifferenceBps": -47.29561844248664,
+      "endDifferenceBps": 115.603382836158
+    },
+    {
+      "pair": "AUDCAD",
+      "year": 2025,
+      "start": "10-03",
+      "end": "10-27",
+      "startDate": "2025-10-03",
+      "endDate": "2025-10-27",
+      "sourceStart": {
+        "DEXUSAL": 0.6615,
+        "DEXCAUS": 1.3946
+      },
+      "sourceEnd": {
+        "DEXUSAL": 0.6554,
+        "DEXCAUS": 1.3995
+      },
+      "startPrice": 0.9225279,
+      "endPrice": 0.9172323,
+      "return": -0.005740314195375462,
+      "mfe": 0.0006840985513827391,
+      "mae": -0.014827020407729652,
+      "ecbStart": 0.9221203083675652,
+      "ecbEnd": 0.9171127514509495,
+      "ecbReturn": -0.0054304811109524564,
+      "returnDifferenceBps": -3.0983308442300572,
+      "startDifferenceBps": 4.420156770610362,
+      "endDifferenceBps": 1.303531641680955
+    },
+    {
+      "pair": "GBPCAD",
+      "year": 2010,
+      "start": "10-04",
+      "end": "10-27",
+      "startDate": "2010-10-04",
+      "endDate": "2010-10-27",
+      "sourceStart": {
+        "DEXUSUK": 1.5849,
+        "DEXCAUS": 1.0235
+      },
+      "sourceEnd": {
+        "DEXUSUK": 1.5782,
+        "DEXCAUS": 1.0321
+      },
+      "startPrice": 1.6221451500000001,
+      "endPrice": 1.62886022,
+      "return": 0.004139623386969937,
+      "mfe": 0.004139623386969937,
+      "mae": -0.020595635353593544,
+      "ecbStart": 1.6171441774491682,
+      "ecbEnd": 1.628933340975526,
+      "ecbReturn": 0.007290112836416229,
+      "returnDifferenceBps": -31.50489449446292,
+      "startDifferenceBps": 30.92471667381247,
+      "endDifferenceBps": -0.4488886910636314
+    },
+    {
+      "pair": "GBPCAD",
+      "year": 2016,
+      "start": "06-20",
+      "end": "06-30",
+      "startDate": "2016-06-20",
+      "endDate": "2016-06-30",
+      "sourceStart": {
+        "DEXUSUK": 1.4688,
+        "DEXCAUS": 1.2807
+      },
+      "sourceEnd": {
+        "DEXUSUK": 1.3242,
+        "DEXCAUS": 1.301
+      },
+      "startPrice": 1.8810921600000001,
+      "endPrice": 1.7227842,
+      "return": -0.08415747158289155,
+      "mfe": 0.003061965874122663,
+      "mae": -0.08415747158289155,
+      "ecbStart": 1.8765751211631663,
+      "ecbEnd": 1.7403508771929823,
+      "ecbReturn": -0.07259194819003434,
+      "returnDifferenceBps": -115.65523392857213,
+      "startDifferenceBps": 24.070652892562716,
+      "endDifferenceBps": -100.93756048387026
+    },
+    {
+      "pair": "GBPCAD",
+      "year": 2020,
+      "start": "03-02",
+      "end": "03-27",
+      "startDate": "2020-03-02",
+      "endDate": "2020-03-27",
+      "sourceStart": {
+        "DEXUSUK": 1.2791,
+        "DEXCAUS": 1.3334
+      },
+      "sourceEnd": {
+        "DEXUSUK": 1.236,
+        "DEXCAUS": 1.4075
+      },
+      "startPrice": 1.7055519399999999,
+      "endPrice": 1.73967,
+      "return": 0.020004116673222105,
+      "mfe": 0.044542067713282396,
+      "mae": -0.020362944795454307,
+      "ecbStart": 1.7054859779826204,
+      "ecbEnd": 1.7294942223906045,
+      "ecbReturn": 0.014077069362002481,
+      "returnDifferenceBps": 59.27047311219624,
+      "startDifferenceBps": 0.38676376253432565,
+      "endDifferenceBps": 58.83672508214532
+    },
+    {
+      "pair": "GBPCAD",
+      "year": 2025,
+      "start": "10-03",
+      "end": "10-27",
+      "startDate": "2025-10-03",
+      "endDate": "2025-10-27",
+      "sourceStart": {
+        "DEXUSUK": 1.3481,
+        "DEXCAUS": 1.3946
+      },
+      "sourceEnd": {
+        "DEXUSUK": 1.3331,
+        "DEXCAUS": 1.3995
+      },
+      "startPrice": 1.8800602600000003,
+      "endPrice": 1.8656734499999998,
+      "return": -0.007652313229577268,
+      "mfe": 0.002986734052875306,
+      "mae": -0.008835631683422829,
+      "ecbStart": 1.8779509511803805,
+      "ecbEnd": 1.8662997362687765,
+      "ecbReturn": -0.006204216837655152,
+      "returnDifferenceBps": -14.480963919221157,
+      "startDifferenceBps": 11.231969707696798,
+      "endDifferenceBps": -3.3557646534787544
+    }
+  ],
+  "maxEngineError": 4.440892098500626e-16,
+  "fixingCaveat": "ECB reference rates and Fed New York noon fixings have different fixing times; prices and returns are not expected to match exactly. The ECB series is an independent orientation/scale spotcheck, not replacement data.",
+  "localPersistence": {
+    "vintages": 90788,
+    "idempotent": true,
+    "untouchedCoreTables": [
+      "terminal_snapshots",
+      "currency_observations",
+      "observation_vintages",
+      "evidence_entries",
+      "production_records",
+      "terminal_settings"
+    ],
+    "importMs": 524.0348250000006,
+    "statsQueryMs": 247.5449749999998
+  },
+  "referenceAnalysis": {
+    "pair": "AUDCAD",
+    "asOf": "2026-10-01",
+    "lookback": 20,
+    "window": "10-03/10-27",
+    "stats": {
+      "sample": 20,
+      "average": 0.009409739784428961,
+      "median": 0.01217700398039867,
+      "positive": 13,
+      "negative": 7,
+      "flat": 0,
+      "winRate": 0.65,
+      "standardDeviation": 0.02501133091121194,
+      "spotSharpe": 0.9552305375253066,
+      "consistency": 0.37621907517967446,
+      "sortino": 1.2862882594783709,
+      "dailySample": 318,
+      "best": {
+        "year": 2011,
+        "endYear": 2011,
+        "startDate": "2011-10-03",
+        "endDate": "2011-10-27",
+        "startPrice": 1.0071468000000001,
+        "endPrice": 1.06240212,
+        "return": 0.0548632235141886,
+        "logReturn": 0.05341111256515108,
+        "mfe": 0.0548632235141886,
+        "mae": -0.004623109560592309,
+        "dailyLogReturns": [
+          -0.004633829183016127,
+          0.00301281174655998,
+          0.0061343778987865034,
+          0.004620599999291808,
+          0.009838102483207099,
+          0.006538861592601534,
+          0.005481890151997142,
+          0.005747728698523618,
+          -0.004863612618474636,
+          -0.0008714675565180805,
+          0.002218158110574972,
+          -0.0004476736282758895,
+          0.0015296011588972996,
+          0.006964677057248747,
+          0.009536873694916098,
+          -0.013769980078232987,
+          0.016373993037064067
+        ],
+        "fixings": 18,
+        "largeMoves": 0
+      },
+      "worst": {
+        "year": 2008,
+        "endYear": 2008,
+        "startDate": "2008-10-03",
+        "endDate": "2008-10-27",
+        "startPrice": 0.8381624999999999,
+        "endPrice": 0.7855425500000001,
+        "return": -0.0627801291515665,
+        "logReturn": -0.06483737021684678,
+        "mfe": 0,
+        "mae": -0.10237286922285338,
+        "dailyLogReturns": [
+          -0.06270738147341279,
+          0.013264075772867133,
+          -0.05855721305958493,
+          0.06829201033832945,
+          -0.03581992331047274,
+          0.0514152482755956,
+          -0.014311446434265372,
+          -0.005919136022527781,
+          0.01804526522798177,
+          0.02213148433696349,
+          -0.0035358600881190937,
+          0.0062935411357105935,
+          0.000003022760267669133,
+          -0.06397834518188276,
+          0.000547287505702809
+        ],
+        "fixings": 16,
+        "largeMoves": 0
+      },
+      "averageMfe": 0.01716339506246768,
+      "averageMae": -0.01385554710753048,
+      "trimmedMean": 0.011005102565003672,
+      "direction": "Positive"
+    }
+  },
+  "pairCoverage": [
+    {
+      "pair": "USDEUR",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 6955,
+      "completedSample": 27,
+      "excluded": []
+    },
+    {
+      "pair": "USDGBP",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13976,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "USDJPY",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13970,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "FEWER_THAN_240_OFFICIAL_FIXINGS"
+        }
+      ]
+    },
+    {
+      "pair": "USDCHF",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13976,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "USDCAD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13982,
+      "completedSample": 55,
+      "excluded": []
+    },
+    {
+      "pair": "USDAUD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13969,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "USDNZD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13960,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "EURUSD",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 6955,
+      "completedSample": 27,
+      "excluded": []
+    },
+    {
+      "pair": "EURGBP",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 6955,
+      "completedSample": 27,
+      "excluded": []
+    },
+    {
+      "pair": "EURJPY",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 6955,
+      "completedSample": 27,
+      "excluded": []
+    },
+    {
+      "pair": "EURCHF",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 6955,
+      "completedSample": 27,
+      "excluded": []
+    },
+    {
+      "pair": "EURCAD",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 6955,
+      "completedSample": 27,
+      "excluded": []
+    },
+    {
+      "pair": "EURAUD",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 6955,
+      "completedSample": 27,
+      "excluded": []
+    },
+    {
+      "pair": "EURNZD",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 6955,
+      "completedSample": 27,
+      "excluded": []
+    },
+    {
+      "pair": "GBPUSD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13976,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "GBPEUR",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 6955,
+      "completedSample": 27,
+      "excluded": []
+    },
+    {
+      "pair": "GBPJPY",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13970,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "FEWER_THAN_240_OFFICIAL_FIXINGS"
+        }
+      ]
+    },
+    {
+      "pair": "GBPCHF",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13976,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "GBPCAD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13976,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "GBPAUD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13969,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "GBPNZD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13960,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "JPYUSD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13970,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "FEWER_THAN_240_OFFICIAL_FIXINGS"
+        }
+      ]
+    },
+    {
+      "pair": "JPYEUR",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 6955,
+      "completedSample": 27,
+      "excluded": []
+    },
+    {
+      "pair": "JPYGBP",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13970,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "FEWER_THAN_240_OFFICIAL_FIXINGS"
+        }
+      ]
+    },
+    {
+      "pair": "JPYCHF",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13970,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "FEWER_THAN_240_OFFICIAL_FIXINGS"
+        }
+      ]
+    },
+    {
+      "pair": "JPYCAD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13970,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "FEWER_THAN_240_OFFICIAL_FIXINGS"
+        }
+      ]
+    },
+    {
+      "pair": "JPYAUD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13963,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "FEWER_THAN_240_OFFICIAL_FIXINGS"
+        }
+      ]
+    },
+    {
+      "pair": "JPYNZD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13954,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "FEWER_THAN_240_OFFICIAL_FIXINGS"
+        }
+      ]
+    },
+    {
+      "pair": "CHFUSD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13976,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "CHFEUR",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 6955,
+      "completedSample": 27,
+      "excluded": []
+    },
+    {
+      "pair": "CHFGBP",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13976,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "CHFJPY",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13970,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "FEWER_THAN_240_OFFICIAL_FIXINGS"
+        }
+      ]
+    },
+    {
+      "pair": "CHFCAD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13976,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "CHFAUD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13969,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "CHFNZD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13960,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "CADUSD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13982,
+      "completedSample": 55,
+      "excluded": []
+    },
+    {
+      "pair": "CADEUR",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 6955,
+      "completedSample": 27,
+      "excluded": []
+    },
+    {
+      "pair": "CADGBP",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13976,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "CADJPY",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13970,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "FEWER_THAN_240_OFFICIAL_FIXINGS"
+        }
+      ]
+    },
+    {
+      "pair": "CADCHF",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13976,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "CADAUD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13969,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "CADNZD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13960,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "AUDUSD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13969,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "AUDEUR",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 6955,
+      "completedSample": 27,
+      "excluded": []
+    },
+    {
+      "pair": "AUDGBP",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13969,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "AUDJPY",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13963,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "FEWER_THAN_240_OFFICIAL_FIXINGS"
+        }
+      ]
+    },
+    {
+      "pair": "AUDCHF",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13969,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "AUDCAD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13969,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "AUDNZD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13960,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "NZDUSD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13960,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "NZDEUR",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 6955,
+      "completedSample": 27,
+      "excluded": []
+    },
+    {
+      "pair": "NZDGBP",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13960,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "NZDJPY",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13954,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "FEWER_THAN_240_OFFICIAL_FIXINGS"
+        }
+      ]
+    },
+    {
+      "pair": "NZDCHF",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13960,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "NZDCAD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13960,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    },
+    {
+      "pair": "NZDAUD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "fixings": 13960,
+      "completedSample": 54,
+      "excluded": [
+        {
+          "year": 1971,
+          "reason": "GAP_EXCEEDS_7_CALENDAR_DAYS"
+        }
+      ]
+    }
+  ]
+}
