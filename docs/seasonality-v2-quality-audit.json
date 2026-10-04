@@ -1,0 +1,536 @@
+{
+  "scope": "LOCAL_OFFICIAL_ARCHIVE_AUDIT_NOT_LIVE_VALIDATION",
+  "version": "fx-seasonality-v2",
+  "sourceSha256": "90d438c2de397f57c2ce602fe3ad579e0c0b543d395e1e48fa9955c4acd1b78c",
+  "observations": 90788,
+  "pairs": [
+    {
+      "pair": "USDEUR",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "USDGBP",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "USDJPY",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "USDCHF",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "USDCAD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "USDAUD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "USDNZD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "EURUSD",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "EURGBP",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "EURJPY",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "EURCHF",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "EURCAD",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "EURAUD",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "EURNZD",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "GBPUSD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "GBPEUR",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "GBPJPY",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "GBPCHF",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "GBPCAD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "GBPAUD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "GBPNZD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "JPYUSD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "JPYEUR",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "JPYGBP",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "JPYCHF",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "JPYCAD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "JPYAUD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "JPYNZD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "CHFUSD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "CHFEUR",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "CHFGBP",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "CHFJPY",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "CHFCAD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "CHFAUD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "CHFNZD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "CADUSD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "CADEUR",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "CADGBP",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "CADJPY",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "CADCHF",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "CADAUD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "CADNZD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "AUDUSD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "AUDEUR",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "AUDGBP",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "AUDJPY",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "AUDCHF",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "AUDCAD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "AUDNZD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "NZDUSD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "NZDEUR",
+      "firstDate": "1999-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "NZDGBP",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "NZDJPY",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "NZDCHF",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "NZDCAD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    },
+    {
+      "pair": "NZDAUD",
+      "firstDate": "1971-01-04",
+      "lastDate": "2026-09-25",
+      "windowYears": 20,
+      "monthlyMinimum": 20,
+      "monthlyMaximum": 20,
+      "incompleteMonths": []
+    }
+  ],
+  "partialHistoricalExample": {
+    "pair": "EURUSD",
+    "asOf": "2007-10-01",
+    "lookback": 10,
+    "coverage": {
+      "status": "PARTIAL",
+      "requested": 10,
+      "valid": 8,
+      "excluded": 2,
+      "ratio": 0.8
+    },
+    "excluded": [
+      {
+        "year": 1997,
+        "reason": "NO_HISTORY"
+      },
+      {
+        "year": 1998,
+        "reason": "NO_HISTORY"
+      }
+    ]
+  },
+  "referencePreserved": true,
+  "monthlyCellsChecked": 13440
+}

@@ -5,7 +5,7 @@ import confirmedArchive from '../public/data/seasonality/h10-verified-large-move
 type Statement={bind(...v:unknown[]):Statement;first<T>():Promise<T|null>;all<T>():Promise<{results:T[]}>;run():Promise<{meta:{changes:number}}>};
 export type SeasonalityDb={prepare(sql:string):Statement;batch(rows:Statement[]):Promise<unknown[]>};
 export type SeasonalityEnv={DB:SeasonalityDb;ASSETS?:{fetch(request:Request):Promise<Response>}};
-type State={lastSuccess?:string;lastFullSync?:string;lastAttempt?:string;firstArchiveAt?:string;lastError?:string|null;rows?:number;lastDate?:string;status?:string;sourceMode?:string;sourceUrl?:string;missing?:Record<string,number>;issues?:unknown[]};
+type State={lastSuccess?:string;lastFullSync?:string;lastAttempt?:string;firstArchiveAt?:string;lastError?:string|null;rows?:number;lastDate?:string;status?:string;sourceMode?:string;sourceUrl?:string;missing?:Record<string,number>;issues?:unknown[];importRange?:{from:string;through:string}};
 const jsonHeaders={'Cache-Control':'private, no-store'};
 const DAY=86400000;
 async function getState(db:SeasonalityDb):Promise<State>{const r=await db.prepare("SELECT value FROM seasonality_sync_state WHERE key='history'").first<{value:string}>();return r?JSON.parse(r.value):{};}
@@ -87,18 +87,19 @@ export async function syncSeasonality(env:SeasonalityEnv,source:string,clockAt?:
     }
     const prior:FxObservation[]=[];
     if(!full)for(const s of FX_SERIES){const p=await db.prepare('SELECT date,base_currency,raw_value,close,data_quality_status FROM seasonality_fx_rates WHERE base_currency=? AND date<? ORDER BY date DESC,ingested_at DESC LIMIT 1').bind(s.currency,start).first<Stored>();if(p)prior.push({date:p.date,currency:p.base_currency,raw:p.raw_value,usdPerUnit:p.close,quality:p.data_quality_status});}
-    const parsed=parseFxCsv(csv,date,prior);
+    const parsed=parseFxCsv(csv,date,prior,start);
     if(!parsed.rows.length||parsed.issues.some(x=>x.reason==='INVALID_PRICE_OR_FIXING_DATE'||x.reason==='FUTURE_DATE'))throw new Error('SOURCE_VALIDATION_FAILED');
     if(FX_SERIES.some(s=>!parsed.rows.some(r=>r.currency===s.currency)))throw new Error('SOURCE_SERIES_MISSING');
+    if(state.lastDate&&parsed.rows.at(-1)!.date<state.lastDate)throw new Error('SOURCE_DATE_REGRESSION');
     await confirmLargeMoves(parsed.rows,fetcher);
     // Production timestamps are taken after receipt/validation, never backdated to job start.
     // An explicit clock is for deterministic local tests and replay audits only.
     const receivedAt=clockAt??new Date().toISOString();
     await persistFxRows(db,parsed.rows,receivedAt);
     const completedAt=clockAt??new Date().toISOString();
-    const next:State={...state,firstArchiveAt:state.firstArchiveAt??receivedAt,lastSuccess:completedAt,lastAttempt:now,lastFullSync:full?completedAt:state.lastFullSync,lastDate:parsed.rows.at(-1)!.date,status:sourceError?'ARCHIVE_READY':'READY',lastError:sourceError,rows:parsed.rows.length,sourceMode,sourceUrl,missing:parsed.missing,issues:parsed.issues.slice(0,100)};
+    const next:State={...state,firstArchiveAt:state.firstArchiveAt??receivedAt,lastSuccess:completedAt,lastAttempt:now,lastFullSync:full?completedAt:state.lastFullSync,lastDate:parsed.rows.at(-1)!.date,status:sourceError?'ARCHIVE_READY':'READY',lastError:sourceError,rows:parsed.rows.length,sourceMode,sourceUrl,importRange:{from:start,through:date},missing:parsed.missing,issues:parsed.issues.slice(0,100)};
     await saveState(db,next,completedAt);
-    const run={status:'SUCCESS',source,at:now,completedAt,mode:sourceMode,full,parsedRows:parsed.rows.length,lastDate:next.lastDate,duplicates:parsed.duplicates,quarantined:parsed.rows.filter(r=>r.quality==='REVIEW_REQUIRED').map(r=>({date:r.date,currency:r.currency})),confirmedLargeMoves:parsed.rows.filter(r=>r.quality==='VERIFIED_LARGE_MOVE').map(r=>({date:r.date,currency:r.currency,url:r.verification})),missing:parsed.missing,issues:parsed.issues.slice(0,100)};
+    const run={status:'SUCCESS',source,at:now,completedAt,mode:sourceMode,full,importRange:{from:start,through:date},parsedRows:parsed.rows.length,lastDate:next.lastDate,duplicates:parsed.duplicates,quarantined:parsed.rows.filter(r=>r.quality==='REVIEW_REQUIRED').map(r=>({date:r.date,currency:r.currency})),confirmedLargeMoves:parsed.rows.filter(r=>r.quality==='VERIFIED_LARGE_MOVE').map(r=>({date:r.date,currency:r.currency,url:r.verification})),missing:parsed.missing,issues:parsed.issues.slice(0,100)};
     await db.prepare('INSERT INTO seasonality_sync_runs (id,at,source,status,payload) VALUES (?,?,?,?,?)').bind(id,now,source,'SUCCESS',JSON.stringify(run)).run();
     console.log(JSON.stringify({event:'FX_SEASONALITY_SYNC',id,...run}));return run;
   }catch(error){
@@ -115,7 +116,7 @@ export async function seasonalityHealth(env:SeasonalityEnv,now=new Date().toISOS
     env.DB.prepare('SELECT base_currency,source_series_id,MIN(date) AS first_date,MAX(date) AS last_date,COUNT(DISTINCT date) AS observations,COUNT(*) AS vintages FROM seasonality_fx_rates GROUP BY base_currency,source_series_id').all<{base_currency:string;source_series_id:string;first_date:string;last_date:string;observations:number;vintages:number}>(),
     env.DB.prepare('SELECT at,source,status,payload FROM seasonality_sync_runs ORDER BY at DESC LIMIT 5').all<{at:string;source:string;status:string;payload:string}>(),
   ]);
-  return {version:SEASONALITY_VERSION,...state,freshness:fxFreshness(state.lastDate??null,now.slice(0,10)),coverage:coverage.results,schedule:'Existing Daily Refresh, 17:15 Europe/Berlin; FRED publishes weekly, normally Monday after 16:15 New York. A later release is collected on the next daily run.',runs:runs.results.map(r=>({...r,payload:JSON.parse(r.payload)})),isolatedFromEvidence:true};
+  return {version:SEASONALITY_VERSION,...state,observationCount:coverage.results.reduce((n,c)=>n+c.observations,0),vintageCount:coverage.results.reduce((n,c)=>n+c.vintages,0),lastImportRows:state.rows??null,missingCellMeaning:'Blank cells within the last import range, including holidays; not missing trading days. Older import counts may mix per-series ranges.',freshness:fxFreshness(state.lastDate??null,now.slice(0,10)),coverage:coverage.results,schedule:'Existing Daily Refresh, 17:15 Europe/Berlin; FRED publishes weekly, normally Monday after 16:15 New York. A later release is collected on the next daily run.',runs:runs.results.map(r=>({...r,payload:JSON.parse(r.payload)})),isolatedFromEvidence:true};
 }
 export type SeasonalityHistory={version:string;pair:string;asOf:string;mode:'retrospective'|'point-in-time';points:PairPrice[];pairLastDate:string|null;pairFreshness:ReturnType<typeof fxFreshness>;provenance:ReturnType<typeof pairProvenance>;health:Awaited<ReturnType<typeof seasonalityHealth>>};
 export async function seasonalityApi(request:Request,env:SeasonalityEnv,ctx:{waitUntil(p:Promise<unknown>):void}):Promise<Response>{
@@ -143,7 +144,7 @@ export async function seasonalityApi(request:Request,env:SeasonalityEnv,ctx:{wai
     const lb=url.searchParams.get('lookback')??'20',lookback=(lb==='MAX'?'MAX':Number(lb)) as Lookback;
     if(!LOOKBACKS.includes(lookback))return Response.json({error:'Invalid lookback'},{status:400});
     const start=url.searchParams.get('start')??'10-03',end=url.searchParams.get('end')??'10-27';
-    return Response.json({pair,pairLastDate,pairFreshness,provenance:history.provenance,health,analysis:analyzeSeasonality(points,{asOf,lookback,start,end,view:url.searchParams.get('view')==='window'?'window':'year',...(url.searchParams.has('fromYear')?{fromYear:Number(url.searchParams.get('fromYear')),toYear:Number(url.searchParams.get('toYear'))}:{})})},{headers:{'Cache-Control':'private, max-age=300'}});
+    return Response.json({pair,pairLastDate,pairFreshness,provenance:history.provenance,health,analysis:analyzeSeasonality(points,{asOf,lookback,start,end,monthEnd:url.searchParams.get('monthEnd')==='true',view:url.searchParams.get('view')==='window'?'window':'year',...(url.searchParams.has('fromYear')?{fromYear:Number(url.searchParams.get('fromYear')),toYear:Number(url.searchParams.get('toYear'))}:{})})},{headers:{'Cache-Control':'private, max-age=300'}});
   }catch(error){
     const message=error instanceof Error?error.message:'Seasonality unavailable',invalid=/Invalid|Duplicate|parameters/.test(message);
     if(!invalid)console.error(JSON.stringify({event:'FX_SEASONALITY_API',route,error:message}));

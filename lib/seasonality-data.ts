@@ -2,7 +2,7 @@
 export const FX_CURRENCIES = ['USD','EUR','GBP','JPY','CHF','CAD','AUD','NZD'] as const;
 export type FxCurrency = typeof FX_CURRENCIES[number];
 export const NORMALIZATION_VERSION = 'usd-per-unit-v1';
-export const SEASONALITY_VERSION = 'fx-seasonality-v1';
+export const SEASONALITY_VERSION = 'fx-seasonality-v2';
 export const FX_SOURCE = 'Federal Reserve H.10 via FRED';
 export const FX_SERIES = [
   {currency:'EUR',id:'DEXUSEU',base:'EUR',quote:'USD',start:'1999-01-04',units:'USD per EUR'},
@@ -38,8 +38,8 @@ export function fredHistoryUrl(start:string,end:string):string {
   return `https://fred.stlouisfed.org/graph/fredgraph.csv?${new URLSearchParams({id:FX_SERIES.map(x=>x.id).join(','),cosd:start,coed:end})}`;
 }
 /** FRED uses blank/dot for an explicitly missing observation, never a zero. */
-export function parseFxCsv(csv:string,asOf:string,prior:FxObservation[]=[]):{rows:FxObservation[];issues:FxIssue[];missing:Record<string,number>;duplicates:number} {
-  if(!validDate(asOf))throw new Error('Invalid as-of date');
+export function parseFxCsv(csv:string,asOf:string,prior:FxObservation[]=[],fromDate?:string):{rows:FxObservation[];issues:FxIssue[];missing:Record<string,number>;duplicates:number} {
+  if(!validDate(asOf)||(fromDate!==undefined&&(!validDate(fromDate)||fromDate>asOf)))throw new Error('Invalid as-of date or import range');
   const lines=csv.trim().split(/\r?\n/), header=lines.shift()?.replace(/^\uFEFF/,'').split(',');
   if(!header||header[0]!=='observation_date'||FX_SERIES.some(s=>header.filter(h=>h===s.id).length!==1)||header.length!==8)throw new Error('FRED schema mismatch');
   const seen=new Map<string,string>(), rows:FxObservation[]=[],issues:FxIssue[]=[],missing:Record<string,number>={};let duplicates=0;
@@ -50,6 +50,9 @@ export function parseFxCsv(csv:string,asOf:string,prior:FxObservation[]=[]):{row
     if(seen.has(date)){if(seen.get(date)!==line)throw new Error(`Conflicting duplicate ${date}`);duplicates++;continue;}
     seen.set(date,line);
     if(date>asOf){issues.push({date,series:'ALL',reason:'FUTURE_DATE'});continue;}
+    // Multi-series FRED responses can contain older rows for some legs. Bound
+    // every series and missing-cell diagnostic to the same requested import range.
+    if(fromDate&&date<fromDate)continue;
     for(const series of FX_SERIES){
       const raw=cells[header.indexOf(series.id)].trim();
       if(!raw||raw==='.'){if(date>=series.start)missing[series.id]=(missing[series.id]??0)+1;continue;}

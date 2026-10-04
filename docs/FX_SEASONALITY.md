@@ -1,6 +1,6 @@
 # FX Seasonality — isolated historical research
 
-Calculation version: `fx-seasonality-v1`. Normalization: `usd-per-unit-v1`.
+Calculation version: `fx-seasonality-v2`. Normalization: `usd-per-unit-v1`. See [v2 quality and presentation changes](FX_SEASONALITY_V2.md). The original source audit remains unchanged as the regression baseline.
 
 This feature has no connection to Core factor weights, ML training, hypothesis discovery, Evidence, rankings, dominance, forecasts or trade selection. It is a separate `/seasonality` research route. Existing forecast fixtures and scoring code are unchanged.
 
@@ -48,14 +48,14 @@ Only exact same-date legs are joined. A missing leg produces no cross on that da
 
 ## Calendar, windows and look-ahead
 
-Named 5Y / 10Y / 15Y / 20Y / 25Y cohorts use exactly the preceding complete calendar years. As of 2026-10-01, 15Y means **2011–2025**. No 2026 outcomes enter that cohort. Named cohorts are unavailable if even one required year/window fails. MAX uses all valid completed years and shows exclusions. Custom years must be entirely before the cutoff year and contain at least five valid windows.
+Named 5Y / 10Y / 15Y / 20Y / 25Y cohorts request exactly the preceding completed calendar years. As of 2026-10-01, 15Y means **2011–2025**. No 2026 outcomes enter that cohort. Each window is independently checked. Five or more valid windows are usable; fewer than the requested number are explicitly PARTIAL, never relabelled as a full sample. Individual verified results remain inspectable below five, but aggregates are unavailable. MAX and custom periods use the same rules and show every exclusion.
 
-A full eligible year requires at least 240 official shared fixings, start/end coverage within seven calendar days, no internal gap longer than seven days and no unconfirmed jump. The bootstrap's 1971 history has gaps for several currencies: MAX samples are typically 54 years for non-EUR pairs, 55 for USDCAD and 27 for EUR pairs, not blindly 55 years. The exact 56-pair coverage/exclusion list is in the source audit JSON.
+A full eligible chart year requires at least 240 official shared fixings, start/end coverage within seven calendar days, no internal gap longer than seven days and no unconfirmed jump. Annual chart cohorts are independent of window cohorts. A gap outside a selected window no longer erases that valid window. The original v1 source audit retains its stricter whole-year-gated window counts as historical evidence; v2 coverage is separately audited.
 
 - A window enters at the first fixing **on or after** the chosen start; exits at the last **on or before** its end. No pre-window entry. Each boundary shift is at most four calendar days; internal gaps are at most seven days; at least two fixes are required. Actual entry/exit dates and prices are visible per year.
 - Cross-year windows require the entire end-year to be completed too. As of 2026, a December–January window last starts in 2024 and ends in 2025.
-- Charts align by real **month/day**, never by array position. The 365-day display axis omits Feb 29 without shifting March. Feb 29 remains in the real return path. A Feb 29 endpoint is unavailable for non-leap years; MAX reports the smaller actual eligible sample.
-- Each year's chart starts at index 100 at its first real fixing in the displayed year/window: `100 × P(t) / P(start)`. Average is the arithmetic mean of normalized paths; median is independent. Display-only calendar carry uses the latest prior fixing at most four days old; no fill before the first fixing. The crosshair shows the contributing sample size and current source date.
+- Charts align by real **month/day**, never by array position. The annual display omits Feb 29 without shifting March. A manually selected Feb 29 endpoint remains unavailable in non-leap years. Full-month presets explicitly use each year's actual month-end; the February window chart adds a labelled month-end position with the actual Feb 28/29 source date. No price is fabricated.
+- Each year's chart is normalized as `100 × P(t) / P(start)` and displayed as percent return since that first fixing (index minus 100). Average remains arithmetic; median is independent. The empirical 25th–75th percentile band is historical dispersion, NOT confidence or a forecast range. A point needs five contributions for aggregates. Display-only calendar carry remains at most four days; no fill before the first fixing. Crosshairs show sample size and source dates.
 - The current-year overlay is separate, stops at its last actual fixing and has no projected continuation. Unconfirmed current-year jumps hide that overlay instead of creating a misleading path.
 - **Retrospective** mode clips calendar observations to the cutoff but uses the latest stored provider vintage. It is explicitly not a historically revision-safe backtest.
 - **Point-in-time** mode permits only receipt vintages archived by the cutoff. It returns DATA_UNAVAILABLE for dates before this archive began. No historic publication time or pre-existing vintage is fabricated.

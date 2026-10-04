@@ -66,9 +66,9 @@ test('window start rolls forward and end backward without using a pre-window ent
   const rows=[p('2025-10-03',100),p('2025-10-06',110),p('2025-10-07',121),p('2025-10-10',100)];
   const result=e.windowResult(rows,2025,'10-04','10-11').result;assert.equal(result.startDate,'2025-10-06');assert.equal(result.endDate,'2025-10-10');near(result.return,100/110-1);assert.equal(e.windowResult(rows,2025,'10-04','10-05').result,null);
 });
-test('large missing blocks and incomplete calendar years disable named lookbacks without sample inflation',()=>{
+test('large missing blocks exclude only their window and explicitly mark a partial named lookback',()=>{
   const rows=fullHistory().filter(p=>!(p.date>='2014-10-05'&&p.date<='2014-10-25'));
-  const a=e.analyzeSeasonality(rows,{asOf:'2026-10-01',lookback:20,start:'10-03',end:'10-27'});assert.equal(a.available,false);assert.equal(a.stats.sample,0);assert.equal(a.comparison.find(c=>c.lookback===20).valid,19);assert.ok(a.excluded.some(x=>x.year===2014));
+  const a=e.analyzeSeasonality(rows,{asOf:'2026-10-01',lookback:20,start:'10-03',end:'10-27'});assert.equal(a.available,true);assert.equal(a.stats.sample,19);assert.deepEqual(a.coverage,{status:'PARTIAL',requested:20,valid:19,excluded:1,ratio:.95});assert.equal(a.comparison.find(c=>c.lookback===20).valid,19);assert.ok(a.excluded.some(x=>x.year===2014));assert.ok(!a.chartYears.includes(2014));
   const max=e.analyzeSeasonality(rows,{asOf:'2026-10-01',lookback:'MAX',start:'10-03',end:'10-27'});assert.equal(max.available,true);assert.equal(max.stats.sample,26);
 });
 test('calendar alignment follows month/day across leap years; Feb 29 is not shifted into March',()=>{
@@ -111,12 +111,57 @@ test('spot Sharpe uses pooled daily log returns; cross-year consistency is a dif
 test('zero variance and inadequate samples produce N/A, never fake Sharpe or confidence',()=>{
   const s=e.summarize(Array.from({length:5},(_,year)=>({year,return:.1,mfe:.1,mae:0,dailyLogReturns:[.01,.01,.01,.01]})));assert.equal(s.spotSharpe,null);assert.equal(s.consistency,null);assert.equal(s.sortino,null);assert.equal(e.summarize([]).winRate,null);assert.equal(e.standardDeviation([1]),null);assert.equal(e.median([2,5,1]),2);assert.equal(e.median([2,5,1,8]),3.5);
 });
-test('unverified jump blocks its sample year; official confirmation restores it without modifying price',()=>{
-  const rows=fullHistory().map(p=>p.date==='2015-01-15'?{...p,quality:'REVIEW_REQUIRED'}:p),o={asOf:'2026-10-01',lookback:20,start:'10-03',end:'10-27'};assert.equal(e.analyzeSeasonality(rows,o).available,false);assert.equal(e.analyzeSeasonality(rows.map(p=>({...p,quality:p.quality==='REVIEW_REQUIRED'?'VERIFIED_LARGE_MOVE':p.quality})),o).available,true);
+test('unverified jump blocks the affected full-year curve but not an unrelated verified window',()=>{
+  const rows=fullHistory().map(p=>p.date==='2015-01-15'?{...p,quality:'REVIEW_REQUIRED'}:p),o={asOf:'2026-10-01',lookback:20,start:'10-03',end:'10-27'},a=e.analyzeSeasonality(rows,o);assert.equal(a.stats.sample,20);assert.equal(a.coverage.status,'COMPLETE');assert.equal(a.chartYears.length,19);assert.ok(!a.chartYears.includes(2015));
+  const restored=e.analyzeSeasonality(rows.map(p=>({...p,quality:p.quality==='REVIEW_REQUIRED'?'VERIFIED_LARGE_MOVE':p.quality})),o);assert.equal(restored.chartYears.length,20);assert.deepEqual(a.stats,restored.stats);
 });
 test('provenance distinguishes raw conventions, inversion, derived cross and source date freshness',()=>{
   const a=d.pairProvenance('AUDCAD');assert.equal(a.operation,'DIVIDE_CANONICAL_USD_PER_UNIT');assert.equal(a.series.find(s=>s.currency==='CAD').normalization,'INVERT');assert.equal(a.isDerived,true);assert.equal(d.pairProvenance('USDCHF').isDerived,false);assert.equal(a.sourceTimestamp,null);assert.match(a.fixing,/not a market closing/);
   assert.equal(d.fxFreshness('2026-09-25','2026-10-01'),'FRESH');assert.equal(d.fxFreshness('2026-09-18','2026-10-01'),'STALE');assert.equal(d.fxFreshness('2026-10-02','2026-10-01'),'UNAVAILABLE');
+});
+test('a gap outside the chosen window does not discard its year; annual and window cohorts are independent',()=>{
+  const history=fullHistory().filter(p=>!(p.date>='2014-03-01'&&p.date<='2014-04-01')),options={asOf:'2026-10-01',lookback:20,start:'10-03',end:'10-27'};
+  const a=e.analyzeSeasonality(history,options),window=e.analyzeSeasonality(history,{...options,view:'window'});
+  assert.equal(a.stats.sample,20);assert.equal(a.chartYears.length,19);assert.equal(window.chartYears.length,20);assert.deepEqual(a.stats,window.stats);assert.equal(a.chartExcluded.find(x=>x.year===2014).reason,'FEWER_THAN_240_OFFICIAL_FIXINGS');
+});
+test('quarantine inside a window remains excluded and cannot be counted as zero or a usable sample',()=>{
+  const history=fullHistory().map(p=>p.date==='2020-10-06'?{...p,quality:'REVIEW_REQUIRED'}:p),a=e.analyzeSeasonality(history,{asOf:'2026-10-01',lookback:10,start:'10-03',end:'10-27',view:'window'});
+  assert.equal(a.coverage.status,'PARTIAL');assert.equal(a.years.length,9);assert.equal(a.stats.sample,9);assert.ok(a.years.every(y=>y.year!==2020));assert.equal(a.excluded[0].reason,'UNVERIFIED_LARGE_MOVE');assert.ok(a.curve.every(p=>p.years[2020]===undefined));
+});
+test('less than five windows leaves aggregates unavailable while individual verified results remain inspectable',()=>{
+  const a=e.analyzeSeasonality(fullHistory(2022),{asOf:'2026-10-01',lookback:20,start:'10-03',end:'10-27'});
+  assert.equal(a.available,false);assert.equal(a.coverage.status,'INSUFFICIENT');assert.equal(a.coverage.valid,4);assert.equal(a.years.length,4);assert.equal(a.stats.average,null);assert.equal(a.stats.sample,0);assert.ok(a.curve.every(p=>p.average===null&&p.lowerQuartile===null));
+});
+test('empirical quartiles match hand arithmetic, retain outliers and are never presented as confidence',()=>{
+  near(e.quantile([0,10,20,30],.25),7.5);near(e.quantile([0,10,20,30],.75),22.5);assert.equal(e.quantile([], .5),null);
+  const a=e.analyzeSeasonality(fullHistory(),{asOf:'2026-10-01',lookback:20,start:'10-03',end:'10-27'});
+  for(const p of a.curve)if(p.sample>=5){near(p.lowerQuartile,e.quantile(Object.values(p.years),.25));near(p.upperQuartile,e.quantile(Object.values(p.years),.75));assert.ok(p.lowerQuartile<=p.median&&p.median<=p.upperQuartile);}
+  const markup=readFileSync('components/seasonality-overview.tsx','utf8');assert.match(markup,/Kein Konfidenzintervall/);
+});
+test('monthly matrix uses local window quality, explicit missing cells and excludes all current/future years',()=>{
+  const history=fullHistory().filter(p=>!(p.date>='2020-03-10'&&p.date<='2020-03-25')),years=Array.from({length:10},(_,i)=>2016+i),matrix=e.monthlySeasonality(history,years,'2026-10-01');
+  assert.equal(matrix.length,12);assert.equal(matrix[2].coverage.valid,9);assert.equal(matrix[2].coverage.status,'PARTIAL');assert.equal(matrix[2].cells.find(c=>c.year===2020).result,null);assert.equal(matrix[9].coverage.valid,10);
+  for(const m of matrix){assert.equal(m.cells.length,10);assert.ok(m.cells.every(c=>c.year<2026));}
+  assert.throws(()=>e.monthlySeasonality(history,[2026],'2026-10-01'));assert.throws(()=>e.monthlySeasonality(history,[2025],'invalid'));
+});
+test('full February month selection includes leap day and reconciles heatmap, statistics and final curve point',()=>{
+  const history=fullHistory(1999),years=Array.from({length:20},(_,i)=>2006+i),month=e.monthlySeasonality(history,years,'2026-10-01')[1];
+  const a=e.analyzeSeasonality(history,{asOf:'2026-10-01',lookback:20,start:month.start,end:month.end,monthEnd:true,view:'window'});
+  assert.equal(a.stats.sample,20);assert.equal(a.monthEnd,true);assert.deepEqual(a.stats,month.stats);assert.ok(a.years.find(y=>y.year===2024).endDate==='2024-02-29');assert.equal(a.curve.at(-1).monthDay,'02-29');
+  for(const r of a.years)near(a.curve.at(-1).years[r.year]/100-1,r.return);
+  assert.equal(e.windowResult(history,2023,'02-01','02-29').reason,'FEB_29_NOT_PRESENT');
+  assert.throws(()=>e.analyzeSeasonality(history,{asOf:'2026-10-01',lookback:20,start:'02-05',end:'02-29',monthEnd:true}));
+});
+test('monthly selected windows reconcile every month without summing or compounding month averages',()=>{
+  const history=fullHistory(),years=Array.from({length:10},(_,i)=>2016+i);
+  for(const m of e.monthlySeasonality(history,years,'2026-10-01')){
+    const a=e.analyzeSeasonality(history,{asOf:'2026-10-01',lookback:10,start:m.start,end:m.end,monthEnd:true,view:'window'});assert.deepEqual(a.stats,m.stats);assert.deepEqual(a.coverage,m.coverage);
+  }
+});
+test('bounded incremental parsing avoids false historical missing counts in mixed-range provider responses',()=>{
+  const mixed=csv(['2020-01-02,.,1.3,0.7,0.6,150,0.9,1.3','2026-09-25,1.1,1.3,0.7,0.6,150,0.9,1.3']);
+  const parsed=d.parseFxCsv(mixed,'2026-10-01',[],'2026-08-21');assert.equal(parsed.rows.length,7);assert.deepEqual(parsed.missing,{});assert.ok(parsed.rows.every(p=>p.date==='2026-09-25'));
+  const bad=d.parseFxCsv(mixed+'\n2026-10-02,1.1,1.3,0.7,0.6,150,0.9,1.3','2026-10-01',[],'2026-08-21');assert.ok(bad.issues.some(i=>i.reason==='FUTURE_DATE'));
 });
 test('D1 stores immutable real-valued vintages, deduplicates repeats and preserves revisions/reversions',async()=>{
   const {sql,db}=sqlite(),row={date:'2025-10-03',currency:'AUD',raw:.7,usdPerUnit:.7,quality:'VALID'};
@@ -137,6 +182,13 @@ test('sync consumes real-format data, is idempotent, separates failed source sta
 });
 test('source validation failure is audited without inserting corrupt or future values',async()=>{
   const {sql,db}=sqlite();const r=await w.syncSeasonality({DB:db},'TEST_ONLY','2026-10-01T12:00:00.000Z',async()=>new Response(csv(['2026-10-02,1.1,1.3,0.7,0.6,150,0.9,1.3'])));assert.equal(r.status,'FAILED');assert.equal(sql.prepare('SELECT COUNT(*) n FROM seasonality_fx_rates').get().n,0);assert.equal(sql.prepare('SELECT status FROM seasonality_sync_runs').get().status,'FAILED');sql.close();
+});
+test('older provider range cannot roll back the latest source date or stored archive',async()=>{
+  const {sql,db}=sqlite();
+  await w.syncSeasonality({DB:db},'TEST_ONLY','2026-10-01T12:00:00.000Z',async()=>new Response(csv(['2026-09-25,1.1,1.3,0.7,0.6,150,0.9,1.3'])));
+  const run=await w.syncSeasonality({DB:db},'TEST_ONLY','2026-10-03T12:00:00.000Z',async()=>new Response(csv(['2026-09-24,1.1,1.3,0.7,0.6,150,0.9,1.3'])));
+  assert.equal(run.status,'FAILED');assert.equal(run.reason,'SOURCE_DATE_REGRESSION');
+  const health=await w.seasonalityHealth({DB:db},'2026-10-03T12:00:00.000Z');assert.equal(health.lastDate,'2026-09-25');assert.equal(health.observationCount,7);assert.equal(health.vintageCount,7);assert.equal(health.lastImportRows,7);assert.equal(sql.prepare('SELECT COUNT(*) n FROM seasonality_fx_rates').get().n,7);sql.close();
 });
 test('offline initial archive import is explicitly labelled and preserves the live fetch failure',async()=>{
   const {sql,db}=sqlite(),env={DB:db,ASSETS:{fetch:async()=>new Response(csv(['2025-10-03,1.1,1.3,0.7,0.6,150,0.9,1.3']))}};
@@ -168,4 +220,11 @@ test('20 historical windows reproduce independent Python arithmetic from real ra
   const parsed=d.parseFxCsv(readFileSync('public/data/seasonality/h10-bootstrap.csv','utf8'),'2026-10-01');await w.confirmLargeMoves(parsed.rows,async()=>{throw new Error('Offline audit');});
   const audit=JSON.parse(readFileSync('docs/seasonality-source-audit.json','utf8'));assert.equal(audit.checks.length,20);
   for(const check of audit.checks){const actual=e.windowResult(d.derivePair(parsed.rows,check.pair,'2026-10-01'),check.year,check.start,check.end).result;assert.equal(actual.startDate,check.startDate);assert.equal(actual.endDate,check.endDate);for(const key of ['startPrice','endPrice','return','mfe','mae'])near(actual[key],check[key]);}
+});
+test('the existing complete AUDCAD production research baseline is numerically unchanged',async()=>{
+  const parsed=d.parseFxCsv(readFileSync('public/data/seasonality/h10-bootstrap.csv','utf8'),'2026-10-01');await w.confirmLargeMoves(parsed.rows,async()=>{throw new Error('Offline audit');});
+  const baseline=JSON.parse(readFileSync('docs/seasonality-source-audit.json','utf8')).referenceAnalysis;
+  const a=e.analyzeSeasonality(d.derivePair(parsed.rows,'AUDCAD','2026-10-01'),{asOf:baseline.asOf,lookback:baseline.lookback,start:'10-03',end:'10-27'});
+  for(const [key,value] of Object.entries(baseline.stats)){if(typeof value==='number')near(a.stats[key],value);else assert.deepEqual(a.stats[key],value);}
+  assert.equal(a.coverage.status,'COMPLETE');
 });
