@@ -90,7 +90,7 @@
 .season-chart-tools p{color:#9fb0be;font-size:.8125rem;line-height:1.5}
 .season-shell .season-chart svg{height:460px;min-height:460px;aspect-ratio:auto}
 .season-path{transition:none;shape-rendering:geometricPrecision}
-.season-legend i{height:3px;width:23px}.season-legend i.median{height:2.4px}.season-legend i.blue{height:2.6px}
+.season-legend i{height:1.25px;width:23px}.season-legend i.median{height:1px}.season-legend i.blue{height:1.1px}
 .season-chart-tooltip{font-size:.875rem;min-width:195px;border-color:#657583;background:#101820fa}
 .season-chart-tooltip b{font-size:.875rem}
 @media(max-width:560px){.season-line-focus,.season-chart-tools{padding:10px 16px}.season-line-focus label{flex-wrap:wrap}.season-shell .season-chart svg{height:420px;min-height:420px}.season-chart-tools p{width:100%}}
