@@ -77,3 +77,21 @@
 .season-window-presets button{font-size:.875rem;padding:7px 9px;border:1px solid var(--border);color:#afbbc5}
 .season-window-presets button[aria-pressed=true]{border-color:#a98b58;background:#b9945210;color:#e3c285}
 .season-shell .season-chart svg{min-width:780px}.season-chart{overflow-x:auto}.season-axis{font-size:18px}
+.season-shell{--season-gold:#f4cc78;--season-median:#c6a7ff;--season-blue:#69caff}
+.season-line-focus{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 24px 12px;flex-wrap:wrap}
+.season-line-focus label{display:flex;align-items:center;gap:10px;font-size:.875rem;color:#d3dce4}
+.season-line-focus select{background:var(--background);color:#edf1f5;border:1px solid #52606b;border-radius:3px;min-height:38px;padding:7px 10px;font-size:.875rem;max-width:100%}
+.season-line-focus>span{font-size:.8125rem;color:#adb9c3;line-height:1.5}
+.season-chart-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 24px;flex-wrap:wrap}
+.season-chart-tools>div{display:flex;align-items:center;gap:5px}
+.season-chart-tools span{font-size:.875rem;color:#bcc7d0;margin-right:8px}
+.season-chart-tools button{min-width:42px;min-height:36px;padding:6px 10px;font:.875rem var(--font-mono);color:#b9c6d0;border:1px solid var(--border);border-radius:3px}
+.season-chart-tools button[aria-pressed=true]{color:#ffe0a0;border-color:#a88e57;background:#caa95b15}
+.season-chart-tools p{color:#9fb0be;font-size:.8125rem;line-height:1.5}
+.season-shell .season-chart svg{height:460px;min-height:460px;aspect-ratio:auto}
+.season-path{transition:none;shape-rendering:geometricPrecision}
+.season-legend i{height:3px;width:23px}.season-legend i.median{height:2.4px}.season-legend i.blue{height:2.6px}
+.season-chart-tooltip{font-size:.875rem;min-width:195px;border-color:#657583;background:#101820fa}
+.season-chart-tooltip b{font-size:.875rem}
+@media(max-width:560px){.season-line-focus,.season-chart-tools{padding:10px 16px}.season-line-focus label{flex-wrap:wrap}.season-shell .season-chart svg{height:420px;min-height:420px}.season-chart-tools p{width:100%}}
+.season-shell .season-chart svg{touch-action:pan-x pan-y pinch-zoom}
