@@ -56,7 +56,7 @@ export async function confirmLargeMoves(rows:FxObservation[],fetcher:typeof fetc
     if(!groups.has(url))groups.set(url,[]);groups.get(url)!.push(row);
   }
   await Promise.all([...groups].map(async([url,candidates])=>{
-    try{const response=await fetcher(url,{signal:AbortSignal.timeout(6000)});if(!response.ok)return;
+    try{const response=await fetcher(url,{signal:AbortSignal.timeout(6000)});if(!response.ok){await response.body?.cancel().catch(()=>undefined);return;}
       const html=await response.text();
       for(const row of candidates){
         const [y,m,d]=row.date.split('-'),label=`${Number(d)}-${months[Number(m)-1]}-${y.slice(-2)}`;
@@ -77,7 +77,7 @@ export async function syncSeasonality(env:SeasonalityEnv,source:string,clockAt?:
     const full=!state.lastFullSync||Date.parse(now)-Date.parse(state.lastFullSync)>30*DAY;
     const start=full?'1971-01-01':new Date(Math.max(Date.parse('1971-01-01'),Date.parse(state.lastDate??date)-35*DAY)).toISOString().slice(0,10);
     const url=fredHistoryUrl(start,date);let csv:string,sourceMode='OFFICIAL_LIVE',sourceUrl=url,sourceError:string|null=null;
-    try{const response=await fetcher(url,{signal:AbortSignal.timeout(12000),headers:{Accept:'text/csv'}});if(!response.ok)throw new Error(`HTTP_${response.status}`);csv=await response.text();}
+    try{const response=await fetcher(url,{signal:AbortSignal.timeout(12000),headers:{Accept:'text/csv'}});if(!response.ok){await response.body?.cancel().catch(()=>undefined);throw new Error(`HTTP_${response.status}`);}csv=await response.text();}
     catch(error){
       // An explicitly dated real official archive can bootstrap, never disguise a failed update.
       if(state.lastSuccess||!env.ASSETS)throw error;

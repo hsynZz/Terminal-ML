@@ -134,3 +134,33 @@ test('daily runtime qualifies a shadow model from frozen future predictions and 
   await runtime.guardProductionPayload({DB:db},p);assert.ok(p.currencies.every(c=>evidence.evidenceShift(c)===0));
   assert.equal((await runtime.productionHealth({DB:db})).mlInfluence,0);sql.close();
 });
+
+test('health reuses committed statistics, verifies immutable labels and applies runtime kill switches immediately',async()=>{
+  const {db,sql}=sqlite(),now=new Date().toISOString();
+  const p=data.getBaselinePayload();p.asOf=now;
+  await (await runtime.prepareProductionSnapshot({DB:db},p,[])).commit();
+  const stored=JSON.parse(sql.prepare("SELECT value FROM terminal_settings WHERE key='production:v2:state'").get().value);
+  assert.equal(stored.diagnostics.at,now);assert.equal(stored.diagnostics.validation.length,7);
+  const queries=[],observed={...db,prepare(query){queries.push(query);return db.prepare(query);}};
+  const health=await runtime.productionHealth({DB:observed,ML_ENABLED:'false'});
+  assert.equal(health.mlStatus,'DISABLED');assert.equal(health.mlInfluence,0);
+  assert.deepEqual(health.validation,stored.diagnostics.validation);
+  assert.deepEqual(health.eventTargets,stored.diagnostics.eventTargets);
+  assert.equal(queries.filter(q=>q.includes('json_remove')).length,7);
+  assert.equal(queries.filter(q=>q.includes('id>?')).length,1);
+  assert.equal(queries.filter(q=>q==='SELECT value FROM terminal_settings WHERE key=?').length,1);
+  await runtime.productionRetrain({DB:db},new Date(Date.parse(now)+1000).toISOString());
+  const retrained=JSON.parse(sql.prepare("SELECT value FROM terminal_settings WHERE key='production:v2:state'").get().value);
+  assert.equal(retrained.diagnostics.at,retrained.at);assert.equal(retrained.diagnostics.validation.length,7);
+  sql.close();
+});
+
+test('page/API loader returns the persisted state and never substitutes a baseline on unavailable storage',async()=>{
+  const {loadTerminalSnapshot}=await vite.ssrLoadModule('/worker/terminal-snapshot.ts');
+  const {db,sql}=sqlite();await assert.rejects(()=>loadTerminalSnapshot({DB:db}),/SNAPSHOT_UNAVAILABLE/);
+  const p=data.getBaselinePayload();p.asOf=new Date().toISOString();p.currencies[0].factors.policy=.137;
+  sql.prepare('INSERT INTO terminal_snapshots (as_of,source_mode,payload) VALUES (?,?,?)').run(p.asOf,p.sourceMode,JSON.stringify(p));
+  const actual=await loadTerminalSnapshot({DB:db});assert.equal(actual.asOf,p.asOf);assert.equal(actual.currencies[0].factors.policy,.137);
+  assert.deepEqual(core.buildPairForecast(actual,'EUR','USD'),core.buildPairForecast(p,'EUR','USD'));
+  sql.close();
+});

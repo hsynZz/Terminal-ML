@@ -5,7 +5,7 @@ type Health=Awaited<ReturnType<typeof productionHealth>>;
 const pct=(n:number)=>`${(n*100).toFixed(2)} %`;
 export function ProductionStatus(){
   const [data,setData]=useState<Health|null>(null),[error,setError]=useState(false);
-  useEffect(()=>{let alive=true;const load=async()=>{try{const r=await fetch('/api/production',{cache:'no-store'});if(!r.ok)throw new Error();const body=await r.json();if(alive){setData(body);setError(false);}}catch{if(alive)setError(true);}};void load();const timer=setInterval(load,60000);return()=>{alive=false;clearInterval(timer);};},[]);
+  useEffect(()=>{let alive=true,busy=false;const controller=new AbortController();const load=async()=>{if(busy)return;busy=true;try{const r=await fetch('/api/production',{cache:'no-store',signal:controller.signal});if(!r.ok)throw new Error();const body=await r.json();if(alive){setData(body);setError(false);}}catch{if(alive)setError(true);}finally{busy=false;}};void load();const timer=setInterval(load,60000);return()=>{alive=false;controller.abort();clearInterval(timer);};},[]);
   return <section className="lab-panel production-status" aria-label="Evidence und Hintergrundbetrieb">
     <h2>Evidence & Hintergrundbetrieb</h2>
     {error?<p role="status">Status derzeit nicht erreichbar. Letzte Anzeige kann veraltet sein.</p>:!data?<p>Lade gespeicherten Betriebsstand …</p>:null}

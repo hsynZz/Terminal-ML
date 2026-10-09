@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeftRight, RefreshCw, SlidersHorizontal } from "lucide-react";
 import {
   ReferenceArea,
   ReferenceLine,
-  ResponsiveContainer,
   Scatter,
   ScatterChart,
   Tooltip as RechartsTooltip,
@@ -101,27 +100,48 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
   const [base, setBase] = useState<CurrencyCode>("EUR");
   const [quote, setQuote] = useState<CurrencyCode>("USD");
   const [overlayClock, setOverlayClock] = useState(0);
+  const requestVersion = useRef(0);
+  const refreshPending = useRef(false);
+  const chartContainer = useRef<HTMLDivElement>(null);
+  const [chartSize, setChartSize] = useState<{width:number;height:number}|null>(null);
+  useEffect(() => {
+    const node = chartContainer.current;
+    if (!node) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const width = Math.floor(entry.contentRect.width), height = Math.floor(entry.contentRect.height);
+      setChartSize(previous => width <= 0 || height <= 0 ? null : previous?.width === width && previous.height === height ? previous : {width,height});
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
   const hasOverlay = payload.currencies.some(c=>c.evidenceAttribution?.status==='ACTIVE');
   // Read-only polling picks up new snapshots/automatic activation; active contributions
   // also expire locally and recheck the server kill switch every 30 seconds.
   useEffect(() => {
     let active = true;
-    const timer = setInterval(async () => {
+    let busy = false;
+    const controller = new AbortController();
+    async function readLatest() {
+      if (busy || refreshPending.current) return;
+      busy = true;
+      const version = requestVersion.current;
       setOverlayClock(Date.now());
       try {
-        const response = await fetch("/api/terminal", {cache:"no-store"});
+        const response = await fetch("/api/terminal", {cache:"no-store",signal:controller.signal});
         if (!response.ok) throw new Error("Overlay check unavailable");
         const latest = await response.json() as TerminalPayload;
-        if (active) setPayload(latest);
+        if (active && version === requestVersion.current) setPayload(latest);
       } catch {
-        if (active) setPayload(current => {
+        if (active && version === requestVersion.current) setPayload(current => {
           const next = {...current};
           next.currencies=next.currencies.map(c=>{const copy={...c};delete copy.evidenceAttribution;return copy;});
           return next;
         });
-      }
-    }, hasOverlay ? 30000 : 60000);
-    return () => { active = false; clearInterval(timer); };
+      } finally { busy = false; }
+    }
+    void readLatest();
+    const timer = setInterval(readLatest, hasOverlay ? 30000 : 60000);
+    return () => { active = false; controller.abort(); clearInterval(timer); };
   }, [hasOverlay]);
 
   const distribution = useMemo(
@@ -144,24 +164,6 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
     [distribution.points, selected],
   );
 
-  useEffect(() => {
-    let active = true;
-    async function loadLatest() {
-      try {
-        const response = await fetch("/api/terminal");
-        if (!response.ok) return;
-        const latest = await response.json() as TerminalPayload;
-        if (active) {
-          setPayload(latest);
-        }
-      } catch {
-        // Keep the last complete snapshot visible.
-      }
-    }
-    void loadLatest();
-    return () => { active = false; };
-  }, []);
-
   function toggleCurrency(currency: CurrencyCode, checked: boolean) {
     setSelected((current) => {
       if (checked) return currencies.filter((item) => current.includes(item) || item === currency);
@@ -171,6 +173,10 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
   }
 
   async function refresh() {
+    if (refreshPending.current) return;
+    refreshPending.current = true;
+    // A read started before this refresh must not restore the previous snapshot.
+    requestVersion.current += 1;
     setRefreshing(true);
     setRefreshFailed(false);
     try {
@@ -181,6 +187,7 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
     } catch {
       setRefreshFailed(true);
     } finally {
+      refreshPending.current = false;
       setRefreshing(false);
     }
   }
@@ -294,7 +301,7 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
         </div>
 
         <div className="currency-filter" role="group" aria-label="Währungen in der Verteilung">
-          <span className="filter-label">UNIVERSE</span>
+          <span className="filter-label">VERGLEICHSGRUPPE</span>
           {currencies.map((currency) => {
             const checked = selected.includes(currency);
             return (
@@ -312,14 +319,15 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
           })}
           <button className="filter-reset" onClick={() => setSelected([...currencies])}>ALLE</button>
         </div>
+        <p className="benchmark-note">Vergleich: {selected.length > 1 ? selected.join(" · ") : "alle 8 Majors"}. Die Punktwolke und ihre Dominanzwerte beziehen sich auf diese Gruppe. Eine andere Auswahl kann die Prozentwerte ändern; die Paarprognose bleibt davon unabhängig.</p>
 
         {refreshFailed ? <div className="data-warning">Aktualisierung nicht verfügbar · letzter vollständiger Snapshot bleibt aktiv</div> : null}
 
         <div className="model-grid">
           <section className="distribution-panel">
             <div className="distribution-chart">
-              <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart margin={{ top: 18, right: 24, bottom: 14, left: 2 }}>
+              <div ref={chartContainer} className="distribution-viewport">
+                {chartSize ? <ScatterChart width={chartSize.width} height={chartSize.height} margin={{ top: 18, right: 24, bottom: 14, left: 2 }}>
                   <ReferenceArea y1={0.5} y2={1} fill="#154d41" fillOpacity={0.54} />
                   <ReferenceArea y1={0} y2={0.5} fill="#51343a" fillOpacity={0.48} />
                   <ReferenceLine y={0.5} stroke="#e4e8e9" strokeOpacity={0.48} strokeDasharray="5 5" strokeWidth={1} />
@@ -356,8 +364,8 @@ export function TerminalDashboard({ initialPayload }: { initialPayload: Terminal
                       isAnimationActive={false}
                     />
                   ))}
-                </ScatterChart>
-              </ResponsiveContainer>
+                </ScatterChart> : <p className="chart-loading" role="status">Punktwolke wird geladen …</p>}
+              </div>
               <span className="axis-title">P(↑)</span>
             </div>
             <footer className="result-strip">

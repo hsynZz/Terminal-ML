@@ -28,6 +28,18 @@ test("defines the focused evidence surface and mobile layout", async () => {
   assert.match(css, /@media \(max-width: 780px\)/);
 });
 
+test('the initial chart reserves space without rendering negative or guessed Recharts dimensions',async()=>{
+  const {TerminalDashboard}=await vite.ssrLoadModule('/components/terminal-dashboard.tsx');
+  const {getBaselinePayload}=await vite.ssrLoadModule('/lib/terminal-data.ts');
+  const warnings=[],warn=console.warn;console.warn=(...args)=>warnings.push(args.join(' '));
+  try{
+    const html=renderToStaticMarkup(React.createElement(TerminalDashboard,{initialPayload:getBaselinePayload()}));
+    assert.match(html,/distribution-viewport/);assert.match(html,/Punktwolke wird geladen/);
+    assert.match(html,/Eine andere Auswahl kann die Prozentwerte ändern/);assert.doesNotMatch(html,/recharts-surface/);
+    assert.ok(!warnings.some(w=>/width\(-1\)|height\(-1\)/.test(w)));
+  }finally{console.warn=warn;}
+});
+
 test("forwards progress semantics to the primitive", async () => {
   const { Progress } = await vite.ssrLoadModule("/components/ui/progress.tsx");
   const html = renderToStaticMarkup(React.createElement(Progress, { value: 37 }));

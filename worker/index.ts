@@ -63,7 +63,8 @@ const worker = {
     if (url.pathname === "/api/health" && request.method === "GET") return healthResponse(env, invoke);
     if (url.pathname.startsWith('/api/seasonality/')) return seasonalityApi(request,env,ctx);
     if (url.pathname === '/api/production' && request.method === 'GET') {
-      try { return Response.json(await productionHealth(env),{headers:{'Cache-Control':'private, no-store'}}); }
+      const started=performance.now();
+      try { const health=await productionHealth(env);return Response.json(health,{headers:{'Cache-Control':'private, no-store','Server-Timing':`production;dur=${(performance.now()-started).toFixed(1)}`}}); }
       catch { return Response.json({status:'unavailable',error:'Production status unavailable'},{status:503}); }
     }
     if (url.pathname === "/api/hypotheses" && request.method === "GET") {

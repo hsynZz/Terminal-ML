@@ -167,6 +167,9 @@ button { font: inherit; }
 .chart-meta span { color: #454c52; font: 650 8px var(--font-mono); }
 .chart-meta strong { color: #71787e; font: 600 9px var(--font-mono); letter-spacing: .06em; }
 .distribution-chart { height: min(calc(100vh - 272px), 720px); min-height: 500px; position: relative; padding: 2px 10px 0 2px; background: #080a0b; }
+.distribution-viewport { position: absolute; inset: 2px 10px 0 2px; min-width: 0; }
+.benchmark-note { margin: 0; padding: 8px 18px 14px; color: #a5adb4; font-size: .875rem; line-height: 1.5; }
+.chart-loading { padding: 24px; color: #a5adb4; font-size: .875rem; }
 .distribution-chart text { fill: #858b8f; font: 500 10px var(--font-mono); }
 .axis-title { position: absolute; left: 15px; top: 11px; color: #c9ced0; font: 600 11px var(--font-mono); pointer-events: none; }
 .result-strip { min-height: 45px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 0 16px; border-top: 1px solid #ffffff10; color: #5c6368; font: 500 9px var(--font-mono); }

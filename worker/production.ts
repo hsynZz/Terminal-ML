@@ -17,7 +17,8 @@ import { unavailableClasses } from '../lib/observed-sources';
 import { prepareModelMigration } from './model-migration';
 
 export type ProductionEnv={DB:ResearchDB;ADAPTIVE_ENABLED?:string;ADAPTIVE_MAX_WEIGHT?:string;ML_ENABLED?:string;HYPOTHESIS_ENGINE_ENABLED?:string};
-type State={at:string;registry:Recipe[];models:CandidateModel[];contextModels:ContextModel[];contextChampionIds:string[];trainingSequence:number;championIds:string[];lastRetrain:string|null;lastError:string|null;status:string;resolved:number;trainingExamples:number;rollbackCount:number};
+type Diagnostics={at:string;version:string;outcomes:number;events:number;validation:ReturnType<typeof validationSummaries>;eventTargets:ReturnType<typeof eventTargetStatus>};
+type State={at:string;registry:Recipe[];models:CandidateModel[];contextModels:ContextModel[];contextChampionIds:string[];trainingSequence:number;championIds:string[];lastRetrain:string|null;lastError:string|null;status:string;resolved:number;trainingExamples:number;rollbackCount:number;diagnostics?:Diagnostics};
 const key='production:v2:state';
 const emptyState=():State=>({at:'',registry:[],models:[],contextModels:[],contextChampionIds:[],trainingSequence:0,championIds:[],lastRetrain:null,lastError:null,status:'WAITING_FOR_DATA',resolved:0,trainingExamples:0,rollbackCount:0});
 async function state(db:ResearchDB){const r=await db.prepare('SELECT value FROM terminal_settings WHERE key=?').bind(key).first<{value:string}>();return {...emptyState(),...(r?JSON.parse(r.value):{})} as State;}
@@ -142,7 +143,8 @@ export async function prepareProductionSnapshot(env:ProductionEnv,p:ProductionPa
   current.pairEvents=currencyPairs(current);
   const baseline=structuredClone(p);for(const c of baseline.currencies)delete c.evidenceAttribution;
   current.pairForecasts=currencies.flatMap((a,i)=>currencies.slice(i+1).flatMap(b=>{const core=buildPairForecast(baseline,a,b),adaptive=buildPairForecast(p,a,b);return core.map((c,j)=>({pair:`${a}/${b}`,horizon:c.horizon,core:c.probability,adaptive:adaptive[j].probability}));}));
-  current.eventPredictions=issueEventPredictions(current,observations,await verifiedEvents(db));
+  const completedEvents=await verifiedEvents(db);
+  current.eventPredictions=issueEventPredictions(current,observations,completedEvents);
   current.contextPredictions={};
   for(const model of contextModels.filter(m=>m.status!=='REJECTED')){
     const entities=model.scope==='currency'?[...currencies]:currencyPairs(current).map(p=>p.pair);
@@ -153,6 +155,7 @@ export async function prepareProductionSnapshot(env:ProductionEnv,p:ProductionPa
   const contextChampionIds=contextChampions.map(m=>m.id),lostContextChampion=old.contextChampionIds.some(id=>!contextChampionIds.includes(id)&&contextModels.some(m=>m.id===id&&m.status==='DEGRADED'));
   const next:State={...old,at:now,registry,models,championIds,contextModels,contextChampionIds,status:qualityOK?(allOutcomes.length?'SHADOW':'WAITING_FOR_DATA'):'WAITING_FOR_QUALITY_DATA',resolved:allOutcomes.length,trainingExamples:allOutcomes.filter(o=>forecastHorizons.includes(o.horizon as 10)).length,lastError:null,rollbackCount:old.rollbackCount+Number(lostChampion||lostContextChampion)};
   if(p.currencies.some(c=>c.evidenceAttribution!.status==='ACTIVE'))next.status='ACTIVE';
+  next.diagnostics={at:now,version:VALIDATION_VERSION,outcomes:allOutcomes.length,events:completedEvents.length,validation:validationSummaries(allOutcomes,models),eventTargets:eventTargetStatus(completedEvents)};
   // New daily predictions are immutable; intraday refreshes retain separate evidence history.
   const firstToday=!history.some(f=>f.quality==='VALID'&&f.regimeVerified===true&&f.sourceReliability>=.8&&f.at.slice(0,10)===now.slice(0,10));
   const writes=[stateWrite(db,next),record(db,'decision',`decision:${now}`,now,{oldChampions:old.championIds,champions:championIds,oldContextChampions:old.contextChampionIds,contextChampions:contextChampionIds,rollback:lostChampion||lostContextChampion,contextRollback:lostContextChampion,registry:registry.map(r=>({id:r.id,status:r.status,weight:r.weight,reason:r.reason})),quality:current.quality}),record(db,'evidence',`evidence:${now}`,now,{asOf:now,attributions:current.attributions,pairs:currencyPairs(current),previous:history.at(-1)?.final??null}),record(db,'sources',`sources:${now}`,now,{checks:p.sourceChecks,quality:current.quality,reliability:current.sourceReliability,providers:reliability})];
@@ -173,7 +176,7 @@ export async function prepareProductionSnapshot(env:ProductionEnv,p:ProductionPa
       for(const [i,removal] of removed.entries())writes.push(record(db,'purge-audit',`purge:${recipe.id}:${audit.epoch}:${i}`,now,{recipeId:recipe.id,epoch:audit.epoch,...removal}));
     }
   }
-  for(const summary of validationSummaries(allOutcomes,models))writes.push(record(db,'validation-horizon',`validation-horizon:${now}:${summary.horizon}`,now,summary));
+  for(const summary of next.diagnostics.validation)writes.push(record(db,'validation-horizon',`validation-horizon:${now}:${summary.horizon}`,now,summary));
 
   writes.push(record(db,'status',`status:${now}`,now,{status:next.status,mlVersion:[...championIds,...currencyContextChampions.map(m=>m.id)].join(',')||'DETERMINISTIC_CORE',hypothesisCount:registry.length,active:registry.filter(r=>r.status==='ACTIVE').length,shadow:registry.filter(r=>r.status==='SHADOW').length,testing:registry.filter(r=>['DISCOVERY','TESTING','VALIDATING'].includes(r.status)).length,rejected:registry.filter(r=>r.status==='REJECTED').length,resolved:next.resolved,trainingExamples:next.trainingExamples,lastRetrain:next.lastRetrain,rollbackCount:next.rollbackCount,mlInfluence:Math.max(0,...p.currencies.map(c=>c.evidenceAttribution!.mlWeight)),hypothesisInfluence:Math.max(0,...p.currencies.map(c=>c.evidenceAttribution!.hypothesisWeight)),snapshotCount:(totals?.snapshots??0)+1,observationCountBeforeRefreshUpsert:totals?.observations??0,immutableVintages:totals?.vintages??0,coverage:p.sourceCoverage}));
   // Commit frame, attribution, lifecycle state and public snapshot atomically.
@@ -185,7 +188,8 @@ export async function productionRetrain(env:ProductionEnv,now=new Date().toISOSt
   const db=env.DB,old=await state(db),history=await frames(db),prices=await priceArchive(db,now);
   await resolvePending(db,history,prices,now);
   const sequence=old.trainingSequence+1,candidates:CandidateModel[]=[],contexts:ContextModel[]=[];let samples=0;
-  for(const horizon of forecastHorizons){const labels=await targets(db,horizon);samples+=labels.length;
+  const allOutcomes=(await Promise.all(outcomeHorizons.map(horizon=>targets(db,horizon)))).flat();
+  for(const horizon of forecastHorizons){const labels=allOutcomes.filter(o=>o.horizon===horizon);samples+=labels.length;
     const candidate=trainChallenger(history,labels,horizon,now,sequence);if(candidate)candidates.push(candidate);
     for(const scope of ['currency','pair'] as const){const context=trainContextModel(history,labels,horizon,scope,now,sequence);if(context)contexts.push(context);}
   }
@@ -194,21 +198,41 @@ export async function productionRetrain(env:ProductionEnv,now=new Date().toISOSt
   for(const model of [...candidates,...contexts])for(const [fold,details] of model.folds.entries())for(const [index,removal] of (details.removed??[]).entries())writes.push(record(db,'purge-audit',`purge:${model.id}:${fold}:${index}`,now,{modelId:model.id,fold,...removal}));
   const attempt={at:now,status:candidates.length||contexts.length?'SHADOW_TRAINED':'WAITING_FOR_DATA',samples,candidateIds:[...candidates,...contexts].map(m=>m.id),accepted:[...candidates,...contexts].filter(m=>m.status==='SHADOW').map(m=>m.id),legacyModelChanged:false};
   const next={...old,at:now,lastRetrain:now,trainingSequence:sequence,models:[...old.models.filter(m=>m.status!=='REJECTED'),...candidates],contextModels:[...old.contextModels.filter(m=>m.status!=='REJECTED'),...contexts],resolved:Math.max(old.resolved,samples),trainingExamples:samples,lastError:old.lastError};
+  const completedEvents=await verifiedEvents(db);
+  next.diagnostics={at:now,version:VALIDATION_VERSION,outcomes:allOutcomes.length,events:completedEvents.length,validation:validationSummaries(allOutcomes,next.models),eventTargets:eventTargetStatus(completedEvents)};
   writes.push(stateWrite(db,next),record(db,'retrain',`retrain:${now}`,now,attempt));await batch(db,writes);
   return {status:'waiting',samples,minimum:100,validation:candidates.length||contexts.length?'Challenger versions stored; prospective shadow gate pending':'WAITING_FOR_DATA',candidateVersion:candidates[0]?.id??contexts[0]?.id??null,attempt};
 }
 
+const diagnosticReads=new WeakMap<ResearchDB,{key:string;expires:number;value:Promise<Diagnostics>}>();
+async function healthDiagnostics(db:ResearchDB,s:State,counts:{kind:string;count:number}[]){
+  const outcomes=counts.filter(c=>c.kind.startsWith('outcome:')).reduce((n,c)=>n+c.count,0),events=counts.find(c=>c.kind==='event-outcome')?.count??0;
+  // Integrity checks remain live even when statistical summaries are persisted.
+  // A same-count mutation must not hide behind a diagnostics cache.
+  const [labels,completed]=await Promise.all([Promise.all(outcomeHorizons.map(h=>targets(db,h))),verifiedEvents(db)]);
+  if(s.diagnostics?.at===s.at&&s.diagnostics.version===VALIDATION_VERSION&&s.diagnostics.outcomes===outcomes&&s.diagnostics.events===events)return s.diagnostics;
+  // Compatibility for pre-migration snapshots only. Real validation still runs on every
+  // refresh/retrain; opening the status panel never starts another validation job.
+  const signature=JSON.stringify([s.at,VALIDATION_VERSION,outcomes,events,s.models]);
+  const cached=diagnosticReads.get(db);if(cached?.key===signature&&cached.expires>Date.now())return cached.value;
+  const value=Promise.resolve({at:s.at,version:VALIDATION_VERSION,outcomes,events,validation:validationSummaries(labels.flat(),s.models),eventTargets:eventTargetStatus(completed)});
+  diagnosticReads.set(db,{key:signature,expires:Date.now()+60000,value});
+  try{return await value;}catch(error){diagnosticReads.delete(db);throw error;}
+}
 export async function productionHealth(env:ProductionEnv){
-  const s=await state(env.DB);const counts=await env.DB.prepare("SELECT kind,count(*) AS count FROM production_records GROUP BY kind").all<{kind:string;count:number}>();
-  const row=await env.DB.prepare('SELECT count(*) AS observations FROM currency_observations').first<{observations:number}>();
-  const snapshots=await env.DB.prepare('SELECT count(*) AS count,max(as_of) AS latest FROM terminal_snapshots').first<{count:number;latest:string|null}>();
-  const vintageCount=await env.DB.prepare('SELECT count(*) AS count FROM observation_vintages').first<{count:number}>();
-  const snapshot=await env.DB.prepare("SELECT payload FROM terminal_snapshots ORDER BY as_of DESC LIMIT 1").first<{payload:string}>();
-  const sources=await env.DB.prepare("SELECT payload FROM production_records WHERE kind='sources' ORDER BY at DESC LIMIT 1").first<{payload:string}>();
-  const history=await env.DB.prepare("SELECT payload FROM production_records WHERE kind='evidence' ORDER BY at DESC LIMIT 30").all<{payload:string}>();
+  const [s,counts,row,snapshots,vintageCount,snapshot,sources,history]=await Promise.all([
+    state(env.DB),
+    env.DB.prepare("SELECT kind,count(*) AS count FROM production_records GROUP BY kind").all<{kind:string;count:number}>(),
+    env.DB.prepare('SELECT count(*) AS observations FROM currency_observations').first<{observations:number}>(),
+    env.DB.prepare('SELECT count(*) AS count,max(as_of) AS latest FROM terminal_snapshots').first<{count:number;latest:string|null}>(),
+    env.DB.prepare('SELECT count(*) AS count FROM observation_vintages').first<{count:number}>(),
+    env.DB.prepare("SELECT payload FROM terminal_snapshots ORDER BY as_of DESC LIMIT 1").first<{payload:string}>(),
+    env.DB.prepare("SELECT payload FROM production_records WHERE kind='sources' ORDER BY at DESC LIMIT 1").first<{payload:string}>(),
+    env.DB.prepare("SELECT payload FROM production_records WHERE kind='evidence' ORDER BY at DESC LIMIT 30").all<{payload:string}>(),
+  ]);
   const last=history.results[0]?JSON.parse(history.results[0].payload):null;
   const config=configuration(env),fresh=config.enabled&&!s.lastError&&!!last&&Date.now()-Date.parse(last.asOf)<36*3600000;
-  const guarded=snapshot?await guardProductionPayload(env,JSON.parse(snapshot.payload) as TerminalPayload):null;
+  const guarded=snapshot?await guardProductionPayload(env,JSON.parse(snapshot.payload) as TerminalPayload,s):null;
   const attributions=(fresh?guarded?.currencies.flatMap(c=>c.evidenceAttribution?[c.evidenceAttribution]:[])??[]:[]) as EvidenceAttribution[];
   const sourceStatus=sources?JSON.parse(sources.payload):null;
   const coreInputQuality=(guarded as ProductionPayload|null)?.coreFactors??null;
@@ -231,13 +255,11 @@ export async function productionHealth(env:ProductionEnv){
   }
   const research=researchCoverage(researchReceipts,sourceStatus?.checks??[],researchAt);
   const requirements=originRows.map(r=>({currency:r.currency,factor:r.factor,...coreRequirement(r.factor as Parameters<typeof coreRequirement>[0],r.currency as Parameters<typeof coreRequirement>[1])}));
-  const eventTargets=eventTargetStatus(await verifiedEvents(env.DB));
+  const {eventTargets,validation}=await healthDiagnostics(env.DB,s,counts.results);
   const mlInfluence=config.ml?Math.max(0,...attributions.map(a=>a.mlWeight)):0;
   const hypothesisInfluence=config.hypothesis?Math.max(0,...attributions.map(a=>a.hypothesisWeight)):0;
   const adaptiveTotalInfluence=Math.max(0,...attributions.map(a=>(config.ml?a.mlWeight:0)+(config.hypothesis?a.hypothesisWeight:0)));
   const allModels=[...s.models,...s.contextModels];
-  const validationOutcomes:ResolvedTarget[]=[];for(const horizon of outcomeHorizons)validationOutcomes.push(...await targets(env.DB,horizon));
-  const validation=validationSummaries(validationOutcomes,s.models);
   const mlStatus=!config.enabled||!config.ml?'DISABLED':mlInfluence>0?'ACTIVE':allModels.some(m=>m.status==='DEGRADED')?'DEGRADED':allModels.some(m=>m.status==='SHADOW')?'SHADOW':s.trainingExamples<100?'WAITING_FOR_DATA':'VALIDATING';
   const runtimeFlags={ADAPTIVE_ENABLED:config.enabled,ML_ENABLED:config.ml,HYPOTHESIS_ENGINE_ENABLED:config.hypothesis};
   const runtimeGateStatus=!config.enabled||config.cap===0?'DISABLED':!config.ml||!config.hypothesis?'PARTIALLY_DISABLED':'AUTOMATIC_QUALIFICATION_ENABLED';
@@ -248,8 +270,8 @@ export async function productionHealth(env:ProductionEnv){
 }
 
 /** Fail closed also on read: runtime kill switches never wait for tomorrow's snapshot. */
-export async function guardProductionPayload(env:ProductionEnv,p:TerminalPayload){
-  try{const s=await state(env.DB),config=configuration(env);if(!config.enabled||s.lastError||Date.now()-Date.parse(s.at)>36*3600000)throw new Error('ADAPTIVE_DISABLED');
+export async function guardProductionPayload(env:ProductionEnv,p:TerminalPayload,knownState?:State){
+  try{const s=knownState??await state(env.DB),config=configuration(env);if(!config.enabled||s.lastError||Date.now()-Date.parse(s.at)>36*3600000)throw new Error('ADAPTIVE_DISABLED');
     for(const c of p.currencies){const a=c.evidenceAttribution;if(!a)continue;
       if(a.version!==ADAPTIVE_VERSION||a.factorFingerprint!==factorFingerprint(c)||!Number.isFinite(Date.parse(a.expiresAt))||Date.parse(a.expiresAt)<Date.now()||!Number.isFinite(a.cap)){delete c.evidenceAttribution;continue;}
       const current=(m:{status:string;gate:Gate;historicalGate?:Gate;holdoutGate?:Gate;lastValidatedAt?:string;lastChangedAt:string})=>m.status==='ACTIVE'&&certified(m)&&m.gate.validationVersion===VALIDATION_VERSION&&m.gate.passed&&Date.now()-Date.parse(m.lastValidatedAt??m.lastChangedAt)<180*dayMs;

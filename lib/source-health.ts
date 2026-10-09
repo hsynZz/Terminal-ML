@@ -28,6 +28,9 @@ export async function sourceFetch(url:string,accept='application/json'){
   for(let attempt=0;attempt<2;attempt++){
     const response=await fetch(url,{headers:{Accept:accept},signal:AbortSignal.timeout(12000)});
     if(response.ok)return response;
+    // Error bodies are not consumed by parsers. Release the Worker connection before
+    // retrying or failing; otherwise parallel feeds can exhaust its fetch slots.
+    await response.body?.cancel().catch(()=>undefined);
     if(attempt===0&&response.status>=500)continue;
     throw new Error(`HTTP_${response.status}`);
   }
