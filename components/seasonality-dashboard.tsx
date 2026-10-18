@@ -61,9 +61,9 @@ export function SeasonalityDashboard(){
   },[history,matches,asOf,lookback,start,end,view,monthEnd,custom,fromYear,toYear]);
   const months=useMemo(()=>history&&matches&&analysis?monthlySeasonality(history.points,analysis.requestedYears,asOf):[],[history,matches,analysis,asOf]);
   const stats=analysis?.stats,health=matches?history?.health:null,pairFreshness=matches?history?.pairFreshness:null,pairLastDate=matches?history?.pairLastDate:null,rows=useMemo(()=>analysis?[...analysis.years].sort((a,b)=>sort==='year'?b.year-a.year:a.return-b.return):[],[analysis,sort]);
+  const activeYears=selectedYears.filter(year=>analysis?.chartYears.includes(year));
   const focusYear=(year:number)=>{setView('window');setSelectedYears(prev=>prev.includes(year)?prev:[...prev,year]);setHighlight(year);};
   const toggleYear=(year:number)=>{if(!analysis?.chartYears.includes(year))setView('window');setSelectedYears(prev=>activeYears.includes(year)?prev.filter(y=>y!==year):prev.includes(year)?prev:[...prev,year]);};
-  const activeYears=useMemo(()=>selectedYears.filter(year=>analysis?.chartYears.includes(year)),[selectedYears,analysis]);
   const selectWindow=(a:string,b:string)=>{setStart(a);setEnd(b);if(a!==start||b!==end)setMonthEnd(false);};
   const chartValid=!!analysis?.chartAvailable&&!busy&&!error;
   const valid=!!analysis?.available&&!busy&&!error,displayYear=Number(asOf.slice(0,4)),lastEligible=displayYear-1-(end<start?1:0);
