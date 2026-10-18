@@ -95,3 +95,23 @@
 .season-chart-tooltip b{font-size:.875rem}
 @media(max-width:560px){.season-line-focus,.season-chart-tools{padding:10px 16px}.season-line-focus label{flex-wrap:wrap}.season-shell .season-chart svg{height:420px;min-height:420px}.season-chart-tools p{width:100%}}
 .season-shell .season-chart svg{touch-action:pan-x pan-y pinch-zoom}
+
+/* Precision controls use the existing palette; readouts stay outside the scrolling SVG. */
+.season-cursor-controls{border-top:1px solid var(--border)}
+.season-chart-tools>div{flex-wrap:wrap;max-width:100%}
+.season-cursor-controls select{min-height:36px;max-width:100%;padding:6px 10px;background:var(--background);color:var(--foreground);border:1px solid var(--border);border-radius:3px;font:.875rem var(--font-mono)}
+.season-chart-readout{padding:0 24px 18px;min-width:0;font-size:.875rem}
+.season-readout-heading{display:flex;align-items:baseline;gap:6px 18px;flex-wrap:wrap;margin-bottom:12px}
+.season-readout-heading strong{font:500 1rem var(--font-mono)}
+.season-readout-heading span,.season-chart-readout p,.season-readout-value small{color:var(--season-muted);line-height:1.6}
+.season-readout-values{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px 20px}
+.season-readout-value{min-width:0;display:grid;align-content:start;gap:3px}
+.season-readout-value>span{display:flex;align-items:center;gap:8px}
+.season-readout-value i{display:inline-block;width:20px;height:1px;flex-shrink:0}
+.season-readout-value strong{font:500 1.1rem var(--font-mono);font-variant-numeric:tabular-nums}
+.season-readout-value small{font-size:.8125rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.season-chart-readout p{margin-top:10px}
+.season-chart-readout .season-readout-note{font-size:.8125rem}
+.season-chart .season-axis{font-size:13px}
+.season-chart .season-axis-heading{font-size:11px}
+@media(max-width:560px){.season-chart-readout{padding:0 16px 16px}.season-readout-values{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 12px}.season-cursor-controls button,.season-cursor-controls select{min-height:44px}.season-readout-heading{align-items:start;flex-direction:column}}

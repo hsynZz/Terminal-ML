@@ -79,6 +79,24 @@ test('calendar alignment follows month/day across leap years; Feb 29 is not shif
 test('window daily returns include Feb 29 even though annual chart omits it',()=>{
   const r=e.windowResult([p('2024-02-28',100),p('2024-02-29',110),p('2024-03-01',99)],2024,'02-28','03-01').result;assert.equal(r.dailyLogReturns.length,2);near(r.logReturn,Math.log(.99));near(r.dailyLogReturns.reduce((a,b)=>a+b,0),r.logReturn);
 });
+test('explicit leap-day window boundaries remain on the selected axis and reconcile to actual returns',()=>{
+  const history=fullHistory(1999),options={asOf:'2026-10-01',lookback:'MAX',view:'window'};
+  const single=e.analyzeSeasonality(history,{...options,start:'02-29',end:'02-29'});
+  assert.deepEqual(single.curve.map(p=>p.monthDay),['02-29']);
+  for(const [start,end,expected] of [['02-27','02-29',['02-27','02-28','02-29']],['02-29','03-02',['02-29','03-01','03-02']]]){
+    const a=e.analyzeSeasonality(history,{...options,start,end});
+    assert.deepEqual(a.curve.map(p=>p.monthDay),expected);
+    assert.ok(a.available);assert.ok(a.years.every(y=>y.year%4===0));
+    for(const year of a.years){const first=a.curve.find(p=>p.years[year.year]!==undefined);near(first.years[year.year],100);near(a.curve.at(-1).years[year.year]/100-1,year.return);}
+    near(a.curve.at(-1).average/100-1,a.stats.average);
+  }
+});
+test('cross-year window ending on leap day includes the exact final fixing without introducing March',()=>{
+  const a=e.analyzeSeasonality(fullHistory(1999),{asOf:'2026-10-01',lookback:'MAX',start:'12-20',end:'02-29',view:'window'});
+  assert.equal(a.curve[0].monthDay,'12-20');assert.equal(a.curve.at(-1).monthDay,'02-29');
+  assert.ok(!a.curve.some(p=>p.monthDay.startsWith('03-')));assert.ok(a.available);
+  for(const year of a.years){near(a.curve.at(-1).years[year.year]/100-1,year.return);assert.equal(a.curve.at(-1).sourceDates[year.year],year.endDate);}
+});
 test('calendar carry is bounded and current year never extends past its last actual fixing',()=>{
   const rows=fullHistory().filter(p=>p.date<='2026-09-25'),a=e.analyzeSeasonality(rows,{asOf:'2026-10-01',lookback:20,start:'10-03',end:'10-27'});
   assert.equal(a.currentThrough,'2026-09-25');assert.equal(a.curve.find(p=>p.monthDay==='09-26').current,null);assert.ok(a.curve.find(p=>p.monthDay==='12-20').average!==null);assert.equal(a.curve.find(p=>p.monthDay==='12-20').current,null);

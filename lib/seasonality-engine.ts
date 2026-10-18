@@ -12,6 +12,13 @@ export type ExcludedYear={year:number;reason:string};
 export type SeasonalStats={sample:number;average:number|null;median:number|null;lowerQuartile:number|null;upperQuartile:number|null;positive:number;negative:number;flat:number;winRate:number|null;standardDeviation:number|null;spotSharpe:number|null;consistency:number|null;sortino:number|null;dailySample:number;best:YearResult|null;worst:YearResult|null;averageMfe:number|null;averageMae:number|null;trimmedMean:number|null;direction:'Positive'|'Negative'|'Mixed'|'Insufficient data'};
 const dateFor=(year:number,md:string)=>`${year}-${md}`;
 export const CALENDAR=Array.from({length:365},(_,i)=>new Date(Date.UTC(2001,0,i+1)).toISOString().slice(5,10));
+/** Preserve an explicitly selected leap-day boundary. The annual axis stays at 365 days. */
+export function seasonalWindowAxis(start:string,end:string):string[]{
+  if(!validMonthDay(start)||!validMonthDay(end))throw new Error('Invalid seasonal window');
+  const calendar=start==='02-29'||end==='02-29'?[...CALENDAR.slice(0,59),'02-29',...CALENDAR.slice(59)]:CALENDAR;
+  const a=calendar.indexOf(start),b=calendar.indexOf(end);
+  return b>=a?calendar.slice(a,b+1):[...calendar.slice(a),...calendar.slice(0,b+1)];
+}
 function maxGap(rows:PairPrice[]):number{return rows.slice(1).reduce((n,r,i)=>Math.max(n,daysBetween(rows[i].date,r.date)),0);}
 function eligibleYear(rows:PairPrice[],year:number):string|null {
   if(rows.length<240)return 'FEWER_THAN_240_OFFICIAL_FIXINGS';
@@ -71,8 +78,7 @@ export function analyzeSeasonality(input:PairPrice[],options:{asOf:string;lookba
     return {requested,results,excluded,available:results.length>=5,coverage:sampleCoverage(requested.length,results.length)};
   };
   const selected=select(lookback,options.fromYear!==undefined),stats=summarize(selected.results),comparison=LOOKBACKS.map(lb=>{const s=select(lb);return {lookback:lb,requested:s.requested.length,valid:s.results.length,available:s.available,coverage:s.coverage,stats:summarize(s.results)};});
-  const view=options.view??'year',axis=view==='year'?CALENDAR:(()=>{const a=CALENDAR.indexOf(start==='02-29'?'03-01':start),b=CALENDAR.indexOf(end==='02-29'?'02-28':end);return b>=a?CALENDAR.slice(a,b+1):[...CALENDAR.slice(a),...CALENDAR.slice(0,b+1)];})();
-  if(view==='window'&&options.monthEnd&&end==='02-29')axis.push('02-29');
+  const view=options.view??'year',axis=view==='year'?CALENDAR:seasonalWindowAxis(start,end);
   const paths=new Map<number,Map<string,{value:number;sourceDate:string}>>();
   const makePath=(year:number,isCurrent=false)=>{
     const endYear=year+(end<start?1:0),actualEnd=options.monthEnd?end.slice(0,3)+new Date(Date.UTC(endYear,Number(end.slice(0,2)),0)).getUTCDate():end;
